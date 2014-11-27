@@ -60,7 +60,7 @@ public class IndexFiles
                      + "in INDEX_PATH that can be searched with SearchFiles";
         System.out.println(usage);//just for test
         
-        String indexPath = "index";
+        String indexPath = "index";//just for test
         String docsPath = null;
         boolean create = true;
         for(int i=0;i<args.length;i++) 
