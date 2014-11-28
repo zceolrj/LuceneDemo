@@ -29,24 +29,25 @@ import org.apache.lucene.index.Fields;
  * 
  * @lucene.experimental
  */
-public abstract class TermVectorsReader implements Cloneable, Closeable {
-
-  /** Sole constructor. (For invocation by subclass 
-   *  constructors, typically implicit.) */
-  protected TermVectorsReader() {
-  }
-
-  /** Returns term vectors for this document, or null if
-   *  term vectors were not indexed. If offsets are
-   *  available they are in an {@link OffsetAttribute}
-   *  available from the {@link DocsAndPositionsEnum}. */
-  public abstract Fields get(int doc) throws IOException;
-
-  /** Returns approximate RAM bytes used */
-  public abstract long ramBytesUsed();
+public abstract class TermVectorsReader implements Cloneable, Closeable 
+{
+    /** Sole constructor. (For invocation by subclass 
+     *  constructors, typically implicit.) */
+    protected TermVectorsReader() 
+    {
+    }
   
-  /** Create a clone that one caller at a time may use to
-   *  read term vectors. */
-  @Override
-  public abstract TermVectorsReader clone();
+    /** Returns term vectors for this document, or null if
+     *  term vectors were not indexed. If offsets are
+     *  available they are in an {@link OffsetAttribute}
+     *  available from the {@link DocsAndPositionsEnum}. */
+    public abstract Fields get(int doc) throws IOException;
+  
+    /** Returns approximate RAM bytes used */
+    public abstract long ramBytesUsed();
+    
+    /** Create a clone that one caller at a time may use to
+     *  read term vectors. */
+    @Override
+    public abstract TermVectorsReader clone();
 }

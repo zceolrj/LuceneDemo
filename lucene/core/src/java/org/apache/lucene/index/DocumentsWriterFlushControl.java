@@ -384,11 +384,12 @@ final class DocumentsWriterFlushControl
         }
     }
 
-  @Override
-  public String toString() {
-    return "DocumentsWriterFlushControl [activeBytes=" + activeBytes
-        + ", flushBytes=" + flushBytes + "]";
-  }
+    @Override
+    public String toString() 
+    {
+      return "DocumentsWriterFlushControl [activeBytes=" + activeBytes
+          + ", flushBytes=" + flushBytes + "]";
+    }
 
     DocumentsWriterPerThread nextPendingFlush() 
     {
@@ -730,13 +731,13 @@ final class DocumentsWriterFlushControl
     return fullFlush;
   }
 
-  /**
-   * Returns the number of flushes that are already checked out but not yet
-   * actively flushing
-   */
-  synchronized int numQueuedFlushes() {
-    return flushQueue.size();
-  }
+    /**
+     * Returns the number of flushes that are already checked out but not yet
+     * actively flushing
+     */
+    synchronized int numQueuedFlushes() {
+      return flushQueue.size();
+    }
 
   /**
    * Returns the number of flushes that are checked out but not yet available
@@ -773,21 +774,19 @@ final class DocumentsWriterFlushControl
     stallControl.waitIfStalled();
   }
 
-  /**
-   * Returns <code>true</code> iff stalled
-   */
-  boolean anyStalledThreads() 
-  {
-      return stallControl.anyStalledThreads();
-  }
+    /**
+     * Returns <code>true</code> iff stalled
+     */
+    boolean anyStalledThreads() 
+    {
+        return stallControl.anyStalledThreads();
+    }
   
-  /**
-   * Returns the {@link IndexWriter} {@link InfoStream}
-   */
-  public InfoStream getInfoStream() 
-  {
-      return infoStream;
-  }
-  
-  
+    /**
+     * Returns the {@link IndexWriter} {@link InfoStream}
+     */
+    public InfoStream getInfoStream() 
+    {
+        return infoStream;
+    }
 }

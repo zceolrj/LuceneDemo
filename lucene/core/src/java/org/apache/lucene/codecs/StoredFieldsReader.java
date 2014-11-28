@@ -29,18 +29,20 @@ import org.apache.lucene.index.StoredFieldVisitor;
  * clones of any IndexInputs used, etc), and {@link #close()}
  * @lucene.experimental
  */
-public abstract class StoredFieldsReader implements Cloneable, Closeable {
-  /** Sole constructor. (For invocation by subclass 
-   *  constructors, typically implicit.) */
-  protected StoredFieldsReader() {
-  }
+public abstract class StoredFieldsReader implements Cloneable, Closeable 
+{
+    /** Sole constructor. (For invocation by subclass 
+     *  constructors, typically implicit.) */
+    protected StoredFieldsReader() 
+    {
+    }
+    
+    /** Visit the stored fields for document <code>n</code> */
+    public abstract void visitDocument(int n, StoredFieldVisitor visitor) throws IOException;
   
-  /** Visit the stored fields for document <code>n</code> */
-  public abstract void visitDocument(int n, StoredFieldVisitor visitor) throws IOException;
-
-  @Override
-  public abstract StoredFieldsReader clone();
-  
-  /** Returns approximate RAM bytes used */
-  public abstract long ramBytesUsed();
+    @Override
+    public abstract StoredFieldsReader clone();
+    
+    /** Returns approximate RAM bytes used */
+    public abstract long ramBytesUsed();
 }

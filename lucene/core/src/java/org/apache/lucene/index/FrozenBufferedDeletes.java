@@ -32,67 +32,66 @@ import org.apache.lucene.index.BufferedDeletesStream.QueryAndLimit;
 
 class FrozenBufferedDeletes 
 {
-  /* Query we often undercount (say 24 bytes), plus int. */
-  final static int BYTES_PER_DEL_QUERY = RamUsageEstimator.NUM_BYTES_OBJECT_REF + RamUsageEstimator.NUM_BYTES_INT + 24;
-
-  // Terms, in sorted order:
-  final PrefixCodedTerms terms;
-  int termCount; // just for debugging
-
-  // Parallel array of deleted query, and the docIDUpto for each
-  final Query[] queries;
-  final int[] queryLimits;
-  final int bytesUsed;
-  final int numTermDeletes;
-  private long gen = -1; // assigned by BufferedDeletesStream once pushed
-  final boolean isSegmentPrivate;  // set to true iff this frozen packet represents 
-                                   // a segment private deletes. in that case is should
-                                   // only have Queries 
-
-
-  public FrozenBufferedDeletes(BufferedDeletes deletes, boolean isSegmentPrivate) {
-    this.isSegmentPrivate = isSegmentPrivate;
-    assert !isSegmentPrivate || deletes.terms.size() == 0 : "segment private package should only have del queries"; 
-    Term termsArray[] = deletes.terms.keySet().toArray(new Term[deletes.terms.size()]);
-    termCount = termsArray.length;
-    ArrayUtil.timSort(termsArray);
-    PrefixCodedTerms.Builder builder = new PrefixCodedTerms.Builder();
-    for (Term term : termsArray) {
-      builder.add(term);
-    }
-    terms = builder.finish();
-    
-    queries = new Query[deletes.queries.size()];
-    queryLimits = new int[deletes.queries.size()];
-    int upto = 0;
-    for(Map.Entry<Query,Integer> ent : deletes.queries.entrySet()) {
-      queries[upto] = ent.getKey();
-      queryLimits[upto] = ent.getValue();
-      upto++;
-    }
-
-    bytesUsed = (int) terms.getSizeInBytes() + queries.length * BYTES_PER_DEL_QUERY;
-    numTermDeletes = deletes.numTermDeletes.get();
-  }
+    /* Query we often undercount (say 24 bytes), plus int. */
+    final static int BYTES_PER_DEL_QUERY = RamUsageEstimator.NUM_BYTES_OBJECT_REF + RamUsageEstimator.NUM_BYTES_INT + 24;
   
-  public void setDelGen(long gen) {
-    assert this.gen == -1;
-    this.gen = gen;
-  }
+    // Terms, in sorted order:
+    final PrefixCodedTerms terms;
+    int termCount; // just for debugging
   
-  public long delGen() {
-    assert gen != -1;
-    return gen;
-  }
+    // Parallel array of deleted query, and the docIDUpto for each
+    final Query[] queries;
+    final int[] queryLimits;
+    final int bytesUsed;
+    final int numTermDeletes;
+    private long gen = -1; // assigned by BufferedDeletesStream once pushed
+    final boolean isSegmentPrivate;  // set to true iff this frozen packet represents a segment private deletes. 
+                                     // in that case is should only have Queries 
 
-  public Iterable<Term> termsIterable() {
-    return new Iterable<Term>() {
-      @Override
-      public Iterator<Term> iterator() {
-        return terms.iterator();
+    public FrozenBufferedDeletes(BufferedDeletes deletes, boolean isSegmentPrivate) 
+    {
+      this.isSegmentPrivate = isSegmentPrivate;
+      assert !isSegmentPrivate || deletes.terms.size() == 0 : "segment private package should only have del queries"; 
+      Term termsArray[] = deletes.terms.keySet().toArray(new Term[deletes.terms.size()]);
+      termCount = termsArray.length;
+      ArrayUtil.timSort(termsArray);
+      PrefixCodedTerms.Builder builder = new PrefixCodedTerms.Builder();
+      for (Term term : termsArray) {
+        builder.add(term);
       }
-    };
-  }
+      terms = builder.finish();
+      
+      queries = new Query[deletes.queries.size()];
+      queryLimits = new int[deletes.queries.size()];
+      int upto = 0;
+      for(Map.Entry<Query,Integer> ent : deletes.queries.entrySet()) {
+        queries[upto] = ent.getKey();
+        queryLimits[upto] = ent.getValue();
+        upto++;
+      }
+  
+      bytesUsed = (int) terms.getSizeInBytes() + queries.length * BYTES_PER_DEL_QUERY;
+      numTermDeletes = deletes.numTermDeletes.get();
+    }
+  
+    public void setDelGen(long gen) {
+      assert this.gen == -1;
+      this.gen = gen;
+    }
+    
+    public long delGen() {
+      assert gen != -1;
+      return gen;
+    }
+  
+    public Iterable<Term> termsIterable() {
+      return new Iterable<Term>() {
+        @Override
+        public Iterator<Term> iterator() {
+          return terms.iterator();
+        }
+      };
+    }
 
   public Iterable<QueryAndLimit> queriesIterable() {
     return new Iterable<QueryAndLimit>() {

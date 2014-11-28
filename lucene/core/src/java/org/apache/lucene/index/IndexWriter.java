@@ -630,40 +630,40 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     return delCount;
   }
 
-  /**
-   * Used internally to throw an {@link AlreadyClosedException} if this
-   * IndexWriter has been closed or is in the process of closing.
-   * 
-   * @param failIfClosing
-   *          if true, also fail when {@code IndexWriter} is in the process of
-   *          closing ({@code closing=true}) but not yet done closing (
-   *          {@code closed=false})
-   * @throws AlreadyClosedException
-   *           if this IndexWriter is closed or in the process of closing
-   */
-  protected final void ensureOpen(boolean failIfClosing) throws AlreadyClosedException 
-  {
-      if (closed || (failIfClosing && closing)) 
-      {
-          throw new AlreadyClosedException("this IndexWriter is closed");
-      }
-  }
+    /**
+     * Used internally to throw an {@link AlreadyClosedException} if this
+     * IndexWriter has been closed or is in the process of closing.
+     * 
+     * @param failIfClosing
+     *          if true, also fail when {@code IndexWriter} is in the process of
+     *          closing ({@code closing=true}) but not yet done closing (
+     *          {@code closed=false})
+     * @throws AlreadyClosedException
+     *           if this IndexWriter is closed or in the process of closing
+     */
+    protected final void ensureOpen(boolean failIfClosing) throws AlreadyClosedException 
+    {
+        if (closed || (failIfClosing && closing)) 
+        {
+            throw new AlreadyClosedException("this IndexWriter is closed");
+        }
+    }
 
-  /**
-   * Used internally to throw an {@link
-   * AlreadyClosedException} if this IndexWriter has been
-   * closed ({@code closed=true}) or is in the process of
-   * closing ({@code closing=true}).
-   * <p>
-   * Calls {@link #ensureOpen(boolean) ensureOpen(true)}.
-   * @throws AlreadyClosedException if this IndexWriter is closed
-   */
-  protected final void ensureOpen() throws AlreadyClosedException 
-  {
-      ensureOpen(true);
-  }
+    /**
+     * Used internally to throw an {@link
+     * AlreadyClosedException} if this IndexWriter has been
+     * closed ({@code closed=true}) or is in the process of
+     * closing ({@code closing=true}).
+     * <p>
+     * Calls {@link #ensureOpen(boolean) ensureOpen(true)}.
+     * @throws AlreadyClosedException if this IndexWriter is closed
+     */
+    protected final void ensureOpen() throws AlreadyClosedException 
+    {
+        ensureOpen(true);
+    }
 
-  final Codec codec; // for writing new segments
+    final Codec codec; // for writing new segments
 
     /**
      * Constructs a new IndexWriter per the settings given in <code>conf</code>.
@@ -1235,72 +1235,72 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     return false;
   }
 
-  /**
-   * Adds a document to this index.
-   *
-   * <p> Note that if an Exception is hit (for example disk full)
-   * then the index will be consistent, but this document
-   * may not have been added.  Furthermore, it's possible
-   * the index will have one segment in non-compound format
-   * even when using compound files (when a merge has
-   * partially succeeded).</p>
-   *
-   * <p> This method periodically flushes pending documents
-   * to the Directory (see <a href="#flush">above</a>), and
-   * also periodically triggers segment merges in the index
-   * according to the {@link MergePolicy} in use.</p>
-   *
-   * <p>Merges temporarily consume space in the
-   * directory. The amount of space required is up to 1X the
-   * size of all segments being merged, when no
-   * readers/searchers are open against the index, and up to
-   * 2X the size of all segments being merged when
-   * readers/searchers are open against the index (see
-   * {@link #forceMerge(int)} for details). The sequence of
-   * primitive merge operations performed is governed by the
-   * merge policy.
-   *
-   * <p>Note that each term in the document can be no longer
-   * than 16383 characters, otherwise an
-   * IllegalArgumentException will be thrown.</p>
-   *
-   * <p>Note that it's possible to create an invalid Unicode
-   * string in java if a UTF16 surrogate pair is malformed.
-   * In this case, the invalid characters are silently
-   * replaced with the Unicode replacement character
-   * U+FFFD.</p>
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void addDocument(Iterable<? extends IndexableField> doc) throws IOException 
-  {
-      addDocument(doc, analyzer);
-  }
+    /**
+     * Adds a document to this index.
+     *
+     * <p> Note that if an Exception is hit (for example disk full)
+     * then the index will be consistent, but this document
+     * may not have been added.  Furthermore, it's possible
+     * the index will have one segment in non-compound format
+     * even when using compound files (when a merge has
+     * partially succeeded).</p>
+     *
+     * <p> This method periodically flushes pending documents
+     * to the Directory (see <a href="#flush">above</a>), and
+     * also periodically triggers segment merges in the index
+     * according to the {@link MergePolicy} in use.</p>
+     *
+     * <p>Merges temporarily consume space in the
+     * directory. The amount of space required is up to 1X the
+     * size of all segments being merged, when no
+     * readers/searchers are open against the index, and up to
+     * 2X the size of all segments being merged when
+     * readers/searchers are open against the index (see
+     * {@link #forceMerge(int)} for details). The sequence of
+     * primitive merge operations performed is governed by the
+     * merge policy.
+     *
+     * <p>Note that each term in the document can be no longer
+     * than 16383 characters, otherwise an
+     * IllegalArgumentException will be thrown.</p>
+     *
+     * <p>Note that it's possible to create an invalid Unicode
+     * string in java if a UTF16 surrogate pair is malformed.
+     * In this case, the invalid characters are silently
+     * replaced with the Unicode replacement character
+     * U+FFFD.</p>
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void addDocument(Iterable<? extends IndexableField> doc) throws IOException 
+    {
+        addDocument(doc, analyzer);
+    }
 
-  /**
-   * Adds a document to this index, using the provided analyzer instead of the
-   * value of {@link #getAnalyzer()}.
-   *
-   * <p>See {@link #addDocument(Iterable)} for details on
-   * index and IndexWriter state after an Exception, and
-   * flushing/merging temporary free space requirements.</p>
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void addDocument(Iterable<? extends IndexableField> doc, Analyzer analyzer) throws IOException 
-  {
-      updateDocument(null, doc, analyzer);
-  }
+    /**
+     * Adds a document to this index, using the provided analyzer instead of the
+     * value of {@link #getAnalyzer()}.
+     *
+     * <p>See {@link #addDocument(Iterable)} for details on
+     * index and IndexWriter state after an Exception, and
+     * flushing/merging temporary free space requirements.</p>
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void addDocument(Iterable<? extends IndexableField> doc, Analyzer analyzer) throws IOException 
+    {
+        updateDocument(null, doc, analyzer);
+    }
 
   /**
    * Atomically adds a block of documents with sequentially
@@ -1605,55 +1605,55 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     updateDocument(term, doc, analyzer);
   }
 
-  /**
-   * Updates a document by first deleting the document(s)
-   * containing <code>term</code> and then adding the new
-   * document.  The delete and then add are atomic as seen
-   * by a reader on the same index (flush may happen only after
-   * the add).
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @param term the term to identify the document(s) to be
-   * deleted
-   * @param doc the document to be added
-   * @param analyzer the analyzer to use when analyzing the document
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void updateDocument(Term term, Iterable<? extends IndexableField> doc, Analyzer analyzer)
-      throws IOException 
-  {
-      ensureOpen();
-      try 
-      {
-          boolean success = false;
-          try 
-          {
-              if (docWriter.updateDocument(doc, analyzer, term)) 
-              {
-                  processEvents(true, false);
-              }
-              success = true;
-          } 
-          finally 
-          {
-              if (!success) 
-              {
-                  if (infoStream.isEnabled("IW")) 
-                  {
-                    infoStream.message("IW", "hit exception updating document");
-                  }
-              }
-          }
-      } 
-      catch (OutOfMemoryError oom) 
-      {
-          handleOOM(oom, "updateDocument");
-      }
-  }
+    /**
+     * Updates a document by first deleting the document(s)
+     * containing <code>term</code> and then adding the new
+     * document.  The delete and then add are atomic as seen
+     * by a reader on the same index (flush may happen only after
+     * the add).
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @param term the term to identify the document(s) to be
+     * deleted
+     * @param doc the document to be added
+     * @param analyzer the analyzer to use when analyzing the document
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void updateDocument(Term term, Iterable<? extends IndexableField> doc, Analyzer analyzer)
+        throws IOException 
+    {
+        ensureOpen();
+        try 
+        {
+            boolean success = false;
+            try 
+            {
+                if (docWriter.updateDocument(doc, analyzer, term)) 
+                {
+                    processEvents(true, false);
+                }
+                success = true;
+            } 
+            finally 
+            {
+                if (!success) 
+                {
+                    if (infoStream.isEnabled("IW")) 
+                    {
+                      infoStream.message("IW", "hit exception updating document");
+                    }
+                }
+            }
+        } 
+        catch (OutOfMemoryError oom) 
+        {
+            handleOOM(oom, "updateDocument");
+        }
+    }
 
   // for test purpose
   final synchronized int getSegmentCount(){

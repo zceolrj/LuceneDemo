@@ -117,11 +117,12 @@ import org.apache.lucene.util.packed.PackedInts;
  * {@link Lucene40StoredFieldsFormat}.</p>
  * @lucene.experimental
  */
-public final class Lucene41StoredFieldsFormat extends CompressingStoredFieldsFormat {
-
-  /** Sole constructor. */
-  public Lucene41StoredFieldsFormat() {
-    super("Lucene41StoredFields", CompressionMode.FAST, 1 << 14);
-  }
+public final class Lucene41StoredFieldsFormat extends CompressingStoredFieldsFormat 
+{
+    /** Sole constructor. */
+    public Lucene41StoredFieldsFormat() 
+    {
+        super("Lucene41StoredFields", CompressionMode.FAST, 1 << 14);
+    }
 
 }
