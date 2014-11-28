@@ -495,7 +495,7 @@ class DocumentsWriterPerThread
         // processing that doc, eg if analyzer has some problem w/ the text):
         if (pendingDeletes.docIDs.size() > 0) 
         {
-            flushState.liveDocs = codec.liveDocsFormat().newLiveDocs(numDocsInRAM);
+            flushState.liveDocs = codec.liveDocsFormat().newLiveDocs(numDocsInRAM);//flushState.liveDocs=BitVector
             for(int delDocID : pendingDeletes.docIDs) 
             {
                 flushState.liveDocs.clear(delDocID);
@@ -523,7 +523,7 @@ class DocumentsWriterPerThread
     
         try 
         {
-            consumer.flush(flushState);
+            consumer.flush(flushState);//DocFieldProcessor
             pendingDeletes.terms.clear();
             segmentInfo.setFiles(new HashSet<String>(directory.getCreatedFiles()));
       

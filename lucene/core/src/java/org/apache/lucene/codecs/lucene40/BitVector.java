@@ -127,11 +127,12 @@ final class BitVector implements Cloneable, MutableBits
     @Override
     public final void clear(int bit) 
     {
-      if (bit >= size) {
-        throw new ArrayIndexOutOfBoundsException(bit);
-      }
-      bits[bit >> 3] &= ~(1 << (bit & 7));
-      count = -1;
+        if (bit >= size) 
+        {
+            throw new ArrayIndexOutOfBoundsException(bit);
+        }
+        bits[bit >> 3] &= ~(1 << (bit & 7));
+        count = -1;
     }
   
     public final boolean getAndClear(int bit) 

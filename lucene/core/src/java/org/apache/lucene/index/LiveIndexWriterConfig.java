@@ -472,13 +472,15 @@ public class LiveIndexWriterConfig
      *
      * @see IndexWriterConfig#setWriteLockTimeout(long)
      */
-    public long getWriteLockTimeout() {
-      return writeLockTimeout;
+    public long getWriteLockTimeout() 
+    {
+        return writeLockTimeout;
     }
     
     /** Returns the current {@link Codec}. */
-    public Codec getCodec() {
-      return codec;
+    public Codec getCodec() 
+    {
+        return codec;
     }
   
     /**
@@ -486,8 +488,9 @@ public class LiveIndexWriterConfig
      *
      * @see IndexWriterConfig#setMergePolicy(MergePolicy)
      */
-    public MergePolicy getMergePolicy() {
-      return mergePolicy;
+    public MergePolicy getMergePolicy() 
+    {
+        return mergePolicy;
     }
     
     /**

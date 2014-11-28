@@ -69,45 +69,53 @@ public class Lucene45Codec extends Codec
     
     private final DocValuesFormat docValuesFormat = new PerFieldDocValuesFormat() 
     {
-      @Override
-      public DocValuesFormat getDocValuesFormatForField(String field) {
-        return Lucene45Codec.this.getDocValuesFormatForField(field);
-      }
+        @Override
+        public DocValuesFormat getDocValuesFormatForField(String field) 
+        {
+            return Lucene45Codec.this.getDocValuesFormatForField(field);
+        }
     };
   
     /** Sole constructor. */
-    public Lucene45Codec() {
-      super("Lucene45");
+    public Lucene45Codec() 
+    {
+        super("Lucene45");
     }
     
     @Override
-    public final StoredFieldsFormat storedFieldsFormat() {
-      return fieldsFormat;
+    public final StoredFieldsFormat storedFieldsFormat() 
+    {
+        return fieldsFormat;
     }
     
     @Override
-    public final TermVectorsFormat termVectorsFormat() {
-      return vectorsFormat;
+    public final TermVectorsFormat termVectorsFormat() 
+    {
+        return vectorsFormat;
     }
   
     @Override
-    public final PostingsFormat postingsFormat() {
-      return postingsFormat;
+    public final PostingsFormat postingsFormat() 
+    {
+        return postingsFormat;
     }
     
     @Override
-    public final FieldInfosFormat fieldInfosFormat() {
-      return fieldInfosFormat;
+    public final FieldInfosFormat fieldInfosFormat() 
+    {
+        return fieldInfosFormat;
     }
     
     @Override
-    public final SegmentInfoFormat segmentInfoFormat() {
-      return infosFormat;
+    public final SegmentInfoFormat segmentInfoFormat() 
+    {
+        return infosFormat;
     }
     
     @Override
-    public final LiveDocsFormat liveDocsFormat() {
-      return liveDocsFormat;
+    public final LiveDocsFormat liveDocsFormat() 
+    {
+        return liveDocsFormat;
     }
   
     /** Returns the postings format that should be used for writing 
@@ -115,8 +123,9 @@ public class Lucene45Codec extends Codec
      *  
      *  The default implementation always returns "Lucene41"
      */
-    public PostingsFormat getPostingsFormatForField(String field) {
-      return defaultFormat;
+    public PostingsFormat getPostingsFormatForField(String field) 
+    {
+        return defaultFormat;
     }
     
     /** Returns the docvalues format that should be used for writing 
@@ -124,13 +133,15 @@ public class Lucene45Codec extends Codec
      *  
      *  The default implementation always returns "Lucene45"
      */
-    public DocValuesFormat getDocValuesFormatForField(String field) {
-      return defaultDVFormat;
+    public DocValuesFormat getDocValuesFormatForField(String field) 
+    {
+        return defaultDVFormat;
     }
     
     @Override
-    public final DocValuesFormat docValuesFormat() {
-      return docValuesFormat;
+    public final DocValuesFormat docValuesFormat() 
+    {
+        return docValuesFormat;
     }
   
     private final PostingsFormat defaultFormat = PostingsFormat.forName("Lucene41");

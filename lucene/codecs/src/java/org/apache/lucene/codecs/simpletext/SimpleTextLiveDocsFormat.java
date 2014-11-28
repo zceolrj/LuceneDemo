@@ -43,143 +43,143 @@ import org.apache.lucene.util.UnicodeUtil;
  * <b><font color="red">FOR RECREATIONAL USE ONLY</font></B>
  * @lucene.experimental
  */
-public class SimpleTextLiveDocsFormat extends LiveDocsFormat {
-
-  static final String LIVEDOCS_EXTENSION = "liv";
-  
-  final static BytesRef SIZE             = new BytesRef("size ");
-  final static BytesRef DOC              = new BytesRef("  doc ");
-  final static BytesRef END              = new BytesRef("END");
-  
-  @Override
-  public MutableBits newLiveDocs(int size) throws IOException {
-    return new SimpleTextMutableBits(size);
-  }
-
-  @Override
-  public MutableBits newLiveDocs(Bits existing) throws IOException {
-    final SimpleTextBits bits = (SimpleTextBits) existing;
-    return new SimpleTextMutableBits((BitSet)bits.bits.clone(), bits.size);
-  }
-
-  @Override
-  public Bits readLiveDocs(Directory dir, SegmentInfoPerCommit info, IOContext context) throws IOException {
-    assert info.hasDeletions();
-    BytesRef scratch = new BytesRef();
-    CharsRef scratchUTF16 = new CharsRef();
+public class SimpleTextLiveDocsFormat extends LiveDocsFormat 
+{
+    static final String LIVEDOCS_EXTENSION = "liv";
     
-    String fileName = IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getDelGen());
-    IndexInput in = null;
-    boolean success = false;
-    try {
-      in = dir.openInput(fileName, context);
+    final static BytesRef SIZE             = new BytesRef("size ");
+    final static BytesRef DOC              = new BytesRef("  doc ");
+    final static BytesRef END              = new BytesRef("END");
+    
+    @Override
+    public MutableBits newLiveDocs(int size) throws IOException {
+      return new SimpleTextMutableBits(size);
+    }
+  
+    @Override
+    public MutableBits newLiveDocs(Bits existing) throws IOException {
+      final SimpleTextBits bits = (SimpleTextBits) existing;
+      return new SimpleTextMutableBits((BitSet)bits.bits.clone(), bits.size);
+    }
+  
+    @Override
+    public Bits readLiveDocs(Directory dir, SegmentInfoPerCommit info, IOContext context) throws IOException {
+      assert info.hasDeletions();
+      BytesRef scratch = new BytesRef();
+      CharsRef scratchUTF16 = new CharsRef();
       
-      SimpleTextUtil.readLine(in, scratch);
-      assert StringHelper.startsWith(scratch, SIZE);
-      int size = parseIntAt(scratch, SIZE.length, scratchUTF16);
-      
-      BitSet bits = new BitSet(size);
-      
-      SimpleTextUtil.readLine(in, scratch);
-      while (!scratch.equals(END)) {
-        assert StringHelper.startsWith(scratch, DOC);
-        int docid = parseIntAt(scratch, DOC.length, scratchUTF16);
-        bits.set(docid);
+      String fileName = IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getDelGen());
+      IndexInput in = null;
+      boolean success = false;
+      try {
+        in = dir.openInput(fileName, context);
+        
         SimpleTextUtil.readLine(in, scratch);
-      }
-      
-      success = true;
-      return new SimpleTextBits(bits, size);
-    } finally {
-      if (success) {
-        IOUtils.close(in);
-      } else {
-        IOUtils.closeWhileHandlingException(in);
+        assert StringHelper.startsWith(scratch, SIZE);
+        int size = parseIntAt(scratch, SIZE.length, scratchUTF16);
+        
+        BitSet bits = new BitSet(size);
+        
+        SimpleTextUtil.readLine(in, scratch);
+        while (!scratch.equals(END)) {
+          assert StringHelper.startsWith(scratch, DOC);
+          int docid = parseIntAt(scratch, DOC.length, scratchUTF16);
+          bits.set(docid);
+          SimpleTextUtil.readLine(in, scratch);
+        }
+        
+        success = true;
+        return new SimpleTextBits(bits, size);
+      } finally {
+        if (success) {
+          IOUtils.close(in);
+        } else {
+          IOUtils.closeWhileHandlingException(in);
+        }
       }
     }
-  }
-  
-  private int parseIntAt(BytesRef bytes, int offset, CharsRef scratch) {
-    UnicodeUtil.UTF8toUTF16(bytes.bytes, bytes.offset+offset, bytes.length-offset, scratch);
-    return ArrayUtil.parseInt(scratch.chars, 0, scratch.length);
-  }
-
-  @Override
-  public void writeLiveDocs(MutableBits bits, Directory dir, SegmentInfoPerCommit info, int newDelCount, IOContext context) throws IOException {
-    BitSet set = ((SimpleTextBits) bits).bits;
-    int size = bits.length();
-    BytesRef scratch = new BytesRef();
     
-    String fileName = IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getNextDelGen());
-    IndexOutput out = null;
-    boolean success = false;
-    try {
-      out = dir.createOutput(fileName, context);
-      SimpleTextUtil.write(out, SIZE);
-      SimpleTextUtil.write(out, Integer.toString(size), scratch);
-      SimpleTextUtil.writeNewline(out);
+    private int parseIntAt(BytesRef bytes, int offset, CharsRef scratch) {
+      UnicodeUtil.UTF8toUTF16(bytes.bytes, bytes.offset+offset, bytes.length-offset, scratch);
+      return ArrayUtil.parseInt(scratch.chars, 0, scratch.length);
+    }
+  
+    @Override
+    public void writeLiveDocs(MutableBits bits, Directory dir, SegmentInfoPerCommit info, int newDelCount, IOContext context) throws IOException {
+      BitSet set = ((SimpleTextBits) bits).bits;
+      int size = bits.length();
+      BytesRef scratch = new BytesRef();
       
-      for (int i = set.nextSetBit(0); i >= 0; i=set.nextSetBit(i + 1)) { 
-        SimpleTextUtil.write(out, DOC);
-        SimpleTextUtil.write(out, Integer.toString(i), scratch);
+      String fileName = IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getNextDelGen());
+      IndexOutput out = null;
+      boolean success = false;
+      try {
+        out = dir.createOutput(fileName, context);
+        SimpleTextUtil.write(out, SIZE);
+        SimpleTextUtil.write(out, Integer.toString(size), scratch);
         SimpleTextUtil.writeNewline(out);
+        
+        for (int i = set.nextSetBit(0); i >= 0; i=set.nextSetBit(i + 1)) { 
+          SimpleTextUtil.write(out, DOC);
+          SimpleTextUtil.write(out, Integer.toString(i), scratch);
+          SimpleTextUtil.writeNewline(out);
+        }
+        
+        SimpleTextUtil.write(out, END);
+        SimpleTextUtil.writeNewline(out);
+        success = true;
+      } finally {
+        if (success) {
+          IOUtils.close(out);
+        } else {
+          IOUtils.closeWhileHandlingException(out);
+        }
+      }
+    }
+  
+    @Override
+    public void files(SegmentInfoPerCommit info, Collection<String> files) throws IOException {
+      if (info.hasDeletions()) {
+        files.add(IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getDelGen()));
+      }
+    }
+    
+    // read-only
+    static class SimpleTextBits implements Bits {
+      final BitSet bits;
+      final int size;
+      
+      SimpleTextBits(BitSet bits, int size) {
+        this.bits = bits;
+        this.size = size;
       }
       
-      SimpleTextUtil.write(out, END);
-      SimpleTextUtil.writeNewline(out);
-      success = true;
-    } finally {
-      if (success) {
-        IOUtils.close(out);
-      } else {
-        IOUtils.closeWhileHandlingException(out);
+      @Override
+      public boolean get(int index) {
+        return bits.get(index);
+      }
+  
+      @Override
+      public int length() {
+        return size;
       }
     }
-  }
-
-  @Override
-  public void files(SegmentInfoPerCommit info, Collection<String> files) throws IOException {
-    if (info.hasDeletions()) {
-      files.add(IndexFileNames.fileNameFromGeneration(info.info.name, LIVEDOCS_EXTENSION, info.getDelGen()));
-    }
-  }
+    
+    // read-write
+    static class SimpleTextMutableBits extends SimpleTextBits implements MutableBits {
   
-  // read-only
-  static class SimpleTextBits implements Bits {
-    final BitSet bits;
-    final int size;
-    
-    SimpleTextBits(BitSet bits, int size) {
-      this.bits = bits;
-      this.size = size;
+      SimpleTextMutableBits(int size) {
+        this(new BitSet(size), size);
+        bits.set(0, size);
+      }
+      
+      SimpleTextMutableBits(BitSet bits, int size) {
+        super(bits, size);
+      }
+      
+      @Override
+      public void clear(int bit) {
+        bits.clear(bit);
+      }
     }
-    
-    @Override
-    public boolean get(int index) {
-      return bits.get(index);
-    }
-
-    @Override
-    public int length() {
-      return size;
-    }
-  }
-  
-  // read-write
-  static class SimpleTextMutableBits extends SimpleTextBits implements MutableBits {
-
-    SimpleTextMutableBits(int size) {
-      this(new BitSet(size), size);
-      bits.set(0, size);
-    }
-    
-    SimpleTextMutableBits(BitSet bits, int size) {
-      super(bits, size);
-    }
-    
-    @Override
-    public void clear(int bit) {
-      bits.clear(bit);
-    }
-  }
 }
