@@ -51,102 +51,107 @@ import org.apache.lucene.util.Version;
  */
 public final class IndexWriterConfig extends LiveIndexWriterConfig implements Cloneable 
 {
-  /**
-   * Specifies the open mode for {@link IndexWriter}.
-   */
-  public static enum OpenMode {
-    /** 
-     * Creates a new index or overwrites an existing one. 
+    /**
+     * Specifies the open mode for {@link IndexWriter}.
      */
-    CREATE,
+    public static enum OpenMode 
+    {
+      /** 
+       * Creates a new index or overwrites an existing one. 
+       */
+      CREATE,
+      
+      /** 
+       * Opens an existing index. 
+       */
+      APPEND,
+      
+      /** 
+       * Creates a new index if one does not exist,
+       * otherwise it opens the index and documents will be appended. 
+       */
+      CREATE_OR_APPEND 
+    }
+
+    /** Default value is 32. Change using {@link #setTermIndexInterval(int)}. */
+    public static final int DEFAULT_TERM_INDEX_INTERVAL = 32; // this should be private to the codec, not settable here
+  
+    /** Denotes a flush trigger is disabled. */
+    public final static int DISABLE_AUTO_FLUSH = -1;
+  
+    /** Disabled by default (because IndexWriter flushes by RAM usage by default). */
+    public final static int DEFAULT_MAX_BUFFERED_DELETE_TERMS = DISABLE_AUTO_FLUSH;
+  
+    /** Disabled by default (because IndexWriter flushes by RAM usage by default). */
+    public final static int DEFAULT_MAX_BUFFERED_DOCS = DISABLE_AUTO_FLUSH;
+  
+    /**
+     * Default value is 16 MB (which means flush when buffered docs consume approximately 16 MB RAM).
+     */
+    public final static double DEFAULT_RAM_BUFFER_SIZE_MB = 16.0;
+
+    /**
+     * Default value for the write lock timeout (1,000 ms).
+     *
+     * @see #setDefaultWriteLockTimeout(long)
+     */
+    public static long WRITE_LOCK_TIMEOUT = 1000;
+  
+    /** Default setting for {@link #setReaderPooling}. */
+    public final static boolean DEFAULT_READER_POOLING = false;
+  
+    /** Default value is 1. Change using {@link #setReaderTermsIndexDivisor(int)}. */
+    public static final int DEFAULT_READER_TERMS_INDEX_DIVISOR = DirectoryReader.DEFAULT_TERMS_INDEX_DIVISOR;
+  
+    /** Default value is 1945. Change using {@link #setRAMPerThreadHardLimitMB(int)} */
+    public static final int DEFAULT_RAM_PER_THREAD_HARD_LIMIT_MB = 1945;
     
-    /** 
-     * Opens an existing index. 
-     */
-    APPEND,
+    /** The maximum number of simultaneous threads that may be    //simultaneous  adj.同时发生的，同时存在的
+     *  indexing documents at once in IndexWriter; if more
+     *  than this many threads arrive they will wait for
+     *  others to finish. Default value is 8. */
+    public final static int DEFAULT_MAX_THREAD_STATES = 8;
     
-    /** 
-     * Creates a new index if one does not exist,
-     * otherwise it opens the index and documents will be appended. 
+    /** Default value for compound file system for newly written segments
+     *  (set to <code>true</code>). For batch indexing with very large 
+     *  ram buffers use <code>false</code> */
+    public final static boolean DEFAULT_USE_COMPOUND_FILE_SYSTEM = true;
+    
+    /**
+     * Sets the default (for any instance) maximum time to wait for a write lock
+     * (in milliseconds).
      */
-    CREATE_OR_APPEND 
-  }
-
-  /** Default value is 32. Change using {@link #setTermIndexInterval(int)}. */
-  public static final int DEFAULT_TERM_INDEX_INTERVAL = 32; // this should be private to the codec, not settable here
-
-  /** Denotes a flush trigger is disabled. */
-  public final static int DISABLE_AUTO_FLUSH = -1;
-
-  /** Disabled by default (because IndexWriter flushes by RAM usage by default). */
-  public final static int DEFAULT_MAX_BUFFERED_DELETE_TERMS = DISABLE_AUTO_FLUSH;
-
-  /** Disabled by default (because IndexWriter flushes by RAM usage by default). */
-  public final static int DEFAULT_MAX_BUFFERED_DOCS = DISABLE_AUTO_FLUSH;
-
-  /**
-   * Default value is 16 MB (which means flush when buffered docs consume approximately 16 MB RAM).
-   */
-  public final static double DEFAULT_RAM_BUFFER_SIZE_MB = 16.0;
-
-  /**
-   * Default value for the write lock timeout (1,000 ms).
-   *
-   * @see #setDefaultWriteLockTimeout(long)
-   */
-  public static long WRITE_LOCK_TIMEOUT = 1000;
-
-  /** Default setting for {@link #setReaderPooling}. */
-  public final static boolean DEFAULT_READER_POOLING = false;
-
-  /** Default value is 1. Change using {@link #setReaderTermsIndexDivisor(int)}. */
-  public static final int DEFAULT_READER_TERMS_INDEX_DIVISOR = DirectoryReader.DEFAULT_TERMS_INDEX_DIVISOR;
-
-  /** Default value is 1945. Change using {@link #setRAMPerThreadHardLimitMB(int)} */
-  public static final int DEFAULT_RAM_PER_THREAD_HARD_LIMIT_MB = 1945;
+    public static void setDefaultWriteLockTimeout(long writeLockTimeout) 
+    {
+        WRITE_LOCK_TIMEOUT = writeLockTimeout;
+    }
   
-  /** The maximum number of simultaneous threads that may be    //simultaneous  adj.同时发生的，同时存在的
-   *  indexing documents at once in IndexWriter; if more
-   *  than this many threads arrive they will wait for
-   *  others to finish. Default value is 8. */
-  public final static int DEFAULT_MAX_THREAD_STATES = 8;
-  
-  /** Default value for compound file system for newly written segments
-   *  (set to <code>true</code>). For batch indexing with very large 
-   *  ram buffers use <code>false</code> */
-  public final static boolean DEFAULT_USE_COMPOUND_FILE_SYSTEM = true;
-  /**
-   * Sets the default (for any instance) maximum time to wait for a write lock
-   * (in milliseconds).
-   */
-  public static void setDefaultWriteLockTimeout(long writeLockTimeout) {
-    WRITE_LOCK_TIMEOUT = writeLockTimeout;
-  }
+    /**
+     * Returns the default write lock timeout for newly instantiated
+     * IndexWriterConfigs.
+     *
+     * @see #setDefaultWriteLockTimeout(long)
+     */
+    public static long getDefaultWriteLockTimeout() 
+    {
+        return WRITE_LOCK_TIMEOUT;
+    }
 
-  /**
-   * Returns the default write lock timeout for newly instantiated
-   * IndexWriterConfigs.
-   *
-   * @see #setDefaultWriteLockTimeout(long)
-   */
-  public static long getDefaultWriteLockTimeout() {
-    return WRITE_LOCK_TIMEOUT;
-  }
-
-  // indicates whether this config instance is already attached to a writer.
-  // not final so that it can be cloned properly.
-  private SetOnce<IndexWriter> writer = new SetOnce<IndexWriter>();
-  
-  /**
-   * Sets the {@link IndexWriter} this config is attached to.
-   * 
-   * @throws AlreadySetException
-   *           if this config is already attached to a writer.
-   */
-  IndexWriterConfig setIndexWriter(IndexWriter writer) {
-    this.writer.set(writer);
-    return this;
-  }
+    // indicates whether this config instance is already attached to a writer.
+    // not final so that it can be cloned properly.
+    private SetOnce<IndexWriter> writer = new SetOnce<IndexWriter>();
+    
+    /**
+     * Sets the {@link IndexWriter} this config is attached to.
+     * 
+     * @throws AlreadySetException
+     *           if this config is already attached to a writer.
+     */
+    IndexWriterConfig setIndexWriter(IndexWriter writer) 
+    {
+        this.writer.set(writer);
+        return this;
+    }
   
     /**
      * Creates a new config that with defaults that match the specified

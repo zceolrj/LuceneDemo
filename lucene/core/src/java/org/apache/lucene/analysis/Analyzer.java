@@ -171,7 +171,7 @@ public abstract class Analyzer implements Closeable {
    */
   public final TokenStream tokenStream(final String fieldName, final String text) throws IOException {
     TokenStreamComponents components = reuseStrategy.getReusableComponents(this, fieldName);
-    @SuppressWarnings("resource") final ReusableStringReader strReader = 
+    final ReusableStringReader strReader = 
         (components == null || components.reusableStringReader == null) ?
         new ReusableStringReader() : components.reusableStringReader;
     strReader.setValue(text);

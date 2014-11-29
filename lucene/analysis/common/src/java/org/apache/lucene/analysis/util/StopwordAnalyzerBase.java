@@ -92,6 +92,7 @@ public abstract class StopwordAnalyzerBase extends Analyzer {
    * @throws IOException
    *           if loading the stopwords throws an {@link IOException}
    */
+  @SuppressWarnings("deprecation")
   protected static CharArraySet loadStopwordSet(final boolean ignoreCase,
       final Class<? extends Analyzer> aClass, final String resource,
       final String comment) throws IOException {

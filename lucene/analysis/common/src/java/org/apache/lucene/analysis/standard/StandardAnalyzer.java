@@ -17,7 +17,10 @@ package org.apache.lucene.analysis.standard;
  * limitations under the License.
  */
 
-import org.apache.lucene.analysis.*;
+import java.io.IOException;
+import java.io.Reader;
+
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.core.StopFilter;
@@ -25,10 +28,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.StopwordAnalyzerBase;
 import org.apache.lucene.analysis.util.WordlistLoader;
 import org.apache.lucene.util.Version;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
 
 /**
  * Filters {@link StandardTokenizer} with {@link StandardFilter}, {@link

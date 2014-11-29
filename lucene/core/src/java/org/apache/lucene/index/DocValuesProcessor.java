@@ -100,10 +100,9 @@ final class DocValuesProcessor extends StoredFieldsConsumer
                     writer.finish(state.segmentInfo.getDocCount());
                     writer.flush(state, dvConsumer);
                 }
-                // catch missing DV fields here?  else we have
-                // null/"" depending on how docs landed in segments?
-                // but we can't detect all cases, and we should leave
-                // this behavior undefined. dv is not "schemaless": its column-stride.
+                // catch missing DV fields here?  else we have null/"" depending on how docs landed in segments?
+                // but we can't detect all cases, and we should leave this behavior undefined. 
+                // dv is not "schemaless": its column-stride.
                 writers.clear();
                 success = true;
             } 

@@ -760,19 +760,21 @@ final class DocumentsWriterFlushControl
       }
   }
 
-  /**
-   * This method will block if too many DWPT are currently flushing and no
-   * checked out DWPT are available
-   */
-  void waitIfStalled() {
-    if (infoStream.isEnabled("DWFC")) {
-      infoStream.message("DWFC",
-          "waitIfStalled: numFlushesPending: " + flushQueue.size()
-              + " netBytes: " + netBytes() + " flushBytes: " + flushBytes()
-              + " fullFlush: " + fullFlush);
+    /**
+     * This method will block if too many DWPT are currently flushing and no
+     * checked out DWPT are available
+     */
+    void waitIfStalled() 
+    {
+        if (infoStream.isEnabled("DWFC")) 
+        {
+            infoStream.message("DWFC",
+                "waitIfStalled: numFlushesPending: " + flushQueue.size()
+                    + " netBytes: " + netBytes() + " flushBytes: " + flushBytes()
+                    + " fullFlush: " + fullFlush);
+        }
+        stallControl.waitIfStalled();
     }
-    stallControl.waitIfStalled();
-  }
 
     /**
      * Returns <code>true</code> iff stalled

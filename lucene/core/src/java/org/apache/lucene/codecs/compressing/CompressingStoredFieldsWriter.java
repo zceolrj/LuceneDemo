@@ -54,93 +54,102 @@ import org.apache.lucene.util.packed.PackedInts;
  */
 public final class CompressingStoredFieldsWriter extends StoredFieldsWriter 
 {
-  // hard limit on the maximum number of documents per chunk
-  static final int MAX_DOCUMENTS_PER_CHUNK = 128;
+    // hard limit on the maximum number of documents per chunk
+    static final int MAX_DOCUMENTS_PER_CHUNK = 128;
+  
+    static final int         STRING = 0x00;
+    static final int       BYTE_ARR = 0x01;
+    static final int    NUMERIC_INT = 0x02;
+    static final int  NUMERIC_FLOAT = 0x03;
+    static final int   NUMERIC_LONG = 0x04;
+    static final int NUMERIC_DOUBLE = 0x05;
+  
+    static final int TYPE_BITS = PackedInts.bitsRequired(NUMERIC_DOUBLE);
+    static final int TYPE_MASK = (int) PackedInts.maxValue(TYPE_BITS);
+  
+    static final String CODEC_SFX_IDX = "Index";
+    static final String CODEC_SFX_DAT = "Data";
+    static final int VERSION_START = 0;
+    static final int VERSION_BIG_CHUNKS = 1;
+    static final int VERSION_CURRENT = VERSION_BIG_CHUNKS;
+  
+    private final Directory directory;
+    private final String segment;
+    private final String segmentSuffix;
+    private CompressingStoredFieldsIndexWriter indexWriter;
+    private IndexOutput fieldsStream;
+  
+    private final CompressionMode compressionMode;
+    private final Compressor compressor;
+    private final int chunkSize;
+  
+    private final GrowableByteArrayDataOutput bufferedDocs;
+    private int[] numStoredFields; // number of stored fields
+    private int[] endOffsets; // end offsets in bufferedDocs
+    private int docBase; // doc ID at the beginning of the chunk
+    private int numBufferedDocs; // docBase + numBufferedDocs == current doc ID
 
-  static final int         STRING = 0x00;
-  static final int       BYTE_ARR = 0x01;
-  static final int    NUMERIC_INT = 0x02;
-  static final int  NUMERIC_FLOAT = 0x03;
-  static final int   NUMERIC_LONG = 0x04;
-  static final int NUMERIC_DOUBLE = 0x05;
-
-  static final int TYPE_BITS = PackedInts.bitsRequired(NUMERIC_DOUBLE);
-  static final int TYPE_MASK = (int) PackedInts.maxValue(TYPE_BITS);
-
-  static final String CODEC_SFX_IDX = "Index";
-  static final String CODEC_SFX_DAT = "Data";
-  static final int VERSION_START = 0;
-  static final int VERSION_BIG_CHUNKS = 1;
-  static final int VERSION_CURRENT = VERSION_BIG_CHUNKS;
-
-  private final Directory directory;
-  private final String segment;
-  private final String segmentSuffix;
-  private CompressingStoredFieldsIndexWriter indexWriter;
-  private IndexOutput fieldsStream;
-
-  private final CompressionMode compressionMode;
-  private final Compressor compressor;
-  private final int chunkSize;
-
-  private final GrowableByteArrayDataOutput bufferedDocs;
-  private int[] numStoredFields; // number of stored fields
-  private int[] endOffsets; // end offsets in bufferedDocs
-  private int docBase; // doc ID at the beginning of the chunk
-  private int numBufferedDocs; // docBase + numBufferedDocs == current doc ID
-
-  /** Sole constructor. */
-  public CompressingStoredFieldsWriter(Directory directory, SegmentInfo si, String segmentSuffix, IOContext context,
-      String formatName, CompressionMode compressionMode, int chunkSize) throws IOException {
-    assert directory != null;
-    this.directory = directory;
-    this.segment = si.name;
-    this.segmentSuffix = segmentSuffix;
-    this.compressionMode = compressionMode;
-    this.compressor = compressionMode.newCompressor();
-    this.chunkSize = chunkSize;
-    this.docBase = 0;
-    this.bufferedDocs = new GrowableByteArrayDataOutput(chunkSize);
-    this.numStoredFields = new int[16];
-    this.endOffsets = new int[16];
-    this.numBufferedDocs = 0;
-
-    boolean success = false;
-    IndexOutput indexStream = directory.createOutput(IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_INDEX_EXTENSION), context);
-    try {
-      fieldsStream = directory.createOutput(IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_EXTENSION), context);
-
-      final String codecNameIdx = formatName + CODEC_SFX_IDX;
-      final String codecNameDat = formatName + CODEC_SFX_DAT;
-      CodecUtil.writeHeader(indexStream, codecNameIdx, VERSION_CURRENT);
-      CodecUtil.writeHeader(fieldsStream, codecNameDat, VERSION_CURRENT);
-      assert CodecUtil.headerLength(codecNameDat) == fieldsStream.getFilePointer();
-      assert CodecUtil.headerLength(codecNameIdx) == indexStream.getFilePointer();
-
-      indexWriter = new CompressingStoredFieldsIndexWriter(indexStream);
-      indexStream = null;
-
-      fieldsStream.writeVInt(chunkSize);
-      fieldsStream.writeVInt(PackedInts.VERSION_CURRENT);
-
-      success = true;
-    } finally {
-      if (!success) {
-        IOUtils.closeWhileHandlingException(indexStream);
-        abort();
-      }
+    /** Sole constructor. */
+    public CompressingStoredFieldsWriter(Directory directory, SegmentInfo si, String segmentSuffix, IOContext context,
+        String formatName, CompressionMode compressionMode, int chunkSize) throws IOException 
+    {
+        assert directory != null;
+        this.directory = directory;
+        this.segment = si.name;
+        this.segmentSuffix = segmentSuffix;
+        this.compressionMode = compressionMode;
+        this.compressor = compressionMode.newCompressor();
+        this.chunkSize = chunkSize;
+        this.docBase = 0;
+        this.bufferedDocs = new GrowableByteArrayDataOutput(chunkSize);
+        this.numStoredFields = new int[16];
+        this.endOffsets = new int[16];
+        this.numBufferedDocs = 0;
+    
+        boolean success = false;
+        IndexOutput indexStream = directory.createOutput(IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_INDEX_EXTENSION), context);
+        try 
+        {
+            fieldsStream = directory.createOutput(IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_EXTENSION), context);
+      
+            final String codecNameIdx = formatName + CODEC_SFX_IDX;
+            final String codecNameDat = formatName + CODEC_SFX_DAT;
+            CodecUtil.writeHeader(indexStream, codecNameIdx, VERSION_CURRENT);
+            CodecUtil.writeHeader(fieldsStream, codecNameDat, VERSION_CURRENT);
+            assert CodecUtil.headerLength(codecNameDat) == fieldsStream.getFilePointer();
+            assert CodecUtil.headerLength(codecNameIdx) == indexStream.getFilePointer();
+      
+            indexWriter = new CompressingStoredFieldsIndexWriter(indexStream);
+            indexStream = null;
+      
+            fieldsStream.writeVInt(chunkSize);
+            fieldsStream.writeVInt(PackedInts.VERSION_CURRENT);
+      
+            success = true;
+        } 
+        finally 
+        {
+            if (!success) 
+            {
+                IOUtils.closeWhileHandlingException(indexStream);
+                abort();
+            }
+        }
     }
-  }
 
-  @Override
-  public void close() throws IOException {
-    try {
-      IOUtils.close(fieldsStream, indexWriter);
-    } finally {
-      fieldsStream = null;
-      indexWriter = null;
+    @Override
+    public void close() throws IOException 
+    {
+        try 
+        {
+            IOUtils.close(fieldsStream, indexWriter);
+        } 
+        finally 
+        {
+            fieldsStream = null;
+            indexWriter = null;
+        }
     }
-  }
 
     @Override
     public void startDocument(int numStoredFields) throws IOException 
@@ -350,13 +359,14 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter
         }
     }
 
-  @Override
-  public void abort() {
-    IOUtils.closeWhileHandlingException(this);
-    IOUtils.deleteFilesIgnoringExceptions(directory,
-        IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_EXTENSION),
-        IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_INDEX_EXTENSION));
-  }
+    @Override
+    public void abort() 
+    {
+        IOUtils.closeWhileHandlingException(this);
+        IOUtils.deleteFilesIgnoringExceptions(directory,
+            IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_EXTENSION),
+            IndexFileNames.segmentFileName(segment, segmentSuffix, FIELDS_INDEX_EXTENSION));
+    }
 
     @Override
     public void finish(FieldInfos fis, int numDocs) throws IOException 
@@ -377,108 +387,114 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter
         assert bufferedDocs.length == 0;
     }
 
-  @Override
-  public int merge(MergeState mergeState) throws IOException {
-    int docCount = 0;
-    int idx = 0;
-
-    for (AtomicReader reader : mergeState.readers) {
-      final SegmentReader matchingSegmentReader = mergeState.matchingSegmentReaders[idx++];
-      CompressingStoredFieldsReader matchingFieldsReader = null;
-      if (matchingSegmentReader != null) {
-        final StoredFieldsReader fieldsReader = matchingSegmentReader.getFieldsReader();
-        // we can only bulk-copy if the matching reader is also a CompressingStoredFieldsReader
-        if (fieldsReader != null && fieldsReader instanceof CompressingStoredFieldsReader) {
-          matchingFieldsReader = (CompressingStoredFieldsReader) fieldsReader;
+    @Override
+    public int merge(MergeState mergeState) throws IOException {
+      int docCount = 0;
+      int idx = 0;
+  
+      for (AtomicReader reader : mergeState.readers) {
+        final SegmentReader matchingSegmentReader = mergeState.matchingSegmentReaders[idx++];
+        CompressingStoredFieldsReader matchingFieldsReader = null;
+        if (matchingSegmentReader != null) {
+          final StoredFieldsReader fieldsReader = matchingSegmentReader.getFieldsReader();
+          // we can only bulk-copy if the matching reader is also a CompressingStoredFieldsReader
+          if (fieldsReader != null && fieldsReader instanceof CompressingStoredFieldsReader) {
+            matchingFieldsReader = (CompressingStoredFieldsReader) fieldsReader;
+          }
+        }
+  
+        final int maxDoc = reader.maxDoc();
+        final Bits liveDocs = reader.getLiveDocs();
+  
+        if (matchingFieldsReader == null
+            || matchingFieldsReader.getVersion() != VERSION_CURRENT) { // means reader version is not the same as the writer version
+          // naive merge...
+          for (int i = nextLiveDoc(0, liveDocs, maxDoc); i < maxDoc; i = nextLiveDoc(i + 1, liveDocs, maxDoc)) {
+            Document doc = reader.document(i);
+            addDocument(doc, mergeState.fieldInfos);
+            ++docCount;
+            mergeState.checkAbort.work(300);
+          }
+        } else {
+          int docID = nextLiveDoc(0, liveDocs, maxDoc);
+          if (docID < maxDoc) {
+            // not all docs were deleted
+            final ChunkIterator it = matchingFieldsReader.chunkIterator(docID);
+            int[] startOffsets = new int[0];
+            do {
+              // go to the next chunk that contains docID
+              it.next(docID);
+              // transform lengths into offsets
+              if (startOffsets.length < it.chunkDocs) {
+                startOffsets = new int[ArrayUtil.oversize(it.chunkDocs, 4)];
+              }
+              for (int i = 1; i < it.chunkDocs; ++i) {
+                startOffsets[i] = startOffsets[i - 1] + it.lengths[i - 1];
+              }
+  
+              if (compressionMode == matchingFieldsReader.getCompressionMode() // same compression mode
+                  && numBufferedDocs == 0 // starting a new chunk
+                  && startOffsets[it.chunkDocs - 1] < chunkSize // chunk is small enough
+                  && startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] >= chunkSize // chunk is large enough
+                  && nextDeletedDoc(it.docBase, liveDocs, it.docBase + it.chunkDocs) == it.docBase + it.chunkDocs) { // no deletion in the chunk
+                assert docID == it.docBase;
+  
+                // no need to decompress, just copy data
+                indexWriter.writeIndex(it.chunkDocs, fieldsStream.getFilePointer());
+                writeHeader(this.docBase, it.chunkDocs, it.numStoredFields, it.lengths);
+                it.copyCompressedData(fieldsStream);
+                this.docBase += it.chunkDocs;
+                docID = nextLiveDoc(it.docBase + it.chunkDocs, liveDocs, maxDoc);
+                docCount += it.chunkDocs;
+                mergeState.checkAbort.work(300 * it.chunkDocs);
+              } else {
+                // decompress
+                it.decompress();
+                if (startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] != it.bytes.length) {
+                  throw new CorruptIndexException("Corrupted: expected chunk size=" + startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] + ", got " + it.bytes.length);
+                }
+                // copy non-deleted docs
+                for (; docID < it.docBase + it.chunkDocs; docID = nextLiveDoc(docID + 1, liveDocs, maxDoc)) {
+                  final int diff = docID - it.docBase;
+                  startDocument(it.numStoredFields[diff]);
+                  bufferedDocs.writeBytes(it.bytes.bytes, it.bytes.offset + startOffsets[diff], it.lengths[diff]);
+                  finishDocument();
+                  ++docCount;
+                  mergeState.checkAbort.work(300);
+                }
+              }
+            } while (docID < maxDoc);
+          }
         }
       }
-
-      final int maxDoc = reader.maxDoc();
-      final Bits liveDocs = reader.getLiveDocs();
-
-      if (matchingFieldsReader == null
-          || matchingFieldsReader.getVersion() != VERSION_CURRENT) { // means reader version is not the same as the writer version
-        // naive merge...
-        for (int i = nextLiveDoc(0, liveDocs, maxDoc); i < maxDoc; i = nextLiveDoc(i + 1, liveDocs, maxDoc)) {
-          Document doc = reader.document(i);
-          addDocument(doc, mergeState.fieldInfos);
-          ++docCount;
-          mergeState.checkAbort.work(300);
+      finish(mergeState.fieldInfos, docCount);
+      return docCount;
+    }
+  
+    private static int nextLiveDoc(int doc, Bits liveDocs, int maxDoc) 
+    {
+        if (liveDocs == null) 
+        {
+            return doc;
         }
-      } else {
-        int docID = nextLiveDoc(0, liveDocs, maxDoc);
-        if (docID < maxDoc) {
-          // not all docs were deleted
-          final ChunkIterator it = matchingFieldsReader.chunkIterator(docID);
-          int[] startOffsets = new int[0];
-          do {
-            // go to the next chunk that contains docID
-            it.next(docID);
-            // transform lengths into offsets
-            if (startOffsets.length < it.chunkDocs) {
-              startOffsets = new int[ArrayUtil.oversize(it.chunkDocs, 4)];
-            }
-            for (int i = 1; i < it.chunkDocs; ++i) {
-              startOffsets[i] = startOffsets[i - 1] + it.lengths[i - 1];
-            }
-
-            if (compressionMode == matchingFieldsReader.getCompressionMode() // same compression mode
-                && numBufferedDocs == 0 // starting a new chunk
-                && startOffsets[it.chunkDocs - 1] < chunkSize // chunk is small enough
-                && startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] >= chunkSize // chunk is large enough
-                && nextDeletedDoc(it.docBase, liveDocs, it.docBase + it.chunkDocs) == it.docBase + it.chunkDocs) { // no deletion in the chunk
-              assert docID == it.docBase;
-
-              // no need to decompress, just copy data
-              indexWriter.writeIndex(it.chunkDocs, fieldsStream.getFilePointer());
-              writeHeader(this.docBase, it.chunkDocs, it.numStoredFields, it.lengths);
-              it.copyCompressedData(fieldsStream);
-              this.docBase += it.chunkDocs;
-              docID = nextLiveDoc(it.docBase + it.chunkDocs, liveDocs, maxDoc);
-              docCount += it.chunkDocs;
-              mergeState.checkAbort.work(300 * it.chunkDocs);
-            } else {
-              // decompress
-              it.decompress();
-              if (startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] != it.bytes.length) {
-                throw new CorruptIndexException("Corrupted: expected chunk size=" + startOffsets[it.chunkDocs - 1] + it.lengths[it.chunkDocs - 1] + ", got " + it.bytes.length);
-              }
-              // copy non-deleted docs
-              for (; docID < it.docBase + it.chunkDocs; docID = nextLiveDoc(docID + 1, liveDocs, maxDoc)) {
-                final int diff = docID - it.docBase;
-                startDocument(it.numStoredFields[diff]);
-                bufferedDocs.writeBytes(it.bytes.bytes, it.bytes.offset + startOffsets[diff], it.lengths[diff]);
-                finishDocument();
-                ++docCount;
-                mergeState.checkAbort.work(300);
-              }
-            }
-          } while (docID < maxDoc);
+        while (doc < maxDoc && !liveDocs.get(doc)) 
+        {
+            ++doc;
         }
-      }
+        return doc;
     }
-    finish(mergeState.fieldInfos, docCount);
-    return docCount;
-  }
-
-  private static int nextLiveDoc(int doc, Bits liveDocs, int maxDoc) {
-    if (liveDocs == null) {
-      return doc;
+  
+    private static int nextDeletedDoc(int doc, Bits liveDocs, int maxDoc) 
+    {
+        if (liveDocs == null) 
+        {
+            return maxDoc;
+        }
+        while (doc < maxDoc && liveDocs.get(doc)) 
+        {
+            ++doc;
+        }
+        return doc;
     }
-    while (doc < maxDoc && !liveDocs.get(doc)) {
-      ++doc;
-    }
-    return doc;
-  }
-
-  private static int nextDeletedDoc(int doc, Bits liveDocs, int maxDoc) {
-    if (liveDocs == null) {
-      return maxDoc;
-    }
-    while (doc < maxDoc && liveDocs.get(doc)) {
-      ++doc;
-    }
-    return doc;
-  }
 
 }
