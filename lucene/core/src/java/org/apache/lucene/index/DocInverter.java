@@ -60,7 +60,7 @@ final class DocInverter extends DocFieldConsumer
     public void startDocument() throws IOException 
     {
         consumer.startDocument();//consumer=TermsHash
-        endConsumer.startDocument();//NormsConsumer
+        endConsumer.startDocument();//endConsumer=NormsConsumer
     }
 
     @Override

@@ -26,7 +26,7 @@ import org.apache.lucene.util.RamUsageEstimator;
 
 final class DocFieldProcessorPerField 
 {
-    final DocFieldConsumerPerField consumer;
+    final DocFieldConsumerPerField consumer;//consumer=DocInverterPerField
     final FieldInfo fieldInfo;
 
     DocFieldProcessorPerField next;

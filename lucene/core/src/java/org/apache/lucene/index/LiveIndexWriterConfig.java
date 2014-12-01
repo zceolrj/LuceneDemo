@@ -219,9 +219,10 @@ public class LiveIndexWriterConfig
      * 
      * @see IndexWriterConfig#DEFAULT_TERM_INDEX_INTERVAL
      */
-    public LiveIndexWriterConfig setTermIndexInterval(int interval) { // this should be private to the codec, not settable here
-      this.termIndexInterval = interval;
-      return this;
+    public LiveIndexWriterConfig setTermIndexInterval(int interval) // this should be private to the codec, not settable here
+    { 
+        this.termIndexInterval = interval;
+        return this;
     }
   
     /**
@@ -229,8 +230,9 @@ public class LiveIndexWriterConfig
      *
      * @see #setTermIndexInterval(int)
      */
-    public int getTermIndexInterval() { // this should be private to the codec, not settable here
-      return termIndexInterval;
+    public int getTermIndexInterval() // this should be private to the codec, not settable here
+    { 
+        return termIndexInterval;
     }
   
     /**
@@ -252,12 +254,14 @@ public class LiveIndexWriterConfig
      * 
      * @see #setRAMBufferSizeMB
      */
-    public LiveIndexWriterConfig setMaxBufferedDeleteTerms(int maxBufferedDeleteTerms) {
-      if (maxBufferedDeleteTerms != IndexWriterConfig.DISABLE_AUTO_FLUSH && maxBufferedDeleteTerms < 1) {
-        throw new IllegalArgumentException("maxBufferedDeleteTerms must at least be 1 when enabled");
-      }
-      this.maxBufferedDeleteTerms = maxBufferedDeleteTerms;
-      return this;
+    public LiveIndexWriterConfig setMaxBufferedDeleteTerms(int maxBufferedDeleteTerms) 
+    {
+        if (maxBufferedDeleteTerms != IndexWriterConfig.DISABLE_AUTO_FLUSH && maxBufferedDeleteTerms < 1) 
+        {
+            throw new IllegalArgumentException("maxBufferedDeleteTerms must at least be 1 when enabled");
+        }
+        this.maxBufferedDeleteTerms = maxBufferedDeleteTerms;
+        return this;
     }
   
     /**
@@ -266,8 +270,9 @@ public class LiveIndexWriterConfig
      *
      * @see #setMaxBufferedDeleteTerms(int)
      */
-    public int getMaxBufferedDeleteTerms() {
-      return maxBufferedDeleteTerms;
+    public int getMaxBufferedDeleteTerms() 
+    {
+        return maxBufferedDeleteTerms;
     }
     
     /**
@@ -318,21 +323,25 @@ public class LiveIndexWriterConfig
      *           if ramBufferSize is enabled but non-positive, or it disables
      *           ramBufferSize when maxBufferedDocs is already disabled
      */
-    public LiveIndexWriterConfig setRAMBufferSizeMB(double ramBufferSizeMB) {
-      if (ramBufferSizeMB != IndexWriterConfig.DISABLE_AUTO_FLUSH && ramBufferSizeMB <= 0.0) {
-        throw new IllegalArgumentException("ramBufferSize should be > 0.0 MB when enabled");
-      }
-      if (ramBufferSizeMB == IndexWriterConfig.DISABLE_AUTO_FLUSH
-          && maxBufferedDocs == IndexWriterConfig.DISABLE_AUTO_FLUSH) {
-        throw new IllegalArgumentException("at least one of ramBufferSize and maxBufferedDocs must be enabled");
-      }
-      this.ramBufferSizeMB = ramBufferSizeMB;
-      return this;
+    public LiveIndexWriterConfig setRAMBufferSizeMB(double ramBufferSizeMB) 
+    {
+        if (ramBufferSizeMB != IndexWriterConfig.DISABLE_AUTO_FLUSH && ramBufferSizeMB <= 0.0) 
+        {
+            throw new IllegalArgumentException("ramBufferSize should be > 0.0 MB when enabled");
+        }
+        if (ramBufferSizeMB == IndexWriterConfig.DISABLE_AUTO_FLUSH
+            && maxBufferedDocs == IndexWriterConfig.DISABLE_AUTO_FLUSH) 
+        {
+            throw new IllegalArgumentException("at least one of ramBufferSize and maxBufferedDocs must be enabled");
+        }
+        this.ramBufferSizeMB = ramBufferSizeMB;
+        return this;
     }
   
     /** Returns the value set by {@link #setRAMBufferSizeMB(double)} if enabled. */
-    public double getRAMBufferSizeMB() {
-      return ramBufferSizeMB;
+    public double getRAMBufferSizeMB() 
+    {
+        return ramBufferSizeMB;
     }
     
     /**
@@ -359,16 +368,19 @@ public class LiveIndexWriterConfig
      *           if maxBufferedDocs is enabled but smaller than 2, or it disables
      *           maxBufferedDocs when ramBufferSize is already disabled
      */
-    public LiveIndexWriterConfig setMaxBufferedDocs(int maxBufferedDocs) {
-      if (maxBufferedDocs != IndexWriterConfig.DISABLE_AUTO_FLUSH && maxBufferedDocs < 2) {
-        throw new IllegalArgumentException("maxBufferedDocs must at least be 2 when enabled");
-      }
-      if (maxBufferedDocs == IndexWriterConfig.DISABLE_AUTO_FLUSH
-          && ramBufferSizeMB == IndexWriterConfig.DISABLE_AUTO_FLUSH) {
-        throw new IllegalArgumentException("at least one of ramBufferSize and maxBufferedDocs must be enabled");
-      }
-      this.maxBufferedDocs = maxBufferedDocs;
-      return this;
+    public LiveIndexWriterConfig setMaxBufferedDocs(int maxBufferedDocs) 
+    {
+        if (maxBufferedDocs != IndexWriterConfig.DISABLE_AUTO_FLUSH && maxBufferedDocs < 2) 
+        {
+            throw new IllegalArgumentException("maxBufferedDocs must at least be 2 when enabled");
+        }
+        if (maxBufferedDocs == IndexWriterConfig.DISABLE_AUTO_FLUSH
+            && ramBufferSizeMB == IndexWriterConfig.DISABLE_AUTO_FLUSH) 
+        {
+            throw new IllegalArgumentException("at least one of ramBufferSize and maxBufferedDocs must be enabled");
+        }
+        this.maxBufferedDocs = maxBufferedDocs;
+        return this;
     }
   
     /**
@@ -377,8 +389,9 @@ public class LiveIndexWriterConfig
      *
      * @see #setMaxBufferedDocs(int)
      */
-    public int getMaxBufferedDocs() {
-      return maxBufferedDocs;
+    public int getMaxBufferedDocs() 
+    {
+        return maxBufferedDocs;
     }
   
     /**
@@ -387,14 +400,16 @@ public class LiveIndexWriterConfig
      * <p>
      * Takes effect on the next merge.
      */
-    public LiveIndexWriterConfig setMergedSegmentWarmer(IndexReaderWarmer mergeSegmentWarmer) {
-      this.mergedSegmentWarmer = mergeSegmentWarmer;
-      return this;
+    public LiveIndexWriterConfig setMergedSegmentWarmer(IndexReaderWarmer mergeSegmentWarmer) 
+    {
+        this.mergedSegmentWarmer = mergeSegmentWarmer;
+        return this;
     }
   
     /** Returns the current merged segment warmer. See {@link IndexReaderWarmer}. */
-    public IndexReaderWarmer getMergedSegmentWarmer() {
-      return mergedSegmentWarmer;
+    public IndexReaderWarmer getMergedSegmentWarmer() 
+    {
+        return mergedSegmentWarmer;
     }
   
     /**
@@ -413,24 +428,28 @@ public class LiveIndexWriterConfig
      * implementations, including the default one in this release. It only makes
      * sense for terms indexes that can efficiently re-sample terms at load time.
      */
-    public LiveIndexWriterConfig setReaderTermsIndexDivisor(int divisor) {
-      if (divisor <= 0 && divisor != -1) {
-        throw new IllegalArgumentException("divisor must be >= 1, or -1 (got " + divisor + ")");
-      }
-      readerTermsIndexDivisor = divisor;
-      return this;
+    public LiveIndexWriterConfig setReaderTermsIndexDivisor(int divisor) 
+    {
+        if (divisor <= 0 && divisor != -1) 
+        {
+            throw new IllegalArgumentException("divisor must be >= 1, or -1 (got " + divisor + ")");
+        }
+        readerTermsIndexDivisor = divisor;
+        return this;
     }
   
     /** Returns the {@code termInfosIndexDivisor}.
      * 
      * @see #setReaderTermsIndexDivisor(int) */
-    public int getReaderTermsIndexDivisor() {
-      return readerTermsIndexDivisor;
+    public int getReaderTermsIndexDivisor() 
+    {
+        return readerTermsIndexDivisor;
     }
     
     /** Returns the {@link OpenMode} set by {@link IndexWriterConfig#setOpenMode(OpenMode)}. */
-    public OpenMode getOpenMode() {
-      return openMode;
+    public OpenMode getOpenMode() 
+    {
+        return openMode;
     }
     
     /**
@@ -438,8 +457,9 @@ public class LiveIndexWriterConfig
      * {@link IndexWriterConfig#setIndexDeletionPolicy(IndexDeletionPolicy)} or
      * the default {@link KeepOnlyLastCommitDeletionPolicy}/
      */
-    public IndexDeletionPolicy getIndexDeletionPolicy() {
-      return delPolicy;
+    public IndexDeletionPolicy getIndexDeletionPolicy() 
+    {
+        return delPolicy;
     }
     
     /**
@@ -447,24 +467,27 @@ public class LiveIndexWriterConfig
      * {@link IndexWriterConfig#setIndexCommit(IndexCommit)} or the default,
      * {@code null} which specifies to open the latest index commit point.
      */
-    public IndexCommit getIndexCommit() {
-      return commit;
+    public IndexCommit getIndexCommit() 
+    {
+        return commit;
     }
   
     /**
      * Expert: returns the {@link Similarity} implementation used by this
      * {@link IndexWriter}.
      */
-    public Similarity getSimilarity() {
-      return similarity;
+    public Similarity getSimilarity() 
+    {
+        return similarity;
     }
     
     /**
      * Returns the {@link MergeScheduler} that was set by
      * {@link IndexWriterConfig#setMergeScheduler(MergeScheduler)}.
      */
-    public MergeScheduler getMergeScheduler() {
-      return mergeScheduler;
+    public MergeScheduler getMergeScheduler() 
+    {
+        return mergeScheduler;
     }
   
     /**
@@ -499,36 +522,43 @@ public class LiveIndexWriterConfig
      * @see IndexWriterConfig#setIndexerThreadPool(DocumentsWriterPerThreadPool)
      * @return the configured {@link DocumentsWriterPerThreadPool} instance.
      */
-    DocumentsWriterPerThreadPool getIndexerThreadPool() {
-      return indexerThreadPool;
+    DocumentsWriterPerThreadPool getIndexerThreadPool() 
+    {
+        return indexerThreadPool;
     }
   
     /**
      * Returns the max number of simultaneous threads that may be indexing
      * documents at once in IndexWriter.
      */
-    public int getMaxThreadStates() {
-      try {
-        return ((ThreadAffinityDocumentsWriterThreadPool) indexerThreadPool).getMaxThreadStates();
-      } catch (ClassCastException cce) {
-        throw new IllegalStateException(cce);
-      }
+    public int getMaxThreadStates() 
+    {
+        try 
+        {
+            return ((ThreadAffinityDocumentsWriterThreadPool) indexerThreadPool).getMaxThreadStates();
+        } 
+        catch (ClassCastException cce) 
+        {
+            throw new IllegalStateException(cce);
+        }
     }
   
     /**
      * Returns {@code true} if {@link IndexWriter} should pool readers even if
      * {@link DirectoryReader#open(IndexWriter, boolean)} has not been called.
      */
-    public boolean getReaderPooling() {
-      return readerPooling;
+    public boolean getReaderPooling() 
+    {
+        return readerPooling;
     }
   
     /**
      * Returns the indexing chain set on
      * {@link IndexWriterConfig#setIndexingChain(IndexingChain)}.
      */
-    IndexingChain getIndexingChain() {
-      return indexingChain;
+    IndexingChain getIndexingChain() 
+    {
+        return indexingChain;
     }
   
     /**
@@ -537,23 +567,26 @@ public class LiveIndexWriterConfig
      * 
      * @see IndexWriterConfig#setRAMPerThreadHardLimitMB(int)
      */
-    public int getRAMPerThreadHardLimitMB() {
-      return perThreadHardLimitMB;
+    public int getRAMPerThreadHardLimitMB() 
+    {
+        return perThreadHardLimitMB;
     }
     
     /**
      * @see IndexWriterConfig#setFlushPolicy(FlushPolicy)
      */
-    FlushPolicy getFlushPolicy() {
-      return flushPolicy;
+    FlushPolicy getFlushPolicy() 
+    {
+        return flushPolicy;
     }
     
     /** Returns {@link InfoStream} used for debugging.
      *
      * @see IndexWriterConfig#setInfoStream(InfoStream)
      */
-    public InfoStream getInfoStream() {
-      return infoStream;
+    public InfoStream getInfoStream() 
+    {
+        return infoStream;
     }
     
     /**
@@ -570,48 +603,49 @@ public class LiveIndexWriterConfig
      * applies to newly created segments.</b>
      * </p>
      */
-    public LiveIndexWriterConfig setUseCompoundFile(boolean useCompoundFile) {
-      this.useCompoundFile = useCompoundFile;
-      return this;
+    public LiveIndexWriterConfig setUseCompoundFile(boolean useCompoundFile) 
+    {
+        this.useCompoundFile = useCompoundFile;
+        return this;
     }
     
     /**
      * Returns <code>true</code> iff the {@link IndexWriter} packs
      * newly written segments in a compound file. Default is <code>true</code>.
      */
-    public boolean getUseCompoundFile() {
-      return useCompoundFile ;
+    public boolean getUseCompoundFile() 
+    {
+        return useCompoundFile ;
     }
     
     @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("matchVersion=").append(matchVersion).append("\n");
-      sb.append("analyzer=").append(analyzer == null ? "null" : analyzer.getClass().getName()).append("\n");
-      sb.append("ramBufferSizeMB=").append(getRAMBufferSizeMB()).append("\n");
-      sb.append("maxBufferedDocs=").append(getMaxBufferedDocs()).append("\n");
-      sb.append("maxBufferedDeleteTerms=").append(getMaxBufferedDeleteTerms()).append("\n");
-      sb.append("mergedSegmentWarmer=").append(getMergedSegmentWarmer()).append("\n");
-      sb.append("readerTermsIndexDivisor=").append(getReaderTermsIndexDivisor()).append("\n");
-      sb.append("termIndexInterval=").append(getTermIndexInterval()).append("\n"); // this should be private to the codec, not settable here
-      sb.append("delPolicy=").append(getIndexDeletionPolicy().getClass().getName()).append("\n");
-      IndexCommit commit = getIndexCommit();
-      sb.append("commit=").append(commit == null ? "null" : commit).append("\n");
-      sb.append("openMode=").append(getOpenMode()).append("\n");
-      sb.append("similarity=").append(getSimilarity().getClass().getName()).append("\n");
-      sb.append("mergeScheduler=").append(getMergeScheduler()).append("\n");
-      sb.append("default WRITE_LOCK_TIMEOUT=").append(IndexWriterConfig.WRITE_LOCK_TIMEOUT).append("\n");
-      sb.append("writeLockTimeout=").append(getWriteLockTimeout()).append("\n");
-      sb.append("codec=").append(getCodec()).append("\n");
-      sb.append("infoStream=").append(getInfoStream().getClass().getName()).append("\n");
-      sb.append("mergePolicy=").append(getMergePolicy()).append("\n");
-      sb.append("indexerThreadPool=").append(getIndexerThreadPool()).append("\n");
-      sb.append("readerPooling=").append(getReaderPooling()).append("\n");
-      sb.append("perThreadHardLimitMB=").append(getRAMPerThreadHardLimitMB()).append("\n");
-      sb.append("useCompoundFile=").append(getUseCompoundFile()).append("\n");
-      return sb.toString();
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("matchVersion=").append(matchVersion).append("\n");
+        sb.append("analyzer=").append(analyzer == null ? "null" : analyzer.getClass().getName()).append("\n");
+        sb.append("ramBufferSizeMB=").append(getRAMBufferSizeMB()).append("\n");
+        sb.append("maxBufferedDocs=").append(getMaxBufferedDocs()).append("\n");
+        sb.append("maxBufferedDeleteTerms=").append(getMaxBufferedDeleteTerms()).append("\n");
+        sb.append("mergedSegmentWarmer=").append(getMergedSegmentWarmer()).append("\n");
+        sb.append("readerTermsIndexDivisor=").append(getReaderTermsIndexDivisor()).append("\n");
+        sb.append("termIndexInterval=").append(getTermIndexInterval()).append("\n"); // this should be private to the codec, not settable here
+        sb.append("delPolicy=").append(getIndexDeletionPolicy().getClass().getName()).append("\n");
+        IndexCommit commit = getIndexCommit();
+        sb.append("commit=").append(commit == null ? "null" : commit).append("\n");
+        sb.append("openMode=").append(getOpenMode()).append("\n");
+        sb.append("similarity=").append(getSimilarity().getClass().getName()).append("\n");
+        sb.append("mergeScheduler=").append(getMergeScheduler()).append("\n");
+        sb.append("default WRITE_LOCK_TIMEOUT=").append(IndexWriterConfig.WRITE_LOCK_TIMEOUT).append("\n");
+        sb.append("writeLockTimeout=").append(getWriteLockTimeout()).append("\n");
+        sb.append("codec=").append(getCodec()).append("\n");
+        sb.append("infoStream=").append(getInfoStream().getClass().getName()).append("\n");
+        sb.append("mergePolicy=").append(getMergePolicy()).append("\n");
+        sb.append("indexerThreadPool=").append(getIndexerThreadPool()).append("\n");
+        sb.append("readerPooling=").append(getReaderPooling()).append("\n");
+        sb.append("perThreadHardLimitMB=").append(getRAMPerThreadHardLimitMB()).append("\n");
+        sb.append("useCompoundFile=").append(getUseCompoundFile()).append("\n");
+        return sb.toString();
     }
-  
-  
 
 }

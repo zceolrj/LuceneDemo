@@ -33,9 +33,8 @@ import org.apache.lucene.util.Counter;
 /**
  * This is a DocConsumer that gathers all fields under the
  * same name, and calls per-field consumers to process field
- * by field.  This class doesn't doesn't do any "real" work
- * of its own: it just forwards the fields to a
- * DocFieldConsumer.
+ * by field.  This class doesn't do any "real" work
+ * of its own: it just forwards the fields to a DocFieldConsumer.
  */
 
 final class DocFieldProcessor extends DocConsumer
