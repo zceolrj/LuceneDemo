@@ -55,11 +55,12 @@ import org.apache.lucene.util.Version;
  * buffer. The same behavior have the {@code contains()} methods.
  * The {@link #iterator()} returns an {@code Iterator<char[]>}.
  */
-public class CharArraySet extends AbstractSet<Object> {
-  public static final CharArraySet EMPTY_SET = new CharArraySet(CharArrayMap.<Object>emptyMap());
-  private static final Object PLACEHOLDER = new Object();
-  
-  private final CharArrayMap<Object> map;
+public class CharArraySet extends AbstractSet<Object> 
+{
+    public static final CharArraySet EMPTY_SET = new CharArraySet(CharArrayMap.<Object>emptyMap());
+    private static final Object PLACEHOLDER = new Object();
+    
+    private final CharArrayMap<Object> map;
   
   /**
    * Create set with enough capacity to hold startSize terms
@@ -203,8 +204,7 @@ public class CharArraySet extends AbstractSet<Object> {
   /**
    * Returns an {@link Iterator} for {@code char[]} instances in this set.
    */
-  @Override @SuppressWarnings("unchecked")
-  public Iterator<Object> iterator() {
+  @Override public Iterator<Object> iterator() {
     // use the AbstractSet#keySet()'s iterator (to not produce endless recursion)
     return map.originalKeySet().iterator();
   }

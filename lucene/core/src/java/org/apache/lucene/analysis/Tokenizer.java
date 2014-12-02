@@ -30,63 +30,70 @@ import java.io.IOException;
   call {@link AttributeSource#clearAttributes()} before
   setting attributes.
  */
-public abstract class Tokenizer extends TokenStream {
-  /** The text source for this Tokenizer. */
-  protected Reader input;
-
-  /** Construct a token stream processing the given input. */
-  protected Tokenizer(Reader input) {
-    assert input != null: "input must not be null";
-    this.input = input;
-  }
+public abstract class Tokenizer extends TokenStream 
+{
+    /** The text source for this Tokenizer. */
+    protected Reader input;
   
-  /** Construct a token stream processing the given input using the given AttributeFactory. */
-  protected Tokenizer(AttributeFactory factory, Reader input) {
-    super(factory);
-    assert input != null: "input must not be null";
-    this.input = input;
-  }
-
-  /**
-   * {@inheritDoc}
-   * <p>
-   * <b>NOTE:</b> 
-   * The default implementation closes the input Reader, so
-   * be sure to call <code>super.close()</code> when overriding this method.
-   */
-  @Override
-  public void close() throws IOException {
-    if (input != null) {
-      input.close();
-      // LUCENE-2387: don't hold onto Reader after close, so
-      // GC can reclaim
-      input = null;
+    /** Construct a token stream processing the given input. */
+    protected Tokenizer(Reader input) 
+    {
+        assert input != null: "input must not be null";
+        this.input = input;
     }
-  }
+    
+    /** Construct a token stream processing the given input using the given AttributeFactory. */
+    protected Tokenizer(AttributeFactory factory, Reader input) 
+    {
+        super(factory);
+        assert input != null: "input must not be null";
+        this.input = input;
+    }
   
-  /** Return the corrected offset. If {@link #input} is a {@link CharFilter} subclass
-   * this method calls {@link CharFilter#correctOffset}, else returns <code>currentOff</code>.
-   * @param currentOff offset as seen in the output
-   * @return corrected offset based on the input
-   * @see CharFilter#correctOffset
-   */
-  protected final int correctOffset(int currentOff) {
-    assert input != null: "this tokenizer is closed";
-    return (input instanceof CharFilter) ? ((CharFilter) input).correctOffset(currentOff) : currentOff;
-  }
-
-  /** Expert: Set a new reader on the Tokenizer.  Typically, an
-   *  analyzer (in its tokenStream method) will use
-   *  this to re-use a previously created tokenizer. */
-  public final void setReader(Reader input) throws IOException {
-    assert input != null: "input must not be null";
-    this.input = input;
-    assert setReaderTestPoint();
-  }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <b>NOTE:</b> 
+     * The default implementation closes the input Reader, so
+     * be sure to call <code>super.close()</code> when overriding this method.
+     */
+    @Override
+    public void close() throws IOException 
+    {
+        if (input != null) 
+        {
+            input.close();
+            // LUCENE-2387: don't hold onto Reader after close, so GC can reclaim
+            input = null;
+        }
+    }
+    
+    /** Return the corrected offset. If {@link #input} is a {@link CharFilter} subclass
+     * this method calls {@link CharFilter#correctOffset}, else returns <code>currentOff</code>.
+     * @param currentOff offset as seen in the output
+     * @return corrected offset based on the input
+     * @see CharFilter#correctOffset
+     */
+    protected final int correctOffset(int currentOff) 
+    {
+        assert input != null: "this tokenizer is closed";
+        return (input instanceof CharFilter) ? ((CharFilter) input).correctOffset(currentOff) : currentOff;
+    }
   
-  // only used by assert, for testing
-  boolean setReaderTestPoint() {
-    return true;
-  }
+    /** Expert: Set a new reader on the Tokenizer.  Typically, an
+     *  analyzer (in its tokenStream method) will use
+     *  this to re-use a previously created tokenizer. */
+    public final void setReader(Reader input) throws IOException 
+    {
+        assert input != null: "input must not be null";
+        this.input = input;
+        assert setReaderTestPoint();
+    }
+    
+    // only used by assert, for testing
+    boolean setReaderTestPoint() 
+    {
+        return true;
+    }
 }
 

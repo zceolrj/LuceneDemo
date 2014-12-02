@@ -47,7 +47,7 @@ final class DocInverterPerField extends DocFieldConsumerPerField
         this.fieldInfo = fieldInfo;
         docState = parent.docState;
         fieldState = new FieldInvertState(fieldInfo.name);
-        this.consumer = parent.consumer.addField(this, fieldInfo);//parent.consumer=TermsHash   this.consumer=InvertedDocConsumerPerField
+        this.consumer = parent.consumer.addField(this, fieldInfo);//parent.consumer=TermsHash   this.consumer=TermsHashPerField
         this.endConsumer = parent.endConsumer.addField(this, fieldInfo);//parent.endConsumer=NormsConsumer   this.endConsumer=NormsConsumerPerField
     }
 

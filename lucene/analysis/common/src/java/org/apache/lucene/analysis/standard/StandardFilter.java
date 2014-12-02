@@ -28,54 +28,70 @@ import org.apache.lucene.util.Version;
 /**
  * Normalizes tokens extracted with {@link StandardTokenizer}.
  */
-public class StandardFilter extends TokenFilter {
-  private final Version matchVersion;
-  
-  public StandardFilter(Version matchVersion, TokenStream in) {
-    super(in);
-    this.matchVersion = matchVersion;
-  }
-  
-  private static final String APOSTROPHE_TYPE = ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.APOSTROPHE];
-  private static final String ACRONYM_TYPE = ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.ACRONYM];
-
-  // this filters uses attribute type
-  private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
-  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-  
-  @Override
-  public final boolean incrementToken() throws IOException {
-    if (matchVersion.onOrAfter(Version.LUCENE_31))
-      return input.incrementToken(); // TODO: add some niceties for the new grammar
-    else
-      return incrementTokenClassic();
-  }
-  
-  public final boolean incrementTokenClassic() throws IOException {
-    if (!input.incrementToken()) {
-      return false;
+public class StandardFilter extends TokenFilter 
+{
+    private final Version matchVersion;
+    
+    public StandardFilter(Version matchVersion, TokenStream in) 
+    {
+        super(in);
+        this.matchVersion = matchVersion;
     }
-
-    final char[] buffer = termAtt.buffer();
-    final int bufferLength = termAtt.length();
-    final String type = typeAtt.type();
-
-    if (type == APOSTROPHE_TYPE &&      // remove 's
-        bufferLength >= 2 &&
-        buffer[bufferLength-2] == '\'' &&
-        (buffer[bufferLength-1] == 's' || buffer[bufferLength-1] == 'S')) {
-      // Strip last 2 characters off
-      termAtt.setLength(bufferLength - 2);
-    } else if (type == ACRONYM_TYPE) {      // remove dots
-      int upto = 0;
-      for(int i=0;i<bufferLength;i++) {
-        char c = buffer[i];
-        if (c != '.')
-          buffer[upto++] = c;
-      }
-      termAtt.setLength(upto);
+    
+    private static final String APOSTROPHE_TYPE = ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.APOSTROPHE];
+    private static final String ACRONYM_TYPE = ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.ACRONYM];
+  
+    // this filters uses attribute type
+    private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    
+    @SuppressWarnings("deprecation")
+    @Override
+    public final boolean incrementToken() throws IOException 
+    {
+        if (matchVersion.onOrAfter(Version.LUCENE_31))
+        {
+            return input.incrementToken();// add some niceties for the new grammar
+        }
+        else
+        {
+            return incrementTokenClassic();
+        }
     }
-
-    return true;
-  }
+    
+    public final boolean incrementTokenClassic() throws IOException 
+    {
+        if (!input.incrementToken()) 
+        {
+            return false;
+        }
+    
+        final char[] buffer = termAtt.buffer();
+        final int bufferLength = termAtt.length();
+        final String type = typeAtt.type();
+    
+        if (type == APOSTROPHE_TYPE &&      // remove 's
+            bufferLength >= 2 &&
+            buffer[bufferLength-2] == '\'' &&
+            (buffer[bufferLength-1] == 's' || buffer[bufferLength-1] == 'S')) 
+        {
+            // Strip last 2 characters off
+            termAtt.setLength(bufferLength - 2);
+        } 
+        else if (type == ACRONYM_TYPE) // remove dots
+        {      
+            int upto = 0;
+            for(int i=0;i<bufferLength;i++) 
+            {
+                char c = buffer[i];
+                if (c != '.')
+                {
+                    buffer[upto++] = c;
+                }
+            }
+            termAtt.setLength(upto);
+        }
+    
+        return true;
+    }
 }

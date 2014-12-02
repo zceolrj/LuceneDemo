@@ -317,54 +317,61 @@ public final class BytesRef implements Comparable<BytesRef>,Cloneable
     @Deprecated
     private static class UTF8SortedAsUTF16Comparator implements Comparator<BytesRef> 
     {
-      // Only singleton
-      private UTF8SortedAsUTF16Comparator() {};
-  
-      @Override
-      public int compare(BytesRef a, BytesRef b) 
-      {
-        final byte[] aBytes = a.bytes;
-        int aUpto = a.offset;
-        final byte[] bBytes = b.bytes;
-        int bUpto = b.offset;
-        
-        final int aStop;
-        if (a.length < b.length) {
-          aStop = aUpto + a.length;
-        } else {
-          aStop = aUpto + b.length;
-        }
-  
-        while(aUpto < aStop) {
-          int aByte = aBytes[aUpto++] & 0xff;
-          int bByte = bBytes[bUpto++] & 0xff;
-  
-          if (aByte != bByte) {
-            // See http://icu-project.org/docs/papers/utf16_code_point_order.html#utf-8-in-utf-16-order
-  
-            // We know the terms are not equal, but, we may
-            // have to carefully fixup the bytes at the
-            // difference to match UTF16's sort order:
+        // Only singleton
+        private UTF8SortedAsUTF16Comparator() {};
+    
+        @Override
+        public int compare(BytesRef a, BytesRef b) 
+        {
+            final byte[] aBytes = a.bytes;
+            int aUpto = a.offset;
+            final byte[] bBytes = b.bytes;
+            int bUpto = b.offset;
             
-            // NOTE: instead of moving supplementary code points (0xee and 0xef) to the unused 0xfe and 0xff, 
-            // we move them to the unused 0xfc and 0xfd [reserved for future 6-byte character sequences]
-            // this reserves 0xff for preflex's term reordering (surrogate dance), and if unicode grows such
-            // that 6-byte sequences are needed we have much bigger problems anyway.
-            if (aByte >= 0xee && bByte >= 0xee) {
-              if ((aByte & 0xfe) == 0xee) {
-                aByte += 0xe;
-              }
-              if ((bByte&0xfe) == 0xee) {
-                bByte += 0xe;
-              }
+            final int aStop;
+            if (a.length < b.length) 
+            {
+                aStop = aUpto + a.length;
+            } 
+            else 
+            {
+                aStop = aUpto + b.length;
             }
-            return aByte - bByte;
-          }
+    
+            while(aUpto < aStop) 
+            {
+                int aByte = aBytes[aUpto++] & 0xff;
+                int bByte = bBytes[bUpto++] & 0xff;
+        
+                if (aByte != bByte) 
+                {
+                    // See http://icu-project.org/docs/papers/utf16_code_point_order.html#utf-8-in-utf-16-order
+          
+                    // We know the terms are not equal, but, we may have to carefully fixup the bytes at the
+                    // difference to match UTF16's sort order:
+                    
+                    // NOTE: instead of moving supplementary code points (0xee and 0xef) to the unused 0xfe and 0xff, 
+                    // we move them to the unused 0xfc and 0xfd [reserved for future 6-byte character sequences]
+                    // this reserves 0xff for preflex's term reordering (surrogate dance), and if unicode grows such
+                    // that 6-byte sequences are needed we have much bigger problems anyway.
+                    if (aByte >= 0xee && bByte >= 0xee) 
+                    {
+                        if ((aByte & 0xfe) == 0xee) 
+                        {
+                            aByte += 0xe;
+                        }
+                        if ((bByte&0xfe) == 0xee) 
+                        {
+                            bByte += 0xe;
+                        }
+                    }
+                    return aByte - bByte;
+                }
+            }
+      
+            // One is a prefix of the other, or, they are equal:
+            return a.length - b.length;
         }
-  
-        // One is a prefix of the other, or, they are equal:
-        return a.length - b.length;
-      }
     }
     
     /**

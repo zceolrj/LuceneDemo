@@ -187,96 +187,97 @@ import org.apache.lucene.util.ThreadInterruptedException;
  */
 public class IndexWriter implements Closeable, TwoPhaseCommit
 {  
-  private static final int UNBOUNDED_MAX_MERGE_SEGMENTS = -1;
+    private static final int UNBOUNDED_MAX_MERGE_SEGMENTS = -1;
+    
+    /**
+     * Name of the write lock in the index.
+     */
+    public static final String WRITE_LOCK_NAME = "write.lock";
   
-  /**
-   * Name of the write lock in the index.
-   */
-  public static final String WRITE_LOCK_NAME = "write.lock";
+    /** Key for the source of a segment in the {@link SegmentInfo#getDiagnostics() diagnostics}. */
+    public static final String SOURCE = "source";
+    /** Source of a segment which results from a merge of other segments. */
+    public static final String SOURCE_MERGE = "merge";
+    /** Source of a segment which results from a flush. */
+    public static final String SOURCE_FLUSH = "flush";
+    /** Source of a segment which results from a call to {@link #addIndexes(IndexReader...)}. */
+    public static final String SOURCE_ADDINDEXES_READERS = "addIndexes(IndexReader...)";
 
-  /** Key for the source of a segment in the {@link SegmentInfo#getDiagnostics() diagnostics}. */
-  public static final String SOURCE = "source";
-  /** Source of a segment which results from a merge of other segments. */
-  public static final String SOURCE_MERGE = "merge";
-  /** Source of a segment which results from a flush. */
-  public static final String SOURCE_FLUSH = "flush";
-  /** Source of a segment which results from a call to {@link #addIndexes(IndexReader...)}. */
-  public static final String SOURCE_ADDINDEXES_READERS = "addIndexes(IndexReader...)";
+    /**
+     * Absolute hard maximum length for a term, in bytes once
+     * encoded as UTF8.  If a term arrives from the analyzer
+     * longer than this length, it is skipped and a message is
+     * printed to infoStream, if set (see {@link
+     * IndexWriterConfig#setInfoStream(InfoStream)}).
+     */
+    public final static int MAX_TERM_LENGTH = DocumentsWriterPerThread.MAX_TERM_LENGTH_UTF8;
+    volatile private boolean hitOOM;
+  
+    private final Directory directory;  // where this index resides
+    private final Analyzer analyzer;    // how to analyze text
+  
+    private volatile long changeCount; // increments every time a change is completed
+    private volatile long lastCommitChangeCount; // last changeCount that was committed
+  
+    private List<SegmentInfoPerCommit> rollbackSegments;      // list of segmentInfo we will fallback to if the commit fails
+  
+    volatile SegmentInfos pendingCommit;            // set when a commit is pending (after prepareCommit() & before commit())
+    volatile long pendingCommitChangeCount;
+  
+    private Collection<String> filesToCommit;
+  
+    final SegmentInfos segmentInfos;       // the segments
+    final FieldNumbers globalFieldNumberMap;
+  
+    private DocumentsWriter docWriter;
+    private final Queue<Event> eventQueue;
+    final IndexFileDeleter deleter;
+  
+    // used by forceMerge to note those needing merging
+    private Map<SegmentInfoPerCommit,Boolean> segmentsToMerge = new HashMap<SegmentInfoPerCommit,Boolean>();
+    private int mergeMaxNumSegments;
+  
+    private Lock writeLock;
 
-  /**
-   * Absolute hard maximum length for a term, in bytes once
-   * encoded as UTF8.  If a term arrives from the analyzer
-   * longer than this length, it is skipped and a message is
-   * printed to infoStream, if set (see {@link
-   * IndexWriterConfig#setInfoStream(InfoStream)}).
-   */
-  public final static int MAX_TERM_LENGTH = DocumentsWriterPerThread.MAX_TERM_LENGTH_UTF8;
-  volatile private boolean hitOOM;
+    private volatile boolean closed;
+    private volatile boolean closing;
+  
+    // Holds all SegmentInfo instances currently involved in merges
+    private HashSet<SegmentInfoPerCommit> mergingSegments = new HashSet<SegmentInfoPerCommit>();
+  
+    private MergePolicy mergePolicy;
+    private final MergeScheduler mergeScheduler;
+    private LinkedList<MergePolicy.OneMerge> pendingMerges = new LinkedList<MergePolicy.OneMerge>();
+    private Set<MergePolicy.OneMerge> runningMerges = new HashSet<MergePolicy.OneMerge>();
+    private List<MergePolicy.OneMerge> mergeExceptions = new ArrayList<MergePolicy.OneMerge>();
+    private long mergeGen;
+    private boolean stopMerges;
+  
+    final AtomicInteger flushCount = new AtomicInteger();
+    final AtomicInteger flushDeletesCount = new AtomicInteger();
+  
+    final ReaderPool readerPool = new ReaderPool();
+    final BufferedDeletesStream bufferedDeletesStream;
+  
+    // This is a "write once" variable (like the organic dye
+    // on a DVD-R that may or may not be heated by a laser and
+    // then cooled to permanently record the event): it's
+    // false, until getReader() is called for the first time,
+    // at which point it's switched to true and never changes
+    // back to false.  Once this is true, we hold open and
+    // reuse SegmentReader instances internally for applying
+    // deletes, doing merges, and reopening near real-time
+    // readers.
+    private volatile boolean poolReaders;
+  
+    // The instance that was passed to the constructor. It is saved only in order
+    // to allow users to query an IndexWriter settings.
+    private final LiveIndexWriterConfig config;
 
-  private final Directory directory;  // where this index resides
-  private final Analyzer analyzer;    // how to analyze text
-
-  private volatile long changeCount; // increments every time a change is completed
-  private volatile long lastCommitChangeCount; // last changeCount that was committed
-
-  private List<SegmentInfoPerCommit> rollbackSegments;      // list of segmentInfo we will fallback to if the commit fails
-
-  volatile SegmentInfos pendingCommit;            // set when a commit is pending (after prepareCommit() & before commit())
-  volatile long pendingCommitChangeCount;
-
-  private Collection<String> filesToCommit;
-
-  final SegmentInfos segmentInfos;       // the segments
-  final FieldNumbers globalFieldNumberMap;
-
-  private DocumentsWriter docWriter;
-  private final Queue<Event> eventQueue;
-  final IndexFileDeleter deleter;
-
-  // used by forceMerge to note those needing merging
-  private Map<SegmentInfoPerCommit,Boolean> segmentsToMerge = new HashMap<SegmentInfoPerCommit,Boolean>();
-  private int mergeMaxNumSegments;
-
-  private Lock writeLock;
-
-  private volatile boolean closed;
-  private volatile boolean closing;
-
-  // Holds all SegmentInfo instances currently involved in merges
-  private HashSet<SegmentInfoPerCommit> mergingSegments = new HashSet<SegmentInfoPerCommit>();
-
-  private MergePolicy mergePolicy;
-  private final MergeScheduler mergeScheduler;
-  private LinkedList<MergePolicy.OneMerge> pendingMerges = new LinkedList<MergePolicy.OneMerge>();
-  private Set<MergePolicy.OneMerge> runningMerges = new HashSet<MergePolicy.OneMerge>();
-  private List<MergePolicy.OneMerge> mergeExceptions = new ArrayList<MergePolicy.OneMerge>();
-  private long mergeGen;
-  private boolean stopMerges;
-
-  final AtomicInteger flushCount = new AtomicInteger();
-  final AtomicInteger flushDeletesCount = new AtomicInteger();
-
-  final ReaderPool readerPool = new ReaderPool();
-  final BufferedDeletesStream bufferedDeletesStream;
-
-  // This is a "write once" variable (like the organic dye
-  // on a DVD-R that may or may not be heated by a laser and
-  // then cooled to permanently record the event): it's
-  // false, until getReader() is called for the first time,
-  // at which point it's switched to true and never changes
-  // back to false.  Once this is true, we hold open and
-  // reuse SegmentReader instances internally for applying
-  // deletes, doing merges, and reopening near real-time
-  // readers.
-  private volatile boolean poolReaders;
-
-  // The instance that was passed to the constructor. It is saved only in order
-  // to allow users to query an IndexWriter settings.
-  private final LiveIndexWriterConfig config;
-
-  DirectoryReader getReader() throws IOException {
-    return getReader(true);
-  }
+    DirectoryReader getReader() throws IOException 
+    {
+        return getReader(true);
+    }
 
   /**
    * Expert: returns a readonly reader, covering all

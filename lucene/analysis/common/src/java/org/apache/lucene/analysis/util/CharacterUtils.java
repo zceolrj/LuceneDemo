@@ -42,6 +42,7 @@ public abstract class CharacterUtils {
    * @return a {@link CharacterUtils} implementation according to the given
    *         {@link Version} instance.
    */
+  @SuppressWarnings("deprecation")
   public static CharacterUtils getInstance(final Version matchVersion) {
     return matchVersion.onOrAfter(Version.LUCENE_31) ? JAVA_5 : JAVA_4;
   }

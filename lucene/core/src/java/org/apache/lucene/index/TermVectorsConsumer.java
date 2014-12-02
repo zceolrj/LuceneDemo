@@ -118,7 +118,7 @@ final class TermVectorsConsumer extends TermsHashConsumer
         fill(docState.docID);
     
         // Append term vectors to the real outputs:
-        writer.startDocument(numVectorFields);
+        writer.startDocument(numVectorFields);//CompressingTermsVectorWriter
         for (int i = 0; i < numVectorFields; i++) 
         {
             perFields[i].finishDocument();

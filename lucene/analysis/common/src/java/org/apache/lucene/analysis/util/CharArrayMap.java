@@ -50,17 +50,18 @@ import org.apache.lucene.util.Version;
  * {@link CharArrayMap} with the behavior before Lucene
  * 3.1 pass a {@link Version} &lt; 3.1 to the constructors.
  */
-public class CharArrayMap<V> extends AbstractMap<Object,V> {
-  // private only because missing generics
-  private static final CharArrayMap<?> EMPTY_MAP = new EmptyCharArrayMap<Object>();
-
-  private final static int INIT_SIZE = 8;
-  private final CharacterUtils charUtils;
-  private boolean ignoreCase;  
-  private int count;
-  final Version matchVersion; // package private because used in CharArraySet
-  char[][] keys; // package private because used in CharArraySet's non Set-conform CharArraySetIterator
-  V[] values; // package private because used in CharArraySet's non Set-conform CharArraySetIterator
+public class CharArrayMap<V> extends AbstractMap<Object,V> 
+{
+    // private only because missing generics
+    private static final CharArrayMap<?> EMPTY_MAP = new EmptyCharArrayMap<Object>();
+  
+    private final static int INIT_SIZE = 8;
+    private final CharacterUtils charUtils;
+    private boolean ignoreCase;  
+    private int count;
+    final Version matchVersion; // package private because used in CharArraySet
+    char[][] keys; // package private because used in CharArraySet's non Set-conform CharArraySetIterator
+    V[] values; // package private because used in CharArraySet's non Set-conform CharArraySetIterator
 
   /**
    * Create map with enough capacity to hold startSize terms
@@ -658,6 +659,7 @@ public class CharArrayMap<V> extends AbstractMap<Object,V> {
    * NPE if necessary.
    */
   private static final class EmptyCharArrayMap<V> extends UnmodifiableCharArrayMap<V> {
+    @SuppressWarnings("deprecation")
     EmptyCharArrayMap() {
       super(new CharArrayMap<V>(Version.LUCENE_CURRENT, 0, false));
     }
