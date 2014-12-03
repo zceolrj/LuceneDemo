@@ -54,8 +54,8 @@ import java.util.HashSet;
  * @see LockFactory
  */
 
-public class NativeFSLockFactory extends FSLockFactory {
-
+public class NativeFSLockFactory extends FSLockFactory 
+{
   /**
    * Create a NativeFSLockFactory instance, with null (unset)
    * lock directory. When you pass this factory to a {@link FSDirectory}

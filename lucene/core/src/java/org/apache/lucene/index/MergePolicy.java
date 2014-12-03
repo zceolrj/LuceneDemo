@@ -59,230 +59,235 @@ import org.apache.lucene.util.SetOnce;
  */
 public abstract class MergePolicy implements java.io.Closeable, Cloneable 
 {
-  /** A map of doc IDs. */
-  public static abstract class DocMap 
-  {
-    /** Sole constructor, typically invoked from sub-classes constructors. */
-    protected DocMap() {}
-
-    /** Return the new doc ID according to its old value. */
-    public abstract int map(int old);
-
-    /** Useful from an assert. */
-    boolean isConsistent(int maxDoc) {
-      final FixedBitSet targets = new FixedBitSet(maxDoc);
-      for (int i = 0; i < maxDoc; ++i) {
-        final int target = map(i);
-        if (target < 0 || target >= maxDoc) {
-          assert false : "out of range: " + target + " not in [0-" + maxDoc + "[";
-          return false;
-        } else if (targets.get(target)) {
-          assert false : target + " is already taken (" + i + ")";
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-
-  /** OneMerge provides the information necessary to perform
-   *  an individual primitive merge operation, resulting in
-   *  a single new segment.  The merge spec includes the
-   *  subset of segments to be merged as well as whether the
-   *  new segment should use the compound file format. */
-
-  public static class OneMerge {
-
-    SegmentInfoPerCommit info;      // used by IndexWriter
-    boolean registerDone;           // used by IndexWriter
-    long mergeGen;                  // used by IndexWriter
-    boolean isExternal;             // used by IndexWriter
-    int maxNumSegments = -1;        // used by IndexWriter
-
-    /** Estimated size in bytes of the merged segment. */
-    public volatile long estimatedMergeBytes;       // used by IndexWriter
-
-    // Sum of sizeInBytes of all SegmentInfos; set by IW.mergeInit
-    volatile long totalMergeBytes;
-
-    List<SegmentReader> readers;        // used by IndexWriter
-
-    /** Segments to be merged. */
-    public final List<SegmentInfoPerCommit> segments;
-
-    /** Number of documents in the merged segment. */
-    public final int totalDocCount;
-    boolean aborted;
-    Throwable error;
-    boolean paused;
-
-    /** Sole constructor.
-     * @param segments List of {@link SegmentInfoPerCommit}s
-     *        to be merged. */
-    public OneMerge(List<SegmentInfoPerCommit> segments) {
-      if (0 == segments.size())
-        throw new RuntimeException("segments must include at least one segment");
-      // clone the list, as the in list may be based off original SegmentInfos and may be modified
-      this.segments = new ArrayList<SegmentInfoPerCommit>(segments);
-      int count = 0;
-      for(SegmentInfoPerCommit info : segments) {
-        count += info.info.getDocCount();
-      }
-      totalDocCount = count;
-    }
-
-    /** Expert: Get the list of readers to merge. Note that this list does not
-     *  necessarily match the list of segments to merge and should only be used
-     *  to feed SegmentMerger to initialize a merge. When a {@link OneMerge}
-     *  reorders doc IDs, it must override {@link #getDocMap} too so that
-     *  deletes that happened during the merge can be applied to the newly
-     *  merged segment. */
-    public List<AtomicReader> getMergeReaders() throws IOException {
-      if (readers == null) {
-        throw new IllegalStateException("IndexWriter has not initialized readers from the segment infos yet");
-      }
-      final List<AtomicReader> readers = new ArrayList<AtomicReader>(this.readers.size());
-      for (AtomicReader reader : this.readers) {
-        if (reader.numDocs() > 0) {
-          readers.add(reader);
-        }
-      }
-      return Collections.unmodifiableList(readers);
-    }
+    /** A map of doc IDs. */
+    public static abstract class DocMap 
+    {
+        /** Sole constructor, typically invoked from sub-classes constructors. */
+        protected DocMap() {}
     
-    /**
-     * Expert: Sets the {@link SegmentInfoPerCommit} of this {@link OneMerge}.
-     * Allows sub-classes to e.g. set diagnostics properties.
-     */
-    public void setInfo(SegmentInfoPerCommit info) {
-      this.info = info;
-    }
-
-    /** Expert: If {@link #getMergeReaders()} reorders document IDs, this method
-     *  must be overridden to return a mapping from the <i>natural</i> doc ID
-     *  (the doc ID that would result from a natural merge) to the actual doc
-     *  ID. This mapping is used to apply deletions that happened during the
-     *  merge to the new segment. */
-    public DocMap getDocMap(MergeState mergeState) {
-      return new DocMap() {
-        @Override
-        public int map(int docID) {
-          return docID;
+        /** Return the new doc ID according to its old value. */
+        public abstract int map(int old);
+    
+        /** Useful from an assert. */
+        boolean isConsistent(int maxDoc) 
+        {
+            final FixedBitSet targets = new FixedBitSet(maxDoc);
+            for (int i = 0; i < maxDoc; ++i) 
+            {
+                final int target = map(i);
+                if (target < 0 || target >= maxDoc) 
+                {
+                    assert false : "out of range: " + target + " not in [0-" + maxDoc + "[";
+                    return false;
+                } 
+                else if (targets.get(target)) 
+                {
+                    assert false : target + " is already taken (" + i + ")";
+                    return false;
+                }
+            }
+            return true;
         }
-      };
     }
 
-    /** Record that an exception occurred while executing
-     *  this merge */
-    synchronized void setException(Throwable error) {
-      this.error = error;
-    }
-
-    /** Retrieve previous exception set by {@link
-     *  #setException}. */
-    synchronized Throwable getException() {
-      return error;
-    }
-
-    /** Mark this merge as aborted.  If this is called
-     *  before the merge is committed then the merge will
-     *  not be committed. */
-    synchronized void abort() {
-      aborted = true;
-      notifyAll();
-    }
-
-    /** Returns true if this merge was aborted. */
-    synchronized boolean isAborted() {
-      return aborted;
-    }
-
-    /** Called periodically by {@link IndexWriter} while
-     *  merging to see if the merge is aborted. */
-    public synchronized void checkAborted(Directory dir) throws MergeAbortedException {
-      if (aborted) {
-        throw new MergeAbortedException("merge is aborted: " + segString(dir));
+    /** OneMerge provides the information necessary to perform
+     *  an individual primitive merge operation, resulting in
+     *  a single new segment.  The merge spec includes the
+     *  subset of segments to be merged as well as whether the
+     *  new segment should use the compound file format. */
+  
+    public static class OneMerge 
+    {
+        SegmentInfoPerCommit info;      // used by IndexWriter
+        boolean registerDone;           // used by IndexWriter
+        long mergeGen;                  // used by IndexWriter
+        boolean isExternal;             // used by IndexWriter
+        int maxNumSegments = -1;        // used by IndexWriter
+    
+        /** Estimated size in bytes of the merged segment. */
+        public volatile long estimatedMergeBytes;       // used by IndexWriter
+    
+        // Sum of sizeInBytes of all SegmentInfos; set by IW.mergeInit
+        volatile long totalMergeBytes;
+    
+        List<SegmentReader> readers;        // used by IndexWriter
+    
+        /** Segments to be merged. */
+        public final List<SegmentInfoPerCommit> segments;
+    
+        /** Number of documents in the merged segment. */
+        public final int totalDocCount;
+        boolean aborted;
+        Throwable error;
+        boolean paused;
+  
+        /** Sole constructor.
+         * @param segments List of {@link SegmentInfoPerCommit}s
+         *        to be merged. */
+        public OneMerge(List<SegmentInfoPerCommit> segments) {
+          if (0 == segments.size())
+            throw new RuntimeException("segments must include at least one segment");
+          // clone the list, as the in list may be based off original SegmentInfos and may be modified
+          this.segments = new ArrayList<SegmentInfoPerCommit>(segments);
+          int count = 0;
+          for(SegmentInfoPerCommit info : segments) {
+            count += info.info.getDocCount();
+          }
+          totalDocCount = count;
+        }
+  
+      /** Expert: Get the list of readers to merge. Note that this list does not
+       *  necessarily match the list of segments to merge and should only be used
+       *  to feed SegmentMerger to initialize a merge. When a {@link OneMerge}
+       *  reorders doc IDs, it must override {@link #getDocMap} too so that
+       *  deletes that happened during the merge can be applied to the newly
+       *  merged segment. */
+      public List<AtomicReader> getMergeReaders() throws IOException {
+        if (readers == null) {
+          throw new IllegalStateException("IndexWriter has not initialized readers from the segment infos yet");
+        }
+        final List<AtomicReader> readers = new ArrayList<AtomicReader>(this.readers.size());
+        for (AtomicReader reader : this.readers) {
+          if (reader.numDocs() > 0) {
+            readers.add(reader);
+          }
+        }
+        return Collections.unmodifiableList(readers);
       }
-
-      while (paused) {
-        try {
-          // In theory we could wait() indefinitely, but we
-          // do 1000 msec, defensively
-          wait(1000);
-        } catch (InterruptedException ie) {
-          throw new RuntimeException(ie);
-        }
+      
+      /**
+       * Expert: Sets the {@link SegmentInfoPerCommit} of this {@link OneMerge}.
+       * Allows sub-classes to e.g. set diagnostics properties.
+       */
+      public void setInfo(SegmentInfoPerCommit info) {
+        this.info = info;
+      }
+  
+      /** Expert: If {@link #getMergeReaders()} reorders document IDs, this method
+       *  must be overridden to return a mapping from the <i>natural</i> doc ID
+       *  (the doc ID that would result from a natural merge) to the actual doc
+       *  ID. This mapping is used to apply deletions that happened during the
+       *  merge to the new segment. */
+      public DocMap getDocMap(MergeState mergeState) {
+        return new DocMap() {
+          @Override
+          public int map(int docID) {
+            return docID;
+          }
+        };
+      }
+  
+      /** Record that an exception occurred while executing
+       *  this merge */
+      synchronized void setException(Throwable error) {
+        this.error = error;
+      }
+  
+      /** Retrieve previous exception set by {@link
+       *  #setException}. */
+      synchronized Throwable getException() {
+        return error;
+      }
+  
+      /** Mark this merge as aborted.  If this is called
+       *  before the merge is committed then the merge will
+       *  not be committed. */
+      synchronized void abort() {
+        aborted = true;
+        notifyAll();
+      }
+  
+      /** Returns true if this merge was aborted. */
+      synchronized boolean isAborted() {
+        return aborted;
+      }
+  
+      /** Called periodically by {@link IndexWriter} while
+       *  merging to see if the merge is aborted. */
+      public synchronized void checkAborted(Directory dir) throws MergeAbortedException {
         if (aborted) {
           throw new MergeAbortedException("merge is aborted: " + segString(dir));
         }
+  
+        while (paused) {
+          try {
+            // In theory we could wait() indefinitely, but we
+            // do 1000 msec, defensively
+            wait(1000);
+          } catch (InterruptedException ie) {
+            throw new RuntimeException(ie);
+          }
+          if (aborted) {
+            throw new MergeAbortedException("merge is aborted: " + segString(dir));
+          }
+        }
       }
-    }
-
-    /** Set or clear whether this merge is paused paused (for example
-     *  {@link ConcurrentMergeScheduler} will pause merges
-     *  if too many are running). */
-    synchronized public void setPause(boolean paused) {
-      this.paused = paused;
-      if (!paused) {
-        // Wakeup merge thread, if it's waiting
-        notifyAll();
+  
+      /** Set or clear whether this merge is paused paused (for example
+       *  {@link ConcurrentMergeScheduler} will pause merges
+       *  if too many are running). */
+      synchronized public void setPause(boolean paused) {
+        this.paused = paused;
+        if (!paused) {
+          // Wakeup merge thread, if it's waiting
+          notifyAll();
+        }
       }
-    }
-
-    /** Returns true if this merge is paused.
-     *
-     *  @see #setPause(boolean) */
-    synchronized public boolean getPause() {
-      return paused;
-    }
-
-    /** Returns a readable description of the current merge
-     *  state. */
-    public String segString(Directory dir) {
-      StringBuilder b = new StringBuilder();
-      final int numSegments = segments.size();
-      for(int i=0;i<numSegments;i++) {
-        if (i > 0) b.append(' ');
-        b.append(segments.get(i).toString(dir, 0));
+  
+      /** Returns true if this merge is paused.
+       *
+       *  @see #setPause(boolean) */
+      synchronized public boolean getPause() {
+        return paused;
       }
-      if (info != null) {
-        b.append(" into ").append(info.info.name);
+  
+      /** Returns a readable description of the current merge
+       *  state. */
+      public String segString(Directory dir) {
+        StringBuilder b = new StringBuilder();
+        final int numSegments = segments.size();
+        for(int i=0;i<numSegments;i++) {
+          if (i > 0) b.append(' ');
+          b.append(segments.get(i).toString(dir, 0));
+        }
+        if (info != null) {
+          b.append(" into ").append(info.info.name);
+        }
+        if (maxNumSegments != -1)
+          b.append(" [maxNumSegments=" + maxNumSegments + "]");
+        if (aborted) {
+          b.append(" [ABORTED]");
+        }
+        return b.toString();
       }
-      if (maxNumSegments != -1)
-        b.append(" [maxNumSegments=" + maxNumSegments + "]");
-      if (aborted) {
-        b.append(" [ABORTED]");
+      
+      /**
+       * Returns the total size in bytes of this merge. Note that this does not
+       * indicate the size of the merged segment, but the
+       * input total size. This is only set once the merge is
+       * initialized by IndexWriter.
+       */
+      public long totalBytesSize() throws IOException {
+        return totalMergeBytes;
       }
-      return b.toString();
-    }
-    
-    /**
-     * Returns the total size in bytes of this merge. Note that this does not
-     * indicate the size of the merged segment, but the
-     * input total size. This is only set once the merge is
-     * initialized by IndexWriter.
-     */
-    public long totalBytesSize() throws IOException {
-      return totalMergeBytes;
-    }
-
-    /**
-     * Returns the total number of documents that are included with this merge.
-     * Note that this does not indicate the number of documents after the merge.
-     * */
-    public int totalNumDocs() throws IOException {
-      int total = 0;
-      for (SegmentInfoPerCommit info : segments) {
-        total += info.info.getDocCount();
+  
+      /**
+       * Returns the total number of documents that are included with this merge.
+       * Note that this does not indicate the number of documents after the merge.
+       * */
+      public int totalNumDocs() throws IOException {
+        int total = 0;
+        for (SegmentInfoPerCommit info : segments) {
+          total += info.info.getDocCount();
+        }
+        return total;
       }
-      return total;
+  
+      /** Return {@link MergeInfo} describing this merge. */
+      public MergeInfo getMergeInfo() {
+        return new MergeInfo(totalDocCount, estimatedMergeBytes, isExternal, maxNumSegments);
+      }    
     }
-
-    /** Return {@link MergeInfo} describing this merge. */
-    public MergeInfo getMergeInfo() {
-      return new MergeInfo(totalDocCount, estimatedMergeBytes, isExternal, maxNumSegments);
-    }    
-  }
 
   /**
    * A MergeSpecification instance provides the information
@@ -324,6 +329,10 @@ public abstract class MergePolicy implements java.io.Closeable, Cloneable
   /** Exception thrown if there are any problems while
    *  executing a merge. */
   public static class MergeException extends RuntimeException {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Directory dir;
 
     /** Create a {@code MergeException}. */
@@ -350,6 +359,11 @@ public abstract class MergePolicy implements java.io.Closeable, Cloneable
    *  <code>false</code>.  Normally this exception is
    *  privately caught and suppresed by {@link IndexWriter}.  */
   public static class MergeAbortedException extends IOException {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     /** Create a {@link MergeAbortedException}. */
     public MergeAbortedException() {
       super("merge is aborted");
@@ -521,6 +535,7 @@ public abstract class MergePolicy implements java.io.Closeable, Cloneable
   /** Returns true if this single info is already fully merged (has no
    *  pending deletes, is in the same dir as the
    *  writer, and matches the current compound file setting */
+  @SuppressWarnings("deprecation")
   protected final boolean isMerged(SegmentInfoPerCommit info) {
     IndexWriter w = writer.get();
     assert w != null;

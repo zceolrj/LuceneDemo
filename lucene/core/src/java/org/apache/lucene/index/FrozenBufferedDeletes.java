@@ -50,94 +50,113 @@ class FrozenBufferedDeletes
 
     public FrozenBufferedDeletes(BufferedDeletes deletes, boolean isSegmentPrivate) 
     {
-      this.isSegmentPrivate = isSegmentPrivate;
-      assert !isSegmentPrivate || deletes.terms.size() == 0 : "segment private package should only have del queries"; 
-      Term termsArray[] = deletes.terms.keySet().toArray(new Term[deletes.terms.size()]);
-      termCount = termsArray.length;
-      ArrayUtil.timSort(termsArray);
-      PrefixCodedTerms.Builder builder = new PrefixCodedTerms.Builder();
-      for (Term term : termsArray) {
-        builder.add(term);
-      }
-      terms = builder.finish();
-      
-      queries = new Query[deletes.queries.size()];
-      queryLimits = new int[deletes.queries.size()];
-      int upto = 0;
-      for(Map.Entry<Query,Integer> ent : deletes.queries.entrySet()) {
-        queries[upto] = ent.getKey();
-        queryLimits[upto] = ent.getValue();
-        upto++;
-      }
-  
-      bytesUsed = (int) terms.getSizeInBytes() + queries.length * BYTES_PER_DEL_QUERY;
-      numTermDeletes = deletes.numTermDeletes.get();
+        this.isSegmentPrivate = isSegmentPrivate;
+        assert !isSegmentPrivate || deletes.terms.size() == 0 : "segment private package should only have del queries"; 
+        Term termsArray[] = deletes.terms.keySet().toArray(new Term[deletes.terms.size()]);
+        termCount = termsArray.length;
+        ArrayUtil.timSort(termsArray);
+        PrefixCodedTerms.Builder builder = new PrefixCodedTerms.Builder();
+        for (Term term : termsArray) 
+        {
+            builder.add(term);
+        }
+        terms = builder.finish();
+        
+        queries = new Query[deletes.queries.size()];
+        queryLimits = new int[deletes.queries.size()];
+        int upto = 0;
+        for(Map.Entry<Query,Integer> ent : deletes.queries.entrySet()) 
+        {
+            queries[upto] = ent.getKey();
+            queryLimits[upto] = ent.getValue();
+            upto++;
+        }
+    
+        bytesUsed = (int) terms.getSizeInBytes() + queries.length * BYTES_PER_DEL_QUERY;
+        numTermDeletes = deletes.numTermDeletes.get();
     }
   
-    public void setDelGen(long gen) {
-      assert this.gen == -1;
-      this.gen = gen;
+    public void setDelGen(long gen) 
+    {
+        assert this.gen == -1;
+        this.gen = gen;
     }
     
-    public long delGen() {
-      assert gen != -1;
-      return gen;
+    public long delGen() 
+    {
+        assert gen != -1;
+        return gen;
     }
   
-    public Iterable<Term> termsIterable() {
-      return new Iterable<Term>() {
-        @Override
-        public Iterator<Term> iterator() {
-          return terms.iterator();
-        }
-      };
-    }
-
-  public Iterable<QueryAndLimit> queriesIterable() {
-    return new Iterable<QueryAndLimit>() {
-      @Override
-      public Iterator<QueryAndLimit> iterator() {
-        return new Iterator<QueryAndLimit>() {
-          private int upto;
-
-          @Override
-          public boolean hasNext() {
-            return upto < queries.length;
-          }
-
-          @Override
-          public QueryAndLimit next() {
-            QueryAndLimit ret = new QueryAndLimit(queries[upto], queryLimits[upto]);
-            upto++;
-            return ret;
-          }
-
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
-          }
+    public Iterable<Term> termsIterable() 
+    {
+        return new Iterable<Term>() 
+        {
+            @Override
+            public Iterator<Term> iterator() 
+            {
+                return terms.iterator();
+            }
         };
-      }
-    };
-  }
-
-  @Override
-  public String toString() {
-    String s = "";
-    if (numTermDeletes != 0) {
-      s += " " + numTermDeletes + " deleted terms (unique count=" + termCount + ")";
-    }
-    if (queries.length != 0) {
-      s += " " + queries.length + " deleted queries";
-    }
-    if (bytesUsed != 0) {
-      s += " bytesUsed=" + bytesUsed;
     }
 
-    return s;
-  }
-  
-  boolean any() {
-    return termCount > 0 || queries.length > 0;
-  }
+    public Iterable<QueryAndLimit> queriesIterable() 
+    {
+        return new Iterable<QueryAndLimit>() 
+        {
+            @Override
+            public Iterator<QueryAndLimit> iterator() 
+            {
+                return new Iterator<QueryAndLimit>() 
+                {
+                    private int upto;
+          
+                    @Override
+                    public boolean hasNext() 
+                    {
+                        return upto < queries.length;
+                    }
+          
+                    @Override
+                    public QueryAndLimit next() 
+                    {
+                        QueryAndLimit ret = new QueryAndLimit(queries[upto], queryLimits[upto]);
+                        upto++;
+                        return ret;
+                    }
+          
+                    @Override
+                    public void remove() 
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+            }
+        };
+    }
+
+    @Override
+    public String toString() 
+    {
+        String s = "";
+        if (numTermDeletes != 0) 
+        {
+            s += " " + numTermDeletes + " deleted terms (unique count=" + termCount + ")";
+        }
+        if (queries.length != 0) 
+        {
+            s += " " + queries.length + " deleted queries";
+        }
+        if (bytesUsed != 0) 
+        {
+            s += " bytesUsed=" + bytesUsed;
+        }
+    
+        return s;
+    }
+    
+    boolean any() 
+    {
+        return termCount > 0 || queries.length > 0;
+    }
 }

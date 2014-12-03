@@ -438,13 +438,15 @@ class BufferedDeletesStream {
     return delCount;
   }
 
-  public static class QueryAndLimit {
-    public final Query query;
-    public final int limit;
-    public QueryAndLimit(Query query, int limit) {
-      this.query = query;
-      this.limit = limit;
-    }
+  public static class QueryAndLimit 
+  {
+      public final Query query;
+      public final int limit;
+      public QueryAndLimit(Query query, int limit) 
+      {
+          this.query = query;
+          this.limit = limit;
+      }
   }
 
   // Delete by query

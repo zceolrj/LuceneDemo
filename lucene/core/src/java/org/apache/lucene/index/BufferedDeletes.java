@@ -142,14 +142,12 @@ class BufferedDeletes
         Integer current = terms.get(term);
         if (current != null && docIDUpto < current) 
         {
-          // Only record the new number if it's greater than the
-          // current one.  This is important because if multiple
-          // threads are replacing the same doc at nearly the
-          // same time, it's possible that one thread that got a
-          // higher docID is scheduled before the other
-          // threads.  If we blindly replace than we can
-          // incorrectly get both docs indexed.
-          return;
+            // Only record the new number if it's greater than the current one.  
+            // This is important because if multiple threads are replacing the same doc 
+            // at nearly the same time, it's possible that one thread that got a
+            // higher docID is scheduled before the other threads.  
+            // If we blindly replace than we can incorrectly get both docs indexed.
+            return;
         }
     
         terms.put(term, Integer.valueOf(docIDUpto));

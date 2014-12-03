@@ -78,16 +78,18 @@ public abstract class Query implements Cloneable
      * <p>
      * Only implemented by primitive queries, which re-write to themselves.
      */
-    public Weight createWeight(IndexSearcher searcher) throws IOException {
-      throw new UnsupportedOperationException("Query " + this + " does not implement createWeight");
+    public Weight createWeight(IndexSearcher searcher) throws IOException 
+    {
+        throw new UnsupportedOperationException("Query " + this + " does not implement createWeight");
     }
   
     /** Expert: called to re-write queries into primitive queries. For example,
      * a PrefixQuery will be rewritten into a BooleanQuery that consists
      * of TermQuerys.
      */
-    public Query rewrite(IndexReader reader) throws IOException {
-      return this;
+    public Query rewrite(IndexReader reader) throws IOException 
+    {
+        return this;
     }
     
     /**
@@ -96,41 +98,55 @@ public abstract class Query implements Cloneable
      * 
      * @throws UnsupportedOperationException if this query is not yet rewritten
      */
-    public void extractTerms(Set<Term> terms) {
-      // needs to be implemented by query subclasses
-      throw new UnsupportedOperationException();
+    public void extractTerms(Set<Term> terms) 
+    {
+        // needs to be implemented by query subclasses
+        throw new UnsupportedOperationException();
     }
   
     /** Returns a clone of this query. */
     @Override
-    public Query clone() {
-      try {
-        return (Query)super.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new RuntimeException("Clone not supported: " + e.getMessage());
-      }
+    public Query clone() 
+    {
+        try 
+        {
+            return (Query)super.clone();
+        } 
+        catch (CloneNotSupportedException e) 
+        {
+            throw new RuntimeException("Clone not supported: " + e.getMessage());
+        }
     }
   
     @Override
-    public int hashCode() {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + Float.floatToIntBits(boost);
-      return result;
+    public int hashCode() 
+    {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Float.floatToIntBits(boost);
+        return result;
     }
   
     @Override
     public boolean equals(Object obj) 
     {
         if (this == obj)
-          return true;
+        {
+            return true;
+        }
         if (obj == null)
-          return false;
+        {
+            return false;
+        }
         if (getClass() != obj.getClass())
-          return false;
+        {
+            return false;
+        }
         Query other = (Query) obj;
         if (Float.floatToIntBits(boost) != Float.floatToIntBits(other.boost))
-          return false;
+        {
+            return false;
+        }
         return true;
     }
 }

@@ -327,52 +327,54 @@ final class TermsHashPerField extends InvertedDocConsumerPerField
         }
     }
   
-    private static final class PostingsBytesStartArray extends BytesStartArray {
-  
-      private final TermsHashPerField perField;
-      private final Counter bytesUsed;
-  
-      private PostingsBytesStartArray(
-          TermsHashPerField perField, Counter bytesUsed) {
-        this.perField = perField;
-        this.bytesUsed = bytesUsed;
-      }
-  
-      @Override
-      public int[] init() {
-        if (perField.postingsArray == null) {
-          perField.postingsArray = perField.consumer.createPostingsArray(2);
-          bytesUsed.addAndGet(perField.postingsArray.size * perField.postingsArray.bytesPerPosting());
-        }
-        return perField.postingsArray.textStarts;
-      }
-  
-      @Override
-      public int[] grow() 
-      {
-        ParallelPostingsArray postingsArray = perField.postingsArray;
-        final int oldSize = perField.postingsArray.size;
-        postingsArray = perField.postingsArray = postingsArray.grow();
-        bytesUsed.addAndGet((postingsArray.bytesPerPosting() * (postingsArray.size - oldSize)));
-        return postingsArray.textStarts;
-      }
-  
-      @Override
-      public int[] clear() 
-      {
-        if(perField.postingsArray != null) 
+    private static final class PostingsBytesStartArray extends BytesStartArray 
+    {
+        private final TermsHashPerField perField;
+        private final Counter bytesUsed;
+    
+        private PostingsBytesStartArray(TermsHashPerField perField, Counter bytesUsed) 
         {
-          bytesUsed.addAndGet(-(perField.postingsArray.size * perField.postingsArray.bytesPerPosting()));
-          perField.postingsArray = null;
+            this.perField = perField;
+            this.bytesUsed = bytesUsed;
         }
-        return null;
-      }
-  
-      @Override
-      public Counter bytesUsed() 
-      {
-        return bytesUsed;
-      }
+    
+        @Override
+        public int[] init() 
+        {
+            if (perField.postingsArray == null) 
+            {
+                perField.postingsArray = perField.consumer.createPostingsArray(2);
+                bytesUsed.addAndGet(perField.postingsArray.size * perField.postingsArray.bytesPerPosting());
+            }
+            return perField.postingsArray.textStarts;
+        }
+    
+        @Override
+        public int[] grow() 
+        {
+            ParallelPostingsArray postingsArray = perField.postingsArray;
+            final int oldSize = perField.postingsArray.size;
+            postingsArray = perField.postingsArray = postingsArray.grow();
+            bytesUsed.addAndGet((postingsArray.bytesPerPosting() * (postingsArray.size - oldSize)));
+            return postingsArray.textStarts;
+        }
+    
+        @Override
+        public int[] clear() 
+        {
+            if(perField.postingsArray != null) 
+            {
+                bytesUsed.addAndGet(-(perField.postingsArray.size * perField.postingsArray.bytesPerPosting()));
+                perField.postingsArray = null;
+            }
+            return null;
+        }
+    
+        @Override
+        public Counter bytesUsed() 
+        {
+            return bytesUsed;
+        }
   
     }
 

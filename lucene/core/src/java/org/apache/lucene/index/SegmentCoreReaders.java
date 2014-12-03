@@ -64,7 +64,7 @@ final class SegmentCoreReaders {
   final TermVectorsReader termVectorsReaderOrig;
   final CompoundFileDirectory cfsReader;
 
-  // TODO: make a single thread local w/ a
+  // make a single thread local w/ a
   // Thingy class holding fieldsReader, termVectorsReader,
   // normsProducer, dvProducer
 
@@ -133,7 +133,7 @@ final class SegmentCoreReaders {
       fields = format.fieldsProducer(segmentReadState);
       assert fields != null;
       // ask codec for its Norms: 
-      // TODO: since we don't write any norms file if there are no norms,
+      // since we don't write any norms file if there are no norms,
       // kinda jaky to assume the codec handles the case of no norms file at all gracefully?!
 
       if (fieldInfos.hasDocValues()) {

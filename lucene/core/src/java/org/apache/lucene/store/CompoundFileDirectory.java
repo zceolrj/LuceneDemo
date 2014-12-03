@@ -125,6 +125,7 @@ public final class CompoundFileDirectory extends Directory {
   private static final byte CODEC_MAGIC_BYTE4 = (byte) CodecUtil.CODEC_MAGIC;
 
   /** Helper method that reads CFS entries from an input stream */
+  @SuppressWarnings("deprecation")
   private static final Map<String, FileEntry> readEntries(
       IndexInputSlicer handle, Directory dir, String name) throws IOException {
     IOException priorE = null;
@@ -167,7 +168,7 @@ public final class CompoundFileDirectory extends Directory {
           fileEntry.length = entriesStream.readLong();
         }
       } else {
-        // TODO remove once 3.x is not supported anymore
+        //remove once 3.x is not supported anymore
         mapping = readLegacyEntries(stream, firstInt);
       }
       return mapping;
