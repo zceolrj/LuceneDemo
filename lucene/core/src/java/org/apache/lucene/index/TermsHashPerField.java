@@ -186,7 +186,7 @@ final class TermsHashPerField extends InvertedDocConsumerPerField
             }
             postingsArray.byteStarts[termID] = intUptos[intUptoStart];
       
-            consumer.newTerm(termID);
+            consumer.newTerm(termID);//consumer=FreqProxTermsWriterPerField
     
         } 
         else 
@@ -195,7 +195,7 @@ final class TermsHashPerField extends InvertedDocConsumerPerField
             int intStart = postingsArray.intStarts[termID];
             intUptos = intPool.buffers[intStart >> IntBlockPool.INT_BLOCK_SHIFT];
             intUptoStart = intStart & IntBlockPool.INT_BLOCK_MASK;
-            consumer.addTerm(termID);
+            consumer.addTerm(termID);//consumer=FreqProxTermsWriterPerField
         }
     }
   

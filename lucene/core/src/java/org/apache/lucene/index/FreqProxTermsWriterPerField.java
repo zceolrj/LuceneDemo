@@ -501,35 +501,50 @@ final class FreqProxTermsWriterPerField extends TermsHashConsumerPerField implem
             while(true) 
             {
                 final int termFreq;
-                if (freq.eof()) {
-                  if (postings.lastDocCodes[termID] != -1) {
-                    // Return last doc
-                    docID = postings.lastDocIDs[termID];
-                    if (readTermFreq) {
-                      termFreq = postings.termFreqs[termID];
-                    } else {
-                      termFreq = -1;
+                if (freq.eof()) 
+                {
+                    if (postings.lastDocCodes[termID] != -1) 
+                    {
+                        // Return last doc
+                        docID = postings.lastDocIDs[termID];
+                        if (readTermFreq) 
+                        {
+                            termFreq = postings.termFreqs[termID];
+                        } 
+                        else 
+                        {
+                            termFreq = -1;
+                        }
+                        postings.lastDocCodes[termID] = -1;
+                    } 
+                    else 
+                    {
+                        // EOF
+                        break;
                     }
-                    postings.lastDocCodes[termID] = -1;
-                  } else {
-                    // EOF
-                    break;
-                  }
-                } else {
-                  final int code = freq.readVInt();
-                  if (!readTermFreq) {
-                    docID += code;
-                    termFreq = -1;
-                  } else {
-                    docID += code >>> 1;
-                    if ((code & 1) != 0) {
-                      termFreq = 1;
-                    } else {
-                      termFreq = freq.readVInt();
+                } 
+                else 
+                {
+                    final int code = freq.readVInt();
+                    if (!readTermFreq) 
+                    {
+                        docID += code;
+                        termFreq = -1;
+                    } 
+                    else 
+                    {
+                        docID += code >>> 1;
+                        if ((code & 1) != 0) 
+                        {
+                            termFreq = 1;
+                        } 
+                        else 
+                        {
+                            termFreq = freq.readVInt();
+                        }
                     }
-                  }
-        
-                  assert docID != postings.lastDocIDs[termID];
+          
+                    assert docID != postings.lastDocIDs[termID];
                 }
       
                 docFreq++;
@@ -545,82 +560,99 @@ final class FreqProxTermsWriterPerField extends TermsHashConsumerPerField implem
                 postingsConsumer.startDoc(docID, writeTermFreq ? termFreq : -1);
                 if (docID < delDocLimit) 
                 {
-                  // Mark it deleted.  we could also skip
-                  // writing its postings; this would be
-                  // deterministic (just for this Term's docs).
-                  
-                  // can we do this reach-around in a cleaner way????
-                  if (state.liveDocs == null) {
-                    state.liveDocs = docState.docWriter.codec.liveDocsFormat().newLiveDocs(state.segmentInfo.getDocCount());
-                  }
-                  if (state.liveDocs.get(docID)) {
-                    state.delCountOnFlush++;
-                    state.liveDocs.clear(docID);
-                  }
+                    // Mark it deleted.  we could also skip
+                    // writing its postings; this would be
+                    // deterministic (just for this Term's docs).
+                    
+                    // can we do this reach-around in a cleaner way????
+                    if (state.liveDocs == null) 
+                    {
+                        state.liveDocs = docState.docWriter.codec.liveDocsFormat().newLiveDocs(state.segmentInfo.getDocCount());
+                    }
+                    if (state.liveDocs.get(docID)) 
+                    {
+                        state.delCountOnFlush++;
+                        state.liveDocs.clear(docID);
+                    }
                 }
       
-              totalTermFreq += termFreq;
+                totalTermFreq += termFreq;
+                
+                // Carefully copy over the prox + payload info,
+                // changing the format to match Lucene's segment
+                // format.
+        
+                if (readPositions || readOffsets) 
+                {
+                    // we did record positions (& maybe payload) and/or offsets
+                    int position = 0;
+                    int offset = 0;
+                    for(int j=0;j<termFreq;j++) 
+                    {
+                        final BytesRef thisPayload;
+            
+                        if (readPositions) 
+                        {
+                            final int code = prox.readVInt();
+                            position += code >>> 1;
               
-              // Carefully copy over the prox + payload info,
-              // changing the format to match Lucene's segment
-              // format.
-      
-              if (readPositions || readOffsets) {
-                // we did record positions (& maybe payload) and/or offsets
-                int position = 0;
-                int offset = 0;
-                for(int j=0;j<termFreq;j++) {
-                  final BytesRef thisPayload;
-      
-                  if (readPositions) {
-                    final int code = prox.readVInt();
-                    position += code >>> 1;
-      
-                    if ((code & 1) != 0) {
-      
-                      // This position has a payload
-                      final int payloadLength = prox.readVInt();
-      
-                      if (payload == null) {
-                        payload = new BytesRef();
-                        payload.bytes = new byte[payloadLength];
-                      } else if (payload.bytes.length < payloadLength) {
-                        payload.grow(payloadLength);
-                      }
-      
-                      prox.readBytes(payload.bytes, 0, payloadLength);
-                      payload.length = payloadLength;
-                      thisPayload = payload;
-      
-                    } else {
-                      thisPayload = null;
-                    }
-      
-                    if (readOffsets) {
-                      final int startOffset = offset + prox.readVInt();
-                      final int endOffset = startOffset + prox.readVInt();
-                      if (writePositions) {
-                        if (writeOffsets) {
-                          assert startOffset >=0 && endOffset >= startOffset : "startOffset=" + startOffset + ",endOffset=" + endOffset + ",offset=" + offset;
-                          postingsConsumer.addPosition(position, thisPayload, startOffset, endOffset);
-                        } else {
-                          postingsConsumer.addPosition(position, thisPayload, -1, -1);
+                            if ((code & 1) != 0) 
+                            {
+                                // This position has a payload
+                                final int payloadLength = prox.readVInt();
+                
+                                if (payload == null) 
+                                {
+                                    payload = new BytesRef();
+                                    payload.bytes = new byte[payloadLength];
+                                } 
+                                else if (payload.bytes.length < payloadLength) 
+                                {
+                                    payload.grow(payloadLength);
+                                }
+                
+                                prox.readBytes(payload.bytes, 0, payloadLength);
+                                payload.length = payloadLength;
+                                thisPayload = payload;
+                            } 
+                            else 
+                            {
+                                thisPayload = null;
+                            }
+              
+                            if (readOffsets) 
+                            {
+                                final int startOffset = offset + prox.readVInt();
+                                final int endOffset = startOffset + prox.readVInt();
+                                if (writePositions) 
+                                {
+                                    if (writeOffsets) 
+                                    {
+                                        assert startOffset >=0 && endOffset >= startOffset : "startOffset=" + 
+                                            startOffset + ",endOffset=" + endOffset + ",offset=" + offset;
+                                        postingsConsumer.addPosition(position, thisPayload, startOffset, endOffset);
+                                    } 
+                                    else 
+                                    {
+                                        postingsConsumer.addPosition(position, thisPayload, -1, -1);
+                                    }
+                                }
+                                offset = startOffset;
+                            } 
+                            else if (writePositions) 
+                            {
+                                postingsConsumer.addPosition(position, thisPayload, -1, -1);
+                            }
                         }
-                      }
-                      offset = startOffset;
-                    } else if (writePositions) {
-                      postingsConsumer.addPosition(position, thisPayload, -1, -1);
                     }
-                  }
                 }
-              }
-              postingsConsumer.finishDoc();
+                postingsConsumer.finishDoc();
             }
             termsConsumer.finishTerm(text, new TermStats(docFreq, writeTermFreq ? totalTermFreq : -1));
             sumTotalTermFreq += totalTermFreq;
             sumDocFreq += docFreq;
         }
   
-      termsConsumer.finish(writeTermFreq ? sumTotalTermFreq : -1, sumDocFreq, visitedDocs.cardinality());
+        termsConsumer.finish(writeTermFreq ? sumTotalTermFreq : -1, sumDocFreq, visitedDocs.cardinality());
     }
 }

@@ -272,7 +272,10 @@ public class AttributeSource
     public final void addAttributeImpl(final AttributeImpl att) 
     {
         final Class<? extends AttributeImpl> clazz = att.getClass();
-        if (attributeImpls.containsKey(clazz)) return;
+        if (attributeImpls.containsKey(clazz)) 
+        {
+            return;
+        }
         final LinkedList<WeakReference<Class<? extends Attribute>>> foundInterfaces = getAttributeInterfaces(clazz);
         
         // add all interfaces of this AttributeImpl to the maps
