@@ -248,11 +248,9 @@ public final class ByteBlockPool
         return upto;
     }
   
-    // Size of each slice.  These arrays should be at most 16
-    // elements (index is encoded with 4 bits).  First array
-    // is just a compact way to encode X+1 with a max.  Second
-    // array is the length of each slice, ie first slice is 5
-    // bytes, next slice is 14 bytes, etc.
+    // Size of each slice.  These arrays should be at most 16 elements (index is encoded with 4 bits). 
+    // First array is just a compact way to encode X+1 with a max.  
+    // Second array is the length of each slice, ie first slice is 5 bytes, next slice is 14 bytes, etc.
     
     /**
      * An array holding the offset into the {@link ByteBlockPool#LEVEL_SIZE_ARRAY}

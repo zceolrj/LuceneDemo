@@ -26,12 +26,9 @@ public abstract class BufferedIndexInput extends IndexInput
     /** Default buffer size set to {@value #BUFFER_SIZE}. */
     public static final int BUFFER_SIZE = 1024;
     
-    // The normal read buffer size defaults to 1024, but
-    // increasing this during merging seems to yield
-    // performance gains.  However we don't want to increase
-    // it too much because there are quite a few
-    // BufferedIndexInputs created during merging.  See
-    // LUCENE-888 for details.
+    // The normal read buffer size defaults to 1024, but increasing this during merging seems to yield
+    // performance gains.  However we don't want to increase it too much because there are quite a few
+    // BufferedIndexInputs created during merging.  See LUCENE-888 for details.
     /**
      * A buffer size for merges set to {@value #MERGE_BUFFER_SIZE}.
      */

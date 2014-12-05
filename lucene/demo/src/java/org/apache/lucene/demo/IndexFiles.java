@@ -165,28 +165,28 @@ public class IndexFiles
         {
             if (file.isDirectory()) 
             {
-              String[] files = file.list();
-              // an IO error could occur
-              if (files != null) 
-              {
-                for (int i = 0; i < files.length; i++) 
+                String[] files = file.list();
+                // an IO error could occur
+                if (files != null) 
                 {
-                  indexDocs(writer, new File(file, files[i]));
+                    for (int i = 0; i < files.length; i++) 
+                    {
+                        indexDocs(writer, new File(file, files[i]));
+                    }
                 }
-              }
             } 
             else 
             {     
                 FileInputStream fis;
                 try 
                 {
-                  fis = new FileInputStream(file);
+                    fis = new FileInputStream(file);
                 } 
                 catch (FileNotFoundException fnfe) 
                 {
-                  // at least on windows, some temporary files raise this exception with an "access denied" message
-                  // checking if the file can be read doesn't help
-                  return;
+                    // at least on windows, some temporary files raise this exception with an "access denied" message
+                    // checking if the file can be read doesn't help
+                    return;
                 }
       
                 try 
