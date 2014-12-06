@@ -315,7 +315,7 @@ public final class ByteBlockPool
         {
             // length is 1 byte
             term.length = bytes[pos];
-            term.offset = pos+1;
+            term.offset = pos + 1;
         } 
         else 
         {

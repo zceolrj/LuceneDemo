@@ -222,7 +222,7 @@ public final class BytesRefHash
         return scratch1.bytesEquals(b);
     }
 
-    private boolean shrink(int targetSize) 
+    private boolean shrink(int targetSize) // shrink   v.收缩
     {
         // Cannot use ArrayUtil.shrink because we require power of 2:
         int newSize = hashSize;

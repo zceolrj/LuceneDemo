@@ -29,17 +29,18 @@ import org.apache.lucene.util.Attribute;
  * {@link org.apache.lucene.analysis.TokenFilter}s.
  * @lucene.experimental While we think this is here to stay, we may want to change it to be a long.
  */
-public interface FlagsAttribute extends Attribute {
-  /**
-   * Get the bitset for any bits that have been set.  
-   * @return The bits
-   * @see #getFlags()
-   */
-  public int getFlags();
-
-  /**
-   * Set the flags to a new bitset.
-   * @see #getFlags()
-   */
-  public void setFlags(int flags);  
+public interface FlagsAttribute extends Attribute 
+{
+    /**
+     * Get the bitset for any bits that have been set.  
+     * @return The bits
+     * @see #getFlags()
+     */
+    public int getFlags();
+  
+    /**
+     * Set the flags to a new bitset.
+     * @see #getFlags()
+     */
+    public void setFlags(int flags);  
 }
