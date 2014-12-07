@@ -43,9 +43,9 @@ import static org.apache.lucene.util.RamUsageEstimator.NUM_BYTES_OBJECT_REF;
  **/
 public final class ByteBlockPool 
 {
-    public final static int BYTE_BLOCK_SHIFT = 15;
-    public final static int BYTE_BLOCK_SIZE = 1 << BYTE_BLOCK_SHIFT;
-    public final static int BYTE_BLOCK_MASK = BYTE_BLOCK_SIZE - 1;
+    public final static int BYTE_BLOCK_SHIFT = 15;// 1111
+    public final static int BYTE_BLOCK_SIZE = 1 << BYTE_BLOCK_SHIFT;// 1000 0000 0000 0000
+    public final static int BYTE_BLOCK_MASK = BYTE_BLOCK_SIZE - 1;// 0111 1111 1111 1111
   
     /** Abstract class for allocating and freeing byte
      *  blocks. */
@@ -128,7 +128,7 @@ public final class ByteBlockPool
   
     /**
      * array of buffers currently used in the pool. Buffers are allocated if
-     * needed don't modify this outside of this class.
+     * needed      don't modify this outside of this class.
      */
     public byte[][] buffers = new byte[10][];
     
@@ -311,7 +311,7 @@ public final class ByteBlockPool
     {
         final byte[] bytes = term.bytes = buffers[textStart >> BYTE_BLOCK_SHIFT];
         int pos = textStart & BYTE_BLOCK_MASK;
-        if ((bytes[pos] & 0x80) == 0) 
+        if ((bytes[pos] & 0x80) == 0) // 1000 0000
         {
             // length is 1 byte
             term.length = bytes[pos];

@@ -94,8 +94,7 @@ final class FreqProxTermsWriterPerField extends TermsHashConsumerPerField implem
     // Called after flush
     void reset() 
     {
-        // Record, up front, whether our in-RAM format will be
-        // with or without term freqs:
+        // Record, up front, whether our in-RAM format will be with or without term freqs:
         setIndexOptions(fieldInfo.getIndexOptions());
         payloadAttribute = null;
     }
@@ -152,7 +151,6 @@ final class FreqProxTermsWriterPerField extends TermsHashConsumerPerField implem
   
     void writeProx(final int termID, int proxCode) 
     {
-        //System.out.println("writeProx termID=" + termID + " proxCode=" + proxCode);
         assert hasProx;
         final BytesRef payload;
         if (payloadAttribute == null) 

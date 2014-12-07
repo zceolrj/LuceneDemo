@@ -36,7 +36,8 @@ class ParallelPostingsArray
         intStarts = new int[size];
         byteStarts = new int[size];
     }
-  
+    
+    //return the bytes consumed per post
     int bytesPerPosting() 
     {
         return BYTES_PER_POSTING;

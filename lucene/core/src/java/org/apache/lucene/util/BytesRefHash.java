@@ -47,8 +47,7 @@ public final class BytesRefHash
 {
     public static final int DEFAULT_CAPACITY = 16;
   
-    // the following fields are needed by comparator,
-    // so package private to prevent access$-methods:
+    // the following fields are needed by comparator, so package private to prevent access$-methods:
     final ByteBlockPool pool;
     int[] bytesStart;
   

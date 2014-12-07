@@ -185,6 +185,7 @@ import org.apache.lucene.util.ThreadInterruptedException;
  * referenced by the "front" of the index). For this, IndexFileDeleter
  * keeps track of the last non commit checkpoint.
  */
+@SuppressWarnings("deprecation")
 public class IndexWriter implements Closeable, TwoPhaseCommit
 {  
     private static final int UNBOUNDED_MAX_MERGE_SEGMENTS = -1;
@@ -1473,7 +1474,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
       
     final SegmentInfoPerCommit info = ((SegmentReader) reader).getSegmentInfo();
 
-    // TODO: this is a slow linear search, but, number of
+    // this is a slow linear search, but, number of
     // segments should be contained unless something is
     // seriously wrong w/ the index, so it should be a minor
     // cost:
@@ -1560,51 +1561,57 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     }
   }
 
-  /**
-   * Deletes the document(s) matching any of the provided queries.
-   * All given deletes are applied and flushed atomically at the same time.
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @param queries array of queries to identify the documents
-   * to be deleted
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void deleteDocuments(Query... queries) throws IOException {
-    ensureOpen();
-    try {
-      if (docWriter.deleteQueries(queries)) {
-        processEvents(true, false);
-      }
-    } catch (OutOfMemoryError oom) {
-      handleOOM(oom, "deleteDocuments(Query..)");
+    /**
+     * Deletes the document(s) matching any of the provided queries.
+     * All given deletes are applied and flushed atomically at the same time.
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @param queries array of queries to identify the documents
+     * to be deleted
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void deleteDocuments(Query... queries) throws IOException 
+    {
+        ensureOpen();
+        try 
+        {
+            if (docWriter.deleteQueries(queries)) 
+            {
+                processEvents(true, false);
+            }
+        } 
+        catch (OutOfMemoryError oom) 
+        {
+            handleOOM(oom, "deleteDocuments(Query..)");
+        }
     }
-  }
 
-  /**
-   * Updates a document by first deleting the document(s)
-   * containing <code>term</code> and then adding the new
-   * document.  The delete and then add are atomic as seen
-   * by a reader on the same index (flush may happen only after
-   * the add).
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @param term the term to identify the document(s) to be
-   * deleted
-   * @param doc the document to be added
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void updateDocument(Term term, Iterable<? extends IndexableField> doc) throws IOException {
-    ensureOpen();
-    updateDocument(term, doc, analyzer);
-  }
+    /**
+     * Updates a document by first deleting the document(s)
+     * containing <code>term</code> and then adding the new
+     * document.  The delete and then add are atomic as seen
+     * by a reader on the same index (flush may happen only after
+     * the add).
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @param term the term to identify the document(s) to be
+     * deleted
+     * @param doc the document to be added
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void updateDocument(Term term, Iterable<? extends IndexableField> doc) throws IOException 
+    {
+        ensureOpen();
+        updateDocument(term, doc, analyzer);
+    }
 
     /**
      * Updates a document by first deleting the document(s)
@@ -2637,7 +2644,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
       
       final IOContext context = new IOContext(new MergeInfo(numDocs, -1, true, -1));
 
-      // TODO: somehow we should fix this merge so it's
+      // somehow we should fix this merge so it's
       // abortable so that IW.close(false) is able to stop it
       TrackingDirectoryWrapper trackingDir = new TrackingDirectoryWrapper(directory);
 
@@ -3791,7 +3798,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
       return;
     }
 
-    // TODO: in the non-pool'd case this is somewhat
+    // in the non-pool'd case this is somewhat
     // wasteful, because we open these readers, close them,
     // and then open them again for merging.  Maybe  we
     // could pre-pool them somehow in that case...
@@ -3917,6 +3924,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
   /** Does the actual (time-consuming) work of the merge,
    *  but without holding synchronized lock on IndexWriter
    *  instance */
+  @SuppressWarnings("resource")
   private int mergeMiddle(MergePolicy.OneMerge merge) throws IOException {
 
     merge.checkAborted(directory);
@@ -4134,7 +4142,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         }
       }
 
-      // TODO: ideally we would freeze merge.info here!!
+      // ideally we would freeze merge.info here!!
       // because any changes after writing the .si will be
       // lost... 
 

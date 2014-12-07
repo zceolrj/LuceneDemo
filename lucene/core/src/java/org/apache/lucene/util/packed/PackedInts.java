@@ -37,190 +37,216 @@ import org.apache.lucene.util.RamUsageEstimator;
  */
 public class PackedInts 
 {
-  /**
-   * At most 700% memory overhead, always select a direct implementation.
-   */
-  public static final float FASTEST = 7f;
-
-  /**
-   * At most 50% memory overhead, always select a reasonably fast implementation.
-   */
-  public static final float FAST = 0.5f;
-
-  /**
-   * At most 20% memory overhead.
-   */
-  public static final float DEFAULT = 0.2f;
-
-  /**
-   * No memory overhead at all, but the returned implementation may be slow.
-   */
-  public static final float COMPACT = 0f;
-
-  /**
-   * Default amount of memory to use for bulk operations.
-   */
-  public static final int DEFAULT_BUFFER_SIZE = 1024; // 1K
-
-  public final static String CODEC_NAME = "PackedInts";
-  public final static int VERSION_START = 0; // PackedInts were long-aligned
-  public final static int VERSION_BYTE_ALIGNED = 1;
-  public final static int VERSION_CURRENT = VERSION_BYTE_ALIGNED;
-
-  /**
-   * Check the validity of a version number.
-   */
-  public static void checkVersion(int version) {
-    if (version < VERSION_START) {
-      throw new IllegalArgumentException("Version is too old, should be at least " + VERSION_START + " (got " + version + ")");
-    } else if (version > VERSION_CURRENT) {
-      throw new IllegalArgumentException("Version is too new, should be at most " + VERSION_CURRENT + " (got " + version + ")");
-    }
-  }
-
-  /**
-   * A format to write packed ints.
-   *
-   * @lucene.internal
-   */
-  public enum Format {
     /**
-     * Compact format, all bits are written contiguously.
+     * At most 700% memory overhead, always select a direct implementation.
      */
-    PACKED(0) {
+    public static final float FASTEST = 7f;
+  
+    /**
+     * At most 50% memory overhead, always select a reasonably fast implementation.
+     */
+    public static final float FAST = 0.5f;
+  
+    /**
+     * At most 20% memory overhead.
+     */
+    public static final float DEFAULT = 0.2f;
+  
+    /**
+     * No memory overhead at all, but the returned implementation may be slow.
+     */
+    public static final float COMPACT = 0f;
 
-      @Override
-      public long byteCount(int packedIntsVersion, int valueCount, int bitsPerValue) {
-        if (packedIntsVersion < VERSION_BYTE_ALIGNED) {
-          return 8L *  (long) Math.ceil((double) valueCount * bitsPerValue / 64);
-        } else {
-          return (long) Math.ceil((double) valueCount * bitsPerValue / 8);
+    /**
+     * Default amount of memory to use for bulk operations.
+     */
+    public static final int DEFAULT_BUFFER_SIZE = 1024; // 1K
+  
+    public final static String CODEC_NAME = "PackedInts";
+    public final static int VERSION_START = 0; // PackedInts were long-aligned
+    public final static int VERSION_BYTE_ALIGNED = 1;
+    public final static int VERSION_CURRENT = VERSION_BYTE_ALIGNED;
+  
+    /**
+     * Check the validity of a version number.
+     */
+    public static void checkVersion(int version) 
+    {
+        if (version < VERSION_START) 
+        {
+            throw new IllegalArgumentException("Version is too old, should be at least " + VERSION_START + " (got " + version + ")");
+        } 
+        else if (version > VERSION_CURRENT) 
+        {
+            throw new IllegalArgumentException("Version is too new, should be at most " + VERSION_CURRENT + " (got " + version + ")");
         }
-      }
-
-    },
+    }
 
     /**
-     * A format that may insert padding bits to improve encoding and decoding
-     * speed. Since this format doesn't support all possible bits per value, you
-     * should never use it directly, but rather use
-     * {@link PackedInts#fastestFormatAndBits(int, int, float)} to find the
-     * format that best suits your needs.
+     * A format to write packed ints.
+     *
+     * @lucene.internal
      */
-    PACKED_SINGLE_BLOCK(1) {
-
-      @Override
-      public int longCount(int packedIntsVersion, int valueCount, int bitsPerValue) {
-        final int valuesPerBlock = 64 / bitsPerValue;
-        return (int) Math.ceil((double) valueCount / valuesPerBlock);
-      }
-
-      @Override
-      public boolean isSupported(int bitsPerValue) {
-        return Packed64SingleBlock.isSupported(bitsPerValue);
-      }
-
-      @Override
-      public float overheadPerValue(int bitsPerValue) {
-        assert isSupported(bitsPerValue);
-        final int valuesPerBlock = 64 / bitsPerValue;
-        final int overhead = 64 % bitsPerValue;
-        return (float) overhead / valuesPerBlock;
-      }
-
-    };
-
-    /**
-     * Get a format according to its ID.
-     */
-    public static Format byId(int id) {
-      for (Format format : Format.values()) {
-        if (format.getId() == id) {
-          return format;
+    public enum Format 
+    {
+        /**
+         * Compact format, all bits are written contiguously.
+         */
+        PACKED(0) 
+        {
+            @Override
+            public long byteCount(int packedIntsVersion, int valueCount, int bitsPerValue) 
+            {
+                if (packedIntsVersion < VERSION_BYTE_ALIGNED) 
+                {
+                    return 8L *  (long) Math.ceil((double) valueCount * bitsPerValue / 64);
+                } 
+                else 
+                {
+                    return (long) Math.ceil((double) valueCount * bitsPerValue / 8);
+                }
+            }
+        },
+  
+        /**
+         * A format that may insert padding bits to improve encoding and decoding
+         * speed. Since this format doesn't support all possible bits per value, you
+         * should never use it directly, but rather use
+         * {@link PackedInts#fastestFormatAndBits(int, int, float)} to find the
+         * format that best suits your needs.
+         */
+        PACKED_SINGLE_BLOCK(1) 
+        {
+            @Override
+            public int longCount(int packedIntsVersion, int valueCount, int bitsPerValue) 
+            {
+                final int valuesPerBlock = 64 / bitsPerValue;
+                return (int) Math.ceil((double) valueCount / valuesPerBlock);
+            }
+      
+            @Override
+            public boolean isSupported(int bitsPerValue) 
+            {
+                return Packed64SingleBlock.isSupported(bitsPerValue);
+            }
+      
+            @Override
+            public float overheadPerValue(int bitsPerValue) 
+            {
+                assert isSupported(bitsPerValue);
+                final int valuesPerBlock = 64 / bitsPerValue;
+                final int overhead = 64 % bitsPerValue;
+                return (float) overhead / valuesPerBlock;
+            }
+        };
+  
+        /**
+         * Get a format according to its ID.
+         */
+        public static Format byId(int id) 
+        {
+            for (Format format : Format.values()) 
+            {
+                if (format.getId() == id) 
+                {
+                    return format;
+                }
+            }
+            throw new IllegalArgumentException("Unknown format id: " + id);
         }
-      }
-      throw new IllegalArgumentException("Unknown format id: " + id);
+    
+        private Format(int id) 
+        {
+            this.id = id;
+        }
+    
+        public int id;
+    
+        /**
+         * Returns the ID of the format.
+         */
+        public int getId() 
+        {
+            return id;
+        }
+  
+        /**
+         * Computes how many byte blocks are needed to store <code>values</code>
+         * values of size <code>bitsPerValue</code>.
+         */
+        public long byteCount(int packedIntsVersion, int valueCount, int bitsPerValue) 
+        {
+            assert bitsPerValue >= 0 && bitsPerValue <= 64 : bitsPerValue;
+            // assume long-aligned
+            return 8L * longCount(packedIntsVersion, valueCount, bitsPerValue);
+        }
+    
+        /**
+         * Computes how many long blocks are needed to store <code>values</code>
+         * values of size <code>bitsPerValue</code>.
+         */
+        public int longCount(int packedIntsVersion, int valueCount, int bitsPerValue) 
+        {
+            assert bitsPerValue >= 0 && bitsPerValue <= 64 : bitsPerValue;
+            final long byteCount = byteCount(packedIntsVersion, valueCount, bitsPerValue);
+            assert byteCount < 8L * Integer.MAX_VALUE;
+            if ((byteCount % 8) == 0) 
+            {
+                return (int) (byteCount / 8);
+            } 
+            else 
+            {
+                return (int) (byteCount / 8 + 1);
+            }
+        }
+    
+        /**
+         * Tests whether the provided number of bits per value is supported by the
+         * format.
+         */
+        public boolean isSupported(int bitsPerValue) 
+        {
+            return bitsPerValue >= 1 && bitsPerValue <= 64;
+        }
+  
+        /**
+         * Returns the overhead per value, in bits.
+         */
+        public float overheadPerValue(int bitsPerValue) 
+        {
+            assert isSupported(bitsPerValue);
+            return 0f;
+        }
+    
+        /**
+         * Returns the overhead ratio (<code>overhead per value / bits per value</code>).
+         */
+        public final float overheadRatio(int bitsPerValue) 
+        {
+            assert isSupported(bitsPerValue);
+            return overheadPerValue(bitsPerValue) / bitsPerValue;
+        }
     }
-
-    private Format(int id) {
-      this.id = id;
-    }
-
-    public int id;
 
     /**
-     * Returns the ID of the format.
+     * Simple class that holds a format and a number of bits per value.
      */
-    public int getId() {
-      return id;
+    public static class FormatAndBits 
+    {
+        public final Format format;
+        public final int bitsPerValue;
+        public FormatAndBits(Format format, int bitsPerValue) 
+        {
+            this.format = format;
+            this.bitsPerValue = bitsPerValue;
+        }
+    
+        @Override
+        public String toString() 
+        {
+            return "FormatAndBits(format=" + format + " bitsPerValue=" + bitsPerValue + ")";
+        }
     }
-
-    /**
-     * Computes how many byte blocks are needed to store <code>values</code>
-     * values of size <code>bitsPerValue</code>.
-     */
-    public long byteCount(int packedIntsVersion, int valueCount, int bitsPerValue) {
-      assert bitsPerValue >= 0 && bitsPerValue <= 64 : bitsPerValue;
-      // assume long-aligned
-      return 8L * longCount(packedIntsVersion, valueCount, bitsPerValue);
-    }
-
-    /**
-     * Computes how many long blocks are needed to store <code>values</code>
-     * values of size <code>bitsPerValue</code>.
-     */
-    public int longCount(int packedIntsVersion, int valueCount, int bitsPerValue) {
-      assert bitsPerValue >= 0 && bitsPerValue <= 64 : bitsPerValue;
-      final long byteCount = byteCount(packedIntsVersion, valueCount, bitsPerValue);
-      assert byteCount < 8L * Integer.MAX_VALUE;
-      if ((byteCount % 8) == 0) {
-        return (int) (byteCount / 8);
-      } else {
-        return (int) (byteCount / 8 + 1);
-      }
-    }
-
-    /**
-     * Tests whether the provided number of bits per value is supported by the
-     * format.
-     */
-    public boolean isSupported(int bitsPerValue) {
-      return bitsPerValue >= 1 && bitsPerValue <= 64;
-    }
-
-    /**
-     * Returns the overhead per value, in bits.
-     */
-    public float overheadPerValue(int bitsPerValue) {
-      assert isSupported(bitsPerValue);
-      return 0f;
-    }
-
-    /**
-     * Returns the overhead ratio (<code>overhead per value / bits per value</code>).
-     */
-    public final float overheadRatio(int bitsPerValue) {
-      assert isSupported(bitsPerValue);
-      return overheadPerValue(bitsPerValue) / bitsPerValue;
-    }
-  }
-
-  /**
-   * Simple class that holds a format and a number of bits per value.
-   */
-  public static class FormatAndBits {
-    public final Format format;
-    public final int bitsPerValue;
-    public FormatAndBits(Format format, int bitsPerValue) {
-      this.format = format;
-      this.bitsPerValue = bitsPerValue;
-    }
-
-    @Override
-    public String toString() {
-      return "FormatAndBits(format=" + format + " bitsPerValue=" + bitsPerValue + ")";
-    }
-  }
 
   /**
    * Try to find the {@link Format} and number of bits per value that would
