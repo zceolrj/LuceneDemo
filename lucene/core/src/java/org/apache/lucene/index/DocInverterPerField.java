@@ -37,8 +37,8 @@ import org.apache.lucene.util.IOUtils;
 final class DocInverterPerField extends DocFieldConsumerPerField 
 {
     final FieldInfo fieldInfo;
-    final InvertedDocConsumerPerField consumer;
-    final InvertedDocEndConsumerPerField endConsumer;
+    final InvertedDocConsumerPerField consumer;//TermsHashPerField
+    final InvertedDocEndConsumerPerField endConsumer;//NormsConsumerPerField
     final DocumentsWriterPerThread.DocState docState;
     final FieldInvertState fieldState;
 
