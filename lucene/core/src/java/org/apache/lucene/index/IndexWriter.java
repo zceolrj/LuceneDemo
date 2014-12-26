@@ -829,63 +829,71 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         }
     }
 
-  private FieldInfos getFieldInfos(SegmentInfo info) throws IOException {
-    Directory cfsDir = null;
-    try {
-      if (info.getUseCompoundFile()) {
-        cfsDir = new CompoundFileDirectory(info.dir,
-                                           IndexFileNames.segmentFileName(info.name, "", IndexFileNames.COMPOUND_FILE_EXTENSION),
-                                           IOContext.READONCE,
-                                           false);
-      } else {
-        cfsDir = info.dir;
-      }
-      return info.getCodec().fieldInfosFormat().getFieldInfosReader().read(cfsDir,
-                                                                                info.name,
-                                                                                IOContext.READONCE);
-    } finally {
-      if (info.getUseCompoundFile() && cfsDir != null) {
-        cfsDir.close();
-      }
-    }
-  }
-
-  /**
-   * Loads or returns the already loaded the global field number map for this {@link SegmentInfos}.
-   * If this {@link SegmentInfos} has no global field number map the returned instance is empty
-   */
-  private FieldNumbers getFieldNumberMap() throws IOException 
-  {
-    final FieldNumbers map = new FieldNumbers();
-
-    for(SegmentInfoPerCommit info : segmentInfos) 
+    private FieldInfos getFieldInfos(SegmentInfo info) throws IOException 
     {
-        for(FieldInfo fi : getFieldInfos(info.info)) 
+        Directory cfsDir = null;
+        try 
         {
-            map.addOrGet(fi.name, fi.number, fi.getDocValuesType());
+            if (info.getUseCompoundFile()) 
+            {
+                cfsDir = new CompoundFileDirectory(info.dir,
+                                 IndexFileNames.segmentFileName(info.name, "", IndexFileNames.COMPOUND_FILE_EXTENSION),
+                                 IOContext.READONCE, false);
+            } 
+            else 
+            {
+                cfsDir = info.dir;
+            }
+            return info.getCodec().fieldInfosFormat().getFieldInfosReader().read(cfsDir, info.name, IOContext.READONCE);
+        } 
+        finally 
+        {
+            if (info.getUseCompoundFile() && cfsDir != null) 
+            {
+                cfsDir.close();
+            }
         }
     }
 
-    return map;
-  }
-  
-  /**
-   * Returns a {@link LiveIndexWriterConfig}, which can be used to query the IndexWriter
-   * current settings, as well as modify "live" ones.
-   */
-  public LiveIndexWriterConfig getConfig() {
-    ensureOpen(false);
-    return config;
-  }
-
-  private void messageState() {
-    if (infoStream.isEnabled("IW")) {
-      infoStream.message("IW", "\ndir=" + directory + "\n" +
-            "index=" + segString() + "\n" +
-            "version=" + Constants.LUCENE_VERSION + "\n" +
-            config.toString());
+    /**
+     * Loads or returns the already loaded the global field number map for this {@link SegmentInfos}.
+     * If this {@link SegmentInfos} has no global field number map the returned instance is empty
+     */
+    private FieldNumbers getFieldNumberMap() throws IOException 
+    {
+        final FieldNumbers map = new FieldNumbers();
+    
+        for(SegmentInfoPerCommit info : segmentInfos) 
+        {
+            for(FieldInfo fi : getFieldInfos(info.info)) 
+            {
+                map.addOrGet(fi.name, fi.number, fi.getDocValuesType());
+            }
+        }
+    
+        return map;
     }
-  }
+  
+    /**
+     * Returns a {@link LiveIndexWriterConfig}, which can be used to query the IndexWriter
+     * current settings, as well as modify "live" ones.
+     */
+    public LiveIndexWriterConfig getConfig() 
+    {
+        ensureOpen(false);
+        return config;
+    }
+  
+    private void messageState() 
+    {
+        if (infoStream.isEnabled("IW")) 
+        {
+            infoStream.message("IW", "\ndir=" + directory + "\n" +
+                  "index=" + segString() + "\n" +
+                  "version=" + Constants.LUCENE_VERSION + "\n" +
+                  config.toString());
+        }
+    }
 
     /**
      * Commits all changes to an index, waits for pending merges

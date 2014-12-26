@@ -1,14 +1,6 @@
-/META-INF/
-/conf/
-/data/
-/org/
-/states-Intersects-BBox.txt
-/states-IsWithin-BBox.txt
-/uima/
 /README
 /analysis-extras/
 /books_numeric_ids.csv
-/cities-Intersects-BBox.txt
 /clustering/
 /dih/
 /dihextras/
@@ -19,7 +11,10 @@
 /log4j.properties
 /mailing_lists.pdf
 /old-solr-example/
+/org/
 /solr/
 /solrj/
 /spellings.txt
+/uima/
 /velocity/
+/conf/

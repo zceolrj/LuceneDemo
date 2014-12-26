@@ -26,8 +26,12 @@ import java.io.IOException;
  * that another writer already has open.
  * @see Lock#obtain(long)
  */
-public class LockObtainFailedException extends IOException {
-  public LockObtainFailedException(String message) {
-    super(message);
-  }
+public class LockObtainFailedException extends IOException 
+{
+    private static final long serialVersionUID = 1L;
+
+    public LockObtainFailedException(String message) 
+    {
+        super(message);
+    }
 }
