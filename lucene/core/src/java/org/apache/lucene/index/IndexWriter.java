@@ -1639,8 +1639,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
      * @throws CorruptIndexException if the index is corrupt
      * @throws IOException if there is a low-level IO error
      */
-    public void updateDocument(Term term, Iterable<? extends IndexableField> doc, Analyzer analyzer)
-        throws IOException 
+    public void updateDocument(Term term, Iterable<? extends IndexableField> doc, Analyzer analyzer) throws IOException 
     {
         ensureOpen();
         try 
