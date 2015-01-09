@@ -507,8 +507,8 @@ final class DocumentsWriter
         return postUpdate(flushingDWPT, hasEvents);
     }
 
-    boolean updateDocument(final Iterable<? extends IndexableField> doc, final Analyzer analyzer,
-        final Term delTerm) throws IOException 
+    boolean updateDocument(final Iterable<? extends IndexableField> doc, final Analyzer analyzer, final Term delTerm) 
+                throws IOException 
     {
         boolean hasEvents = preUpdate();
     

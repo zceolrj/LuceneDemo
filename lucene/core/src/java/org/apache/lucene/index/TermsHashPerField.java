@@ -275,6 +275,7 @@ final class TermsHashPerField extends InvertedDocConsumerPerField
             nextPerField.add(postingsArray.textStarts[termID]);
         }
     }
+    
   
     int[] intUptos;
     int intUptoStart;
