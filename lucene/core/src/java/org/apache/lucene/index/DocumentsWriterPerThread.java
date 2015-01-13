@@ -231,7 +231,7 @@ class DocumentsWriterPerThread
     
         // this should be the last call in the ctor 
         // it really sucks that we need to pull this within the ctor and pass this ref to the chain!
-        consumer = indexWriterConfig.getIndexingChain().getChain(this);
+        consumer = indexWriterConfig.getIndexingChain().getChain(this);//consumer=DocFieldProcessor
   
     }
     
