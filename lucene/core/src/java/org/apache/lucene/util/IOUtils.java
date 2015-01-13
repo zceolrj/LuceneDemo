@@ -49,6 +49,7 @@ public final class IOUtils
      * {@link Charset#forName(String)} lookups
      */
     public static final Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
+    
     private IOUtils() {} // no instance
 
     /**
