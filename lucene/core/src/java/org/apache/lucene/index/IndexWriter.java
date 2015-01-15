@@ -699,7 +699,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         mergePolicy = config.getMergePolicy();
         mergePolicy.setIndexWriter(this);
         mergeScheduler = config.getMergeScheduler();
-        codec = config.getCodec();
+        codec = config.getCodec();//Lucene45Codec
     
         bufferedDeletesStream = new BufferedDeletesStream(infoStream);
         poolReaders = config.getReaderPooling();
@@ -1187,63 +1187,80 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         return analyzer;
     }
 
-  /** Returns total number of docs in this index, including
-   *  docs not yet flushed (still in the RAM buffer),
-   *  not counting deletions.
-   *  @see #numDocs */
-  public synchronized int maxDoc() {
-    ensureOpen();
-    int count;
-    if (docWriter != null)
-      count = docWriter.getNumDocs();
-    else
-      count = 0;
+    /** Returns total number of docs in this index, including
+     *  docs not yet flushed (still in the RAM buffer),
+     *  not counting deletions.
+     *  @see #numDocs */
+    public synchronized int maxDoc() 
+    {
+        ensureOpen();
+        int count;
+        if (docWriter != null)
+        {
+            count = docWriter.getNumDocs();
+        }
+        else
+        {
+            count = 0;
+        }
+    
+        count += segmentInfos.totalDocCount();
+        return count;
+    }
 
-    count += segmentInfos.totalDocCount();
-    return count;
-  }
+    /** Returns total number of docs in this index, including
+     *  docs not yet flushed (still in the RAM buffer), and
+     *  including deletions.  <b>NOTE:</b> buffered deletions
+     *  are not counted.  If you really need these to be
+     *  counted you should call {@link #commit()} first.
+     *  @see #numDocs */
+    public synchronized int numDocs() 
+    {
+        ensureOpen();
+        int count;
+        if (docWriter != null)
+        {
+            count = docWriter.getNumDocs();
+        }
+        else
+        {
+            count = 0;
+        }
+    
+        for (final SegmentInfoPerCommit info : segmentInfos) 
+        {
+            count += info.info.getDocCount() - numDeletedDocs(info);
+        }
+        return count;
+    }
 
-  /** Returns total number of docs in this index, including
-   *  docs not yet flushed (still in the RAM buffer), and
-   *  including deletions.  <b>NOTE:</b> buffered deletions
-   *  are not counted.  If you really need these to be
-   *  counted you should call {@link #commit()} first.
-   *  @see #numDocs */
-  public synchronized int numDocs() {
-    ensureOpen();
-    int count;
-    if (docWriter != null)
-      count = docWriter.getNumDocs();
-    else
-      count = 0;
-
-    for (final SegmentInfoPerCommit info : segmentInfos) {
-      count += info.info.getDocCount() - numDeletedDocs(info);
+    /**
+     * Returns true if this index has deletions (including buffered deletions).
+     */
+    public synchronized boolean hasDeletions() 
+    {
+        ensureOpen();
+        if (bufferedDeletesStream.any()) 
+        {
+            return true;
+        }
+        if (docWriter.anyDeletions()) 
+        {
+            return true;
+        }
+        if (readerPool.anyPendingDeletes()) 
+        {
+            return true;
+        }
+        for (final SegmentInfoPerCommit info : segmentInfos) 
+        {
+            if (info.hasDeletions()) 
+            {
+                return true;
+            }
+        }
+        return false;
     }
-    return count;
-  }
-
-  /**
-   * Returns true if this index has deletions (including buffered deletions).
-   */
-  public synchronized boolean hasDeletions() {
-    ensureOpen();
-    if (bufferedDeletesStream.any()) {
-      return true;
-    }
-    if (docWriter.anyDeletions()) {
-      return true;
-    }
-    if (readerPool.anyPendingDeletes()) {
-      return true;
-    }
-    for (final SegmentInfoPerCommit info : segmentInfos) {
-      if (info.hasDeletions()) {
-        return true;
-      }
-    }
-    return false;
-  }
 
     /**
      * Adds a document to this index.
@@ -1312,139 +1329,157 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         updateDocument(null, doc, analyzer);
     }
 
-  /**
-   * Atomically adds a block of documents with sequentially
-   * assigned document IDs, such that an external reader
-   * will see all or none of the documents.
-   *
-   * <p><b>WARNING</b>: the index does not currently record
-   * which documents were added as a block.  Today this is
-   * fine, because merging will preserve a block. The order of
-   * documents within a segment will be preserved, even when child
-   * documents within a block are deleted. Most search features
-   * (like result grouping and block joining) require you to
-   * mark documents; when these documents are deleted these
-   * search features will not work as expected. Obviously adding
-   * documents to an existing block will require you the reindex
-   * the entire block.
-   *
-   * <p>However it's possible that in the future Lucene may
-   * merge more aggressively re-order documents (for example,
-   * perhaps to obtain better index compression), in which case
-   * you may need to fully re-index your documents at that time.
-   *
-   * <p>See {@link #addDocument(Iterable)} for details on
-   * index and IndexWriter state after an Exception, and
-   * flushing/merging temporary free space requirements.</p>
-   *
-   * <p><b>NOTE</b>: tools that do offline splitting of an index
-   * (for example, IndexSplitter in contrib) or
-   * re-sorting of documents (for example, IndexSorter in
-   * contrib) are not aware of these atomically added documents
-   * and will likely break them up.  Use such tools at your
-   * own risk!
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   *
-   * @lucene.experimental
-   */
-  public void addDocuments(Iterable<? extends Iterable<? extends IndexableField>> docs) throws IOException {
-    addDocuments(docs, analyzer);
-  }
-
-  /**
-   * Atomically adds a block of documents, analyzed using the
-   * provided analyzer, with sequentially assigned document
-   * IDs, such that an external reader will see all or none
-   * of the documents. 
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   *
-   * @lucene.experimental
-   */
-  public void addDocuments(Iterable<? extends Iterable<? extends IndexableField>> docs, Analyzer analyzer) throws IOException {
-    updateDocuments(null, docs, analyzer);
-  }
-
-  /**
-   * Atomically deletes documents matching the provided
-   * delTerm and adds a block of documents with sequentially
-   * assigned document IDs, such that an external reader
-   * will see all or none of the documents. 
-   *
-   * See {@link #addDocuments(Iterable)}.
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   *
-   * @lucene.experimental
-   */
-  public void updateDocuments(Term delTerm, Iterable<? extends Iterable<? extends IndexableField>> docs) throws IOException {
-    updateDocuments(delTerm, docs, analyzer);
-  }
-
-  /**
-   * Atomically deletes documents matching the provided
-   * delTerm and adds a block of documents, analyzed  using
-   * the provided analyzer, with sequentially
-   * assigned document IDs, such that an external reader
-   * will see all or none of the documents. 
-   *
-   * See {@link #addDocuments(Iterable)}.
-   *
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   *
-   * @lucene.experimental
-   */
-  public void updateDocuments(Term delTerm, Iterable<? extends Iterable<? extends IndexableField>> docs, Analyzer analyzer) throws IOException {
-    ensureOpen();
-    try {
-      boolean success = false;
-      try {
-        if (docWriter.updateDocuments(docs, analyzer, delTerm)) {
-          processEvents(true, false);
-        }
-        success = true;
-      } finally {
-        if (!success) {
-          if (infoStream.isEnabled("IW")) {
-            infoStream.message("IW", "hit exception updating document");
-          }
-        }
-      }
-    } catch (OutOfMemoryError oom) {
-      handleOOM(oom, "updateDocuments");
+    /**
+     * Atomically adds a block of documents with sequentially
+     * assigned document IDs, such that an external reader
+     * will see all or none of the documents.
+     *
+     * <p><b>WARNING</b>: the index does not currently record
+     * which documents were added as a block.  Today this is
+     * fine, because merging will preserve a block. The order of
+     * documents within a segment will be preserved, even when child
+     * documents within a block are deleted. Most search features
+     * (like result grouping and block joining) require you to
+     * mark documents; when these documents are deleted these
+     * search features will not work as expected. Obviously adding
+     * documents to an existing block will require you the reindex
+     * the entire block.
+     *
+     * <p>However it's possible that in the future Lucene may
+     * merge more aggressively re-order documents (for example,
+     * perhaps to obtain better index compression), in which case
+     * you may need to fully re-index your documents at that time.
+     *
+     * <p>See {@link #addDocument(Iterable)} for details on
+     * index and IndexWriter state after an Exception, and
+     * flushing/merging temporary free space requirements.</p>
+     *
+     * <p><b>NOTE</b>: tools that do offline splitting of an index
+     * (for example, IndexSplitter in contrib) or
+     * re-sorting of documents (for example, IndexSorter in
+     * contrib) are not aware of these atomically added documents
+     * and will likely break them up.  Use such tools at your
+     * own risk!
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     *
+     * @lucene.experimental
+     */
+    public void addDocuments(Iterable<? extends Iterable<? extends IndexableField>> docs) throws IOException 
+    {
+        addDocuments(docs, analyzer);
     }
-  }
-
-  /**
-   * Deletes the document(s) containing <code>term</code>.
-   *
-   * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
-   * you should immediately close the writer.  See <a
-   * href="#OOME">above</a> for details.</p>
-   *
-   * @param term the term to identify the documents to be deleted
-   * @throws CorruptIndexException if the index is corrupt
-   * @throws IOException if there is a low-level IO error
-   */
-  public void deleteDocuments(Term term) throws IOException {
-    ensureOpen();
-    try {
-      if (docWriter.deleteTerms(term)) {
-        processEvents(true, false);
-      }
-    } catch (OutOfMemoryError oom) {
-      handleOOM(oom, "deleteDocuments(Term)");
+  
+    /**
+     * Atomically adds a block of documents, analyzed using the
+     * provided analyzer, with sequentially assigned document
+     * IDs, such that an external reader will see all or none
+     * of the documents. 
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     *
+     * @lucene.experimental
+     */
+    public void addDocuments(Iterable<? extends Iterable<? extends IndexableField>> docs, Analyzer analyzer) throws IOException 
+    {
+        updateDocuments(null, docs, analyzer);
     }
-  }
+
+    /**
+     * Atomically deletes documents matching the provided
+     * delTerm and adds a block of documents with sequentially
+     * assigned document IDs, such that an external reader
+     * will see all or none of the documents. 
+     *
+     * See {@link #addDocuments(Iterable)}.
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     *
+     * @lucene.experimental
+     */
+    public void updateDocuments(Term delTerm, Iterable<? extends Iterable<? extends IndexableField>> docs) throws IOException 
+    {
+        updateDocuments(delTerm, docs, analyzer);
+    }
+
+    /**
+     * Atomically deletes documents matching the provided
+     * delTerm and adds a block of documents, analyzed  using
+     * the provided analyzer, with sequentially
+     * assigned document IDs, such that an external reader
+     * will see all or none of the documents. 
+     *
+     * See {@link #addDocuments(Iterable)}.
+     *
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     *
+     * @lucene.experimental
+     */
+    public void updateDocuments(Term delTerm, Iterable<? extends Iterable<? extends IndexableField>> docs, Analyzer analyzer) throws IOException 
+    {
+        ensureOpen();
+        try 
+        {
+            boolean success = false;
+            try 
+            {
+                if (docWriter.updateDocuments(docs, analyzer, delTerm)) 
+                {
+                    processEvents(true, false);
+                }
+                success = true;
+            } 
+            finally 
+            {
+                if (!success) 
+                {
+                    if (infoStream.isEnabled("IW")) 
+                    {
+                        infoStream.message("IW", "hit exception updating document");
+                    }
+                }
+            }
+        } 
+        catch (OutOfMemoryError oom) 
+        {
+            handleOOM(oom, "updateDocuments");
+        }
+    }
+  
+    /**
+     * Deletes the document(s) containing <code>term</code>.
+     *
+     * <p><b>NOTE</b>: if this method hits an OutOfMemoryError
+     * you should immediately close the writer.  See <a
+     * href="#OOME">above</a> for details.</p>
+     *
+     * @param term the term to identify the documents to be deleted
+     * @throws CorruptIndexException if the index is corrupt
+     * @throws IOException if there is a low-level IO error
+     */
+    public void deleteDocuments(Term term) throws IOException 
+    {
+        ensureOpen();
+        try 
+        {
+            if (docWriter.deleteTerms(term)) 
+            {
+                processEvents(true, false);
+            }
+        } 
+        catch (OutOfMemoryError oom) 
+        {
+            handleOOM(oom, "deleteDocuments(Term)");
+        }
+    }
 
   /** Expert: attempts to delete by document ID, as long as
    *  the provided reader is a near-real-time reader (from {@link

@@ -99,36 +99,36 @@ public class LiveIndexWriterConfig
     protected final Version matchVersion;
   
     /** True if segment flushes should use compound file format */
-    protected volatile boolean useCompoundFile = IndexWriterConfig.DEFAULT_USE_COMPOUND_FILE_SYSTEM;
+    protected volatile boolean useCompoundFile = IndexWriterConfig.DEFAULT_USE_COMPOUND_FILE_SYSTEM; // true
   
     // used by IndexWriterConfig
     LiveIndexWriterConfig(Analyzer analyzer, Version matchVersion) 
     {
         this.analyzer = analyzer;
         this.matchVersion = matchVersion;
-        ramBufferSizeMB = IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB;
-        maxBufferedDocs = IndexWriterConfig.DEFAULT_MAX_BUFFERED_DOCS;
-        maxBufferedDeleteTerms = IndexWriterConfig.DEFAULT_MAX_BUFFERED_DELETE_TERMS;
-        readerTermsIndexDivisor = IndexWriterConfig.DEFAULT_READER_TERMS_INDEX_DIVISOR;
+        ramBufferSizeMB = IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB; // 16
+        maxBufferedDocs = IndexWriterConfig.DEFAULT_MAX_BUFFERED_DOCS; // -1
+        maxBufferedDeleteTerms = IndexWriterConfig.DEFAULT_MAX_BUFFERED_DELETE_TERMS; // -1
+        readerTermsIndexDivisor = IndexWriterConfig.DEFAULT_READER_TERMS_INDEX_DIVISOR; // 1
         mergedSegmentWarmer = null;
         termIndexInterval = IndexWriterConfig.DEFAULT_TERM_INDEX_INTERVAL; // this should be private to the codec, not settable here
         delPolicy = new KeepOnlyLastCommitDeletionPolicy();
         commit = null;
-        useCompoundFile = IndexWriterConfig.DEFAULT_USE_COMPOUND_FILE_SYSTEM;//compound  adj.复合的，合成的，多功能的
+        useCompoundFile = IndexWriterConfig.DEFAULT_USE_COMPOUND_FILE_SYSTEM;// true    compound  adj.复合的，合成的，多功能的
         openMode = OpenMode.CREATE_OR_APPEND;
         similarity = IndexSearcher.getDefaultSimilarity();
         mergeScheduler = new ConcurrentMergeScheduler();
-        writeLockTimeout = IndexWriterConfig.WRITE_LOCK_TIMEOUT;
+        writeLockTimeout = IndexWriterConfig.WRITE_LOCK_TIMEOUT; // 1000
         indexingChain = DocumentsWriterPerThread.defaultIndexingChain;
         codec = Codec.getDefault();
         if (codec == null) 
         {
             throw new NullPointerException();
         }
-        infoStream = InfoStream.getDefault();
+        infoStream = InfoStream.getDefault();//NoOutput
         mergePolicy = new TieredMergePolicy();//tiered  分层的
         flushPolicy = new FlushByRamOrCountsPolicy();
-        readerPooling = IndexWriterConfig.DEFAULT_READER_POOLING;
+        readerPooling = IndexWriterConfig.DEFAULT_READER_POOLING;// false
         indexerThreadPool = new ThreadAffinityDocumentsWriterThreadPool(IndexWriterConfig.DEFAULT_MAX_THREAD_STATES);
         perThreadHardLimitMB = IndexWriterConfig.DEFAULT_RAM_PER_THREAD_HARD_LIMIT_MB;
     }

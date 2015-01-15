@@ -41,110 +41,138 @@ import org.apache.lucene.util.PriorityQueue;
  * </ul>
  * @lucene.internal
  */
-final class MergedIterator<T extends Comparable<T>> implements Iterator<T> {
-  private T current;
-  private final TermMergeQueue<T> queue; 
-  private final SubIterator<T>[] top;
-  private int numTop;
-  
-  @SuppressWarnings({"unchecked","rawtypes"})
-  public MergedIterator(Iterator<T>... iterators) {
-    queue = new TermMergeQueue<T>(iterators.length);
-    top = new SubIterator[iterators.length];
-    int index = 0;
-    for (Iterator<T> iterator : iterators) {
-      if (iterator.hasNext()) {
-        SubIterator<T> sub = new SubIterator<T>();
-        sub.current = iterator.next();
-        sub.iterator = iterator;
-        sub.index = index++;
-        queue.add(sub);
-      }
-    }
-  }
-  
-  @Override
-  public boolean hasNext() {
-    if (queue.size() > 0) {
-      return true;
-    }
+final class MergedIterator<T extends Comparable<T>> implements Iterator<T> 
+{
+    private T current;
+    private final TermMergeQueue<T> queue; 
+    private final SubIterator<T>[] top;
+    private int numTop;
     
-    for (int i = 0; i < numTop; i++) {
-      if (top[i].iterator.hasNext()) {
-        return true;
-      }
-    }
-    return false;
-  }
-  
-  @Override
-  public T next() {
-    // restore queue
-    pushTop();
-    
-    // gather equal top elements
-    if (queue.size() > 0) {
-      pullTop();
-    } else {
-      current = null;
-    }
-    if (current == null) {
-      throw new NoSuchElementException();
-    }
-    return current;
-  }
-  
-  @Override
-  public void remove() {
-    throw new UnsupportedOperationException();
-  }
-  
-  private void pullTop() {
-    // extract all subs from the queue that have the same top element
-    assert numTop == 0;
-    while (true) {
-      top[numTop++] = queue.pop();
-      if (queue.size() == 0
-          || !(queue.top()).current.equals(top[0].current)) {
-        break;
-      }
-    }
-    current = top[0].current;
-  }
-  
-  private void pushTop() {
-    // call next() on each top, and put back into queue
-    for (int i = 0; i < numTop; i++) {
-      if (top[i].iterator.hasNext()) {
-        top[i].current = top[i].iterator.next();
-        queue.add(top[i]);
-      } else {
-        // no more elements
-        top[i].current = null;
-      }
-    }
-    numTop = 0;
-  }
-  
-  private static class SubIterator<I extends Comparable<I>> {
-    Iterator<I> iterator;
-    I current;
-    int index;
-  }
-  
-  private static class TermMergeQueue<C extends Comparable<C>> extends PriorityQueue<SubIterator<C>> {
-    TermMergeQueue(int size) {
-      super(size);
+    @SuppressWarnings({"unchecked"})
+    public MergedIterator(Iterator<T>... iterators) 
+    {
+        queue = new TermMergeQueue<T>(iterators.length);
+        top = new SubIterator[iterators.length];
+        int index = 0;
+        for (Iterator<T> iterator : iterators) 
+        {
+            if (iterator.hasNext()) 
+            {
+                SubIterator<T> sub = new SubIterator<T>();
+                sub.current = iterator.next();
+                sub.iterator = iterator;
+                sub.index = index++;
+                queue.add(sub);
+            }
+        }
     }
     
     @Override
-    protected boolean lessThan(SubIterator<C> a, SubIterator<C> b) {
-      final int cmp = a.current.compareTo(b.current);
-      if (cmp != 0) {
-        return cmp < 0;
-      } else {
-        return a.index < b.index;
-      }
+    public boolean hasNext() 
+    {
+        if (queue.size() > 0) 
+        {
+            return true;
+        }
+        
+        for (int i = 0; i < numTop; i++) 
+        {
+            if (top[i].iterator.hasNext()) 
+            {
+                return true;
+            }
+        }
+        return false;
     }
-  }
+    
+    @Override
+    public T next() 
+    {
+        // restore queue
+        pushTop();
+        
+        // gather equal top elements
+        if (queue.size() > 0) 
+        {
+            pullTop();
+        } 
+        else 
+        {
+            current = null;
+        }
+        if (current == null) 
+        {
+            throw new NoSuchElementException();
+        }
+        return current;
+    }
+    
+    @Override
+    public void remove() 
+    {
+        throw new UnsupportedOperationException();
+    }
+    
+    private void pullTop() 
+    {
+        // extract all subs from the queue that have the same top element
+        assert numTop == 0;
+        while (true) 
+        {
+            top[numTop++] = queue.pop();
+            if (queue.size() == 0 || !(queue.top()).current.equals(top[0].current)) 
+            {
+                break;
+            }
+        }
+        current = top[0].current;
+    }
+    
+    private void pushTop() 
+    {
+        // call next() on each top, and put back into queue
+        for (int i = 0; i < numTop; i++) 
+        {
+            if (top[i].iterator.hasNext()) 
+            {
+                top[i].current = top[i].iterator.next();
+                queue.add(top[i]);
+            } 
+            else 
+            {
+                // no more elements
+                top[i].current = null;
+            }
+        }
+        numTop = 0;
+    }
+    
+    private static class SubIterator<I extends Comparable<I>> 
+    {
+        Iterator<I> iterator;
+        I current;
+        int index;
+    }
+    
+    private static class TermMergeQueue<C extends Comparable<C>> extends PriorityQueue<SubIterator<C>> 
+    {
+        TermMergeQueue(int size) 
+        {
+            super(size);
+        }
+        
+        @Override
+        protected boolean lessThan(SubIterator<C> a, SubIterator<C> b) 
+        {
+            final int cmp = a.current.compareTo(b.current);
+            if (cmp != 0) 
+            {
+                return cmp < 0;
+            } 
+            else 
+            {
+                return a.index < b.index;
+            }
+        }
+    }
 }

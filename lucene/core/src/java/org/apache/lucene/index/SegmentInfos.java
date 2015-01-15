@@ -536,416 +536,448 @@ public final class SegmentInfos implements Cloneable, Iterable<SegmentInfoPerCom
         }
     }
 
-  private static boolean segmentWasUpgraded(Directory directory, SegmentInfo si) {
-    // Check marker file:
-    String markerFileName = IndexFileNames.segmentFileName(si.name, "upgraded", Lucene3xSegmentInfoFormat.UPGRADED_SI_EXTENSION);
-    IndexInput in = null;
-    try {
-      in = directory.openInput(markerFileName, IOContext.READONCE);
-      if (CodecUtil.checkHeader(in, SEGMENT_INFO_UPGRADE_CODEC, SEGMENT_INFO_UPGRADE_VERSION, SEGMENT_INFO_UPGRADE_VERSION) == 0) {
-        return true;
-      }
-    } catch (IOException ioe) {
-      // Ignore: if something is wrong w/ the marker file,
-      // we will just upgrade again
-    } finally {
-      if (in != null) {
-        IOUtils.closeWhileHandlingException(in);
-      }
-    }
-    return false;
-  }
-
-
-  @Deprecated
-  public static String write3xInfo(Directory dir, SegmentInfo si, IOContext context) throws IOException {
-
-    // NOTE: this is NOT how 3.x is really written...
-    String fileName = IndexFileNames.segmentFileName(si.name, "", Lucene3xSegmentInfoFormat.UPGRADED_SI_EXTENSION);
-    si.addFile(fileName);
-
-    //System.out.println("UPGRADE write " + fileName);
-    boolean success = false;
-    IndexOutput output = dir.createOutput(fileName, context);
-    try {
-      // we are about to write this SI in 3.x format, dropping all codec information, etc.
-      // so it had better be a 3.x segment or you will get very confusing errors later.
-      assert si.getCodec() instanceof Lucene3xCodec : "broken test, trying to mix preflex with other codecs";
-      CodecUtil.writeHeader(output, Lucene3xSegmentInfoFormat.UPGRADED_SI_CODEC_NAME, 
-                                    Lucene3xSegmentInfoFormat.UPGRADED_SI_VERSION_CURRENT);
-      // Write the Lucene version that created this segment, since 3.1
-      output.writeString(si.getVersion());
-      output.writeInt(si.getDocCount());
-
-      output.writeStringStringMap(si.attributes());
-
-      output.writeByte((byte) (si.getUseCompoundFile() ? SegmentInfo.YES : SegmentInfo.NO));
-      output.writeStringStringMap(si.getDiagnostics());
-      output.writeStringSet(si.files());
-
-      output.close();
-
-      success = true;
-    } finally {
-      if (!success) {
-        IOUtils.closeWhileHandlingException(output);
-        try {
-          si.dir.deleteFile(fileName);
-        } catch (Throwable t) {
-          // Suppress so we keep throwing the original exception
+    private static boolean segmentWasUpgraded(Directory directory, SegmentInfo si) 
+    {
+        // Check marker file:
+        String markerFileName = IndexFileNames.segmentFileName(si.name, "upgraded", Lucene3xSegmentInfoFormat.UPGRADED_SI_EXTENSION);
+        IndexInput in = null;
+        try 
+        {
+            in = directory.openInput(markerFileName, IOContext.READONCE);
+            if (CodecUtil.checkHeader(in, SEGMENT_INFO_UPGRADE_CODEC, SEGMENT_INFO_UPGRADE_VERSION, SEGMENT_INFO_UPGRADE_VERSION) == 0) 
+            {
+                return true;
+            }
+        } 
+        catch (IOException ioe) 
+        {
+            // Ignore: if something is wrong w/ the marker file,
+            // we will just upgrade again
+        } 
+        finally 
+        {
+            if (in != null) 
+            {
+                IOUtils.closeWhileHandlingException(in);
+            }
         }
-      }
+        return false;
     }
 
-    return fileName;
-  }
-
-  /**
-   * Returns a copy of this instance, also copying each
-   * SegmentInfo.
-   */
-  
-  @Override
-  public SegmentInfos clone() {
-    try {
-      final SegmentInfos sis = (SegmentInfos) super.clone();
-      // deep clone, first recreate all collections:
-      sis.segments = new ArrayList<SegmentInfoPerCommit>(size());
-      for(final SegmentInfoPerCommit info : this) {
-        assert info.info.getCodec() != null;
-        // dont directly access segments, use add method!!!
-        sis.add(info.clone());
-      }
-      sis.userData = new HashMap<String,String>(userData);
-      return sis;
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("should not happen", e);
+    @Deprecated
+    public static String write3xInfo(Directory dir, SegmentInfo si, IOContext context) throws IOException 
+    {
+        // NOTE: this is NOT how 3.x is really written...
+        String fileName = IndexFileNames.segmentFileName(si.name, "", Lucene3xSegmentInfoFormat.UPGRADED_SI_EXTENSION);
+        si.addFile(fileName);
+    
+        //System.out.println("UPGRADE write " + fileName);
+        boolean success = false;
+        IndexOutput output = dir.createOutput(fileName, context);
+        try 
+        {
+            // we are about to write this SI in 3.x format, dropping all codec information, etc.
+            // so it had better be a 3.x segment or you will get very confusing errors later.
+            assert si.getCodec() instanceof Lucene3xCodec : "broken test, trying to mix preflex with other codecs";
+            CodecUtil.writeHeader(output, Lucene3xSegmentInfoFormat.UPGRADED_SI_CODEC_NAME, 
+                                          Lucene3xSegmentInfoFormat.UPGRADED_SI_VERSION_CURRENT);
+            // Write the Lucene version that created this segment, since 3.1
+            output.writeString(si.getVersion());
+            output.writeInt(si.getDocCount());
+      
+            output.writeStringStringMap(si.attributes());
+      
+            output.writeByte((byte) (si.getUseCompoundFile() ? SegmentInfo.YES : SegmentInfo.NO));
+            output.writeStringStringMap(si.getDiagnostics());
+            output.writeStringSet(si.files());
+      
+            output.close();
+      
+            success = true;
+        } 
+        finally 
+        {
+            if (!success) 
+            {
+                IOUtils.closeWhileHandlingException(output);
+                try 
+                {
+                    si.dir.deleteFile(fileName);
+                } 
+                catch (Throwable t) 
+                {
+                    // Suppress so we keep throwing the original exception
+                }
+            }
+        }
+    
+        return fileName;
     }
-  }
-
-  /**
-   * version number when this SegmentInfos was generated.
-   */
-  public long getVersion() {
-    return version;
-  }
-
-  /** Returns current generation. */
-  public long getGeneration() {
-    return generation;
-  }
-
-  /** Returns last succesfully read or written generation. */
-  public long getLastGeneration() {
-    return lastGeneration;
-  }
-
-  /** If non-null, information about retries when loading
-   * the segments file will be printed to this.
-   */
-  public static void setInfoStream(PrintStream infoStream) {
-    SegmentInfos.infoStream = infoStream;
-  }
-
-  /* Advanced configuration of retry logic in loading
-     segments_N file */
-  private static int defaultGenLookaheadCount = 10;
-
-  /**
-   * Advanced: set how many times to try incrementing the
-   * gen when loading the segments file.  This only runs if
-   * the primary (listing directory) and secondary (opening
-   * segments.gen file) methods fail to find the segments
-   * file.
-   *
-   * @lucene.experimental
-   */
-  public static void setDefaultGenLookaheadCount(int count) {
-    defaultGenLookaheadCount = count;
-  }
-
-  /**
-   * Returns the {@code defaultGenLookaheadCount}.
-   *
-   * @see #setDefaultGenLookaheadCount
-   *
-   * @lucene.experimental
-   */
-  public static int getDefaultGenLookahedCount() {
-    return defaultGenLookaheadCount;
-  }
-
-  /**
-   * Returns {@code infoStream}.
-   *
-   * @see #setInfoStream
-   */
-  public static PrintStream getInfoStream() {
-    return infoStream;
-  }
-
-  /**
-   * Prints the given message to the infoStream. Note, this method does not
-   * check for null infoStream. It assumes this check has been performed by the
-   * caller, which is recommended to avoid the (usually) expensive message
-   * creation.
-   */
-  private static void message(String message) {
-    infoStream.println("SIS [" + Thread.currentThread().getName() + "]: " + message);
-  }
-
-  /**
-   * Utility class for executing code that needs to do
-   * something with the current segments file.  This is
-   * necessary with lock-less commits because from the time
-   * you locate the current segments file name, until you
-   * actually open it, read its contents, or check modified
-   * time, etc., it could have been deleted due to a writer
-   * commit finishing.
-   */
-  public abstract static class FindSegmentsFile 
-  {  
-      final Directory directory;
-  
-      /** Sole constructor. */ 
-      public FindSegmentsFile(Directory directory) 
-      {
-          this.directory = directory;
-      }
-  
-      /** Locate the most recent {@code segments} file and
-       *  run {@link #doBody} on it. */
-      public Object run() throws IOException 
-      {
-          return run(null);
-      }
-    
-      /** Run {@link #doBody} on the provided commit. */
-      public Object run(IndexCommit commit) throws IOException 
-      {
-          if (commit != null) 
-          {
-            if (directory != commit.getDirectory())
-              throw new IOException("the specified commit does not match the specified Directory");
-            return doBody(commit.getSegmentsFileName());
-          }
-  
-          String segmentFileName = null;
-          long lastGen = -1;
-          long gen = 0;
-          int genLookaheadCount = 0;
-          IOException exc = null;
-          int retryCount = 0;
-    
-          boolean useFirstMethod = true;
-  
-          // Loop until we succeed in calling doBody() without hitting an IOException.  
-          // An IOException most likely means a commit was in process and has finished, 
-          // in the time it took us to load the now-old infos files (and segments files).  
-          // It's also possible it's a true error (corrupt index).  To distinguish these,
-          // on each retry we must see "forward progress" on which generation we are trying to load. 
-          // If we don't, then the original error is real and we throw it.
-          
-          // We have three methods for determining the current generation. 
-          // We try the first two in parallel (when useFirstMethod is true), and fall back to the third when necessary.
-  
-          while(true) 
-          {
-              if (useFirstMethod) 
-              {     
-                  // List the directory and use the highest segments_N file.  
-                  // This method works well as long as there is no stale caching on the directory
-                  // contents (NOTE: NFS clients often have such stale caching):
-                  String[] files = null;
-        
-                  long genA = -1;
-        
-                  files = directory.listAll();
-                  
-                  if (files != null) 
-                  {
-                      genA = getLastCommitGeneration(files);
-                  }
-                  
-                  if (infoStream != null) 
-                  {
-                      message("directory listing genA=" + genA);
-                  }
-        
-                  // Also open segments.gen and read its contents.  Then we take the larger of the two gens. 
-                  // This way, if either approach is hitting a stale cache (NFS) we have a better chance of
-                  // getting the right generation.
-                  long genB = -1;
-                  IndexInput genInput = null;
-                  try 
-                  {
-                      genInput = directory.openInput(IndexFileNames.SEGMENTS_GEN, IOContext.READONCE);
-                  } 
-                  catch (IOException e) 
-                  {
-                      if (infoStream != null) 
-                      {
-                          message("segments.gen open: IOException " + e);
-                      }
-                  }
-        
-                  if (genInput != null) 
-                  {
-                      try 
-                      {
-                          int version = genInput.readInt();
-                          if (version == FORMAT_SEGMENTS_GEN_CURRENT) 
-                          {
-                              long gen0 = genInput.readLong();
-                              long gen1 = genInput.readLong();
-                              if (infoStream != null) 
-                              {
-                                  message("fallback check: " + gen0 + "; " + gen1);
-                              }
-                              if (gen0 == gen1) 
-                              {
-                                  // The file is consistent.
-                                  genB = gen0;
-                              }
-                          } 
-                          else 
-                          {
-                              throw new IndexFormatTooNewException(genInput, version, FORMAT_SEGMENTS_GEN_CURRENT, FORMAT_SEGMENTS_GEN_CURRENT);
-                          }
-                      } 
-                      catch (IOException err2) 
-                      {
-                          // rethrow any format exception
-                          if (err2 instanceof CorruptIndexException) throw err2;
-                      } 
-                      finally 
-                      {
-                          genInput.close();
-                      }
-                  }
-      
-                  if (infoStream != null) 
-                  {
-                      message(IndexFileNames.SEGMENTS_GEN + " check: genB=" + genB);
-                  }
-        
-                  // Pick the larger of the two gen's:
-                  gen = Math.max(genA, genB);
-        
-                  if (gen == -1) 
-                  {
-                      // Neither approach found a generation
-                      throw new IndexNotFoundException("no segments* file found in " + directory + ": files: " + Arrays.toString(files));
-                  }
-              }
-    
-              if (useFirstMethod && lastGen == gen && retryCount >= 2) 
-              {
-                  // Give up on first method -- this is 3rd cycle on listing directory 
-                  // and checking gen file to attempt to locate the segments file.
-                  useFirstMethod = false;
-              }
-    
-              // Second method: since both directory cache and file contents cache seem to be stale,  just advance the generation.
-              if (!useFirstMethod) 
-              {
-                  if (genLookaheadCount < defaultGenLookaheadCount) 
-                  {
-                      gen++;
-                      genLookaheadCount++;
-                      if (infoStream != null) 
-                      {
-                          message("look ahead increment gen to " + gen);
-                      }
-                  } 
-                  else 
-                  {
-                      // All attempts have failed -- throw first exc:
-                      throw exc;
-                  }
-              } 
-              else if (lastGen == gen) 
-              {
-                  // This means we're about to try the same segments_N last tried.
-                  retryCount++;
-              } 
-              else 
-              {
-                  // Segment file has advanced since our last loop (we made "progress"), so reset retryCount:
-                  retryCount = 0;
-              }
-    
-              lastGen = gen;
-      
-              segmentFileName = IndexFileNames.fileNameFromGeneration(IndexFileNames.SEGMENTS, "", gen);
-    
-              try 
-              {
-                  Object v = doBody(segmentFileName);
-                  if (infoStream != null) 
-                  {
-                      message("success on " + segmentFileName);
-                  }
-                  return v;
-              } 
-              catch (IOException err) 
-              {
-                  // Save the original root cause:
-                  if (exc == null) 
-                  {
-                      exc = err;
-                  }
-        
-                  if (infoStream != null) 
-                  {
-                      message("primary Exception on '" + segmentFileName + "': " + err + "'; will retry: retryCount=" + retryCount + "; gen = " + gen);
-                  }
-      
-                  if (gen > 1 && useFirstMethod && retryCount == 1) 
-                  {
-                      // This is our second time trying this same segments file (because retryCount is 1), and, 
-                      // there is possibly a segments_(N-1) (because gen > 1). So, check if the segments_(N-1) exists and try it if so:
-                      String prevSegmentFileName = IndexFileNames.fileNameFromGeneration(IndexFileNames.SEGMENTS, "", gen-1);
-          
-                      final boolean prevExists;
-                      prevExists = directory.fileExists(prevSegmentFileName);
-          
-                      if (prevExists) 
-                      {
-                          if (infoStream != null) 
-                          {
-                              message("fallback to prior segment file '" + prevSegmentFileName + "'");
-                          }
-                          try 
-                          {
-                              Object v = doBody(prevSegmentFileName);
-                              if (infoStream != null) 
-                              {
-                                  message("success on fallback " + prevSegmentFileName);
-                              }
-                              return v;
-                          } 
-                          catch (IOException err2) 
-                          {
-                              if (infoStream != null) 
-                              {
-                                  message("secondary Exception on '" + prevSegmentFileName + "': " + err2 + "'; will retry");
-                              }
-                          }
-                      }
-                  }
-              }
-          }
-      }
 
     /**
-     * Subclass must implement this.  The assumption is an
-     * IOException will be thrown if something goes wrong
-     * during the processing that could have been caused by
-     * a writer committing.
+     * Returns a copy of this instance, also copying each
+     * SegmentInfo.
      */
-    protected abstract Object doBody(String segmentFileName) throws IOException;
-  }
+    
+    @Override
+    public SegmentInfos clone() 
+    {
+        try 
+        {
+            final SegmentInfos sis = (SegmentInfos) super.clone();
+            // deep clone, first recreate all collections:
+            sis.segments = new ArrayList<SegmentInfoPerCommit>(size());
+            for(final SegmentInfoPerCommit info : this) 
+            {
+                assert info.info.getCodec() != null;
+                // dont directly access segments, use add method!!!
+                sis.add(info.clone());
+            }
+            sis.userData = new HashMap<String,String>(userData);
+            return sis;
+        } 
+        catch (CloneNotSupportedException e) 
+        {
+            throw new RuntimeException("should not happen", e);
+        }
+    }
+
+    /**
+     * version number when this SegmentInfos was generated.
+     */
+    public long getVersion() 
+    {
+      return version;
+    }
+  
+    /** Returns current generation. */
+    public long getGeneration() 
+    {
+        return generation;
+    }
+  
+    /** Returns last succesfully read or written generation. */
+    public long getLastGeneration() 
+    {
+        return lastGeneration;
+    }
+
+    /** If non-null, information about retries when loading
+     * the segments file will be printed to this.
+     */
+    public static void setInfoStream(PrintStream infoStream) 
+    {
+        SegmentInfos.infoStream = infoStream;
+    }
+  
+    /* Advanced configuration of retry logic in loading
+       segments_N file */
+    private static int defaultGenLookaheadCount = 10;
+  
+    /**
+     * Advanced: set how many times to try incrementing the
+     * gen when loading the segments file.  This only runs if
+     * the primary (listing directory) and secondary (opening
+     * segments.gen file) methods fail to find the segments
+     * file.
+     *
+     * @lucene.experimental
+     */
+    public static void setDefaultGenLookaheadCount(int count) 
+    {
+        defaultGenLookaheadCount = count;
+    }
+
+    /**
+     * Returns the {@code defaultGenLookaheadCount}.
+     *
+     * @see #setDefaultGenLookaheadCount
+     *
+     * @lucene.experimental
+     */
+    public static int getDefaultGenLookahedCount() 
+    {
+        return defaultGenLookaheadCount;
+    }
+  
+    /**
+     * Returns {@code infoStream}.
+     *
+     * @see #setInfoStream
+     */
+    public static PrintStream getInfoStream() 
+    {
+        return infoStream;
+    }
+  
+    /**
+     * Prints the given message to the infoStream. Note, this method does not
+     * check for null infoStream. It assumes this check has been performed by the
+     * caller, which is recommended to avoid the (usually) expensive message
+     * creation.
+     */
+    private static void message(String message) 
+    {
+        infoStream.println("SIS [" + Thread.currentThread().getName() + "]: " + message);
+    }
+
+    /**
+     * Utility class for executing code that needs to do
+     * something with the current segments file.  This is
+     * necessary with lock-less commits because from the time
+     * you locate the current segments file name, until you
+     * actually open it, read its contents, or check modified
+     * time, etc., it could have been deleted due to a writer
+     * commit finishing.
+     */
+    public abstract static class FindSegmentsFile 
+    {  
+        final Directory directory;
+    
+        /** Sole constructor. */ 
+        public FindSegmentsFile(Directory directory) 
+        {
+            this.directory = directory;
+        }
+    
+        /** Locate the most recent {@code segments} file and
+         *  run {@link #doBody} on it. */
+        public Object run() throws IOException 
+        {
+            return run(null);
+        }
+      
+        /** Run {@link #doBody} on the provided commit. */
+        public Object run(IndexCommit commit) throws IOException 
+        {
+            if (commit != null) 
+            {
+                if (directory != commit.getDirectory())
+                {
+                    throw new IOException("the specified commit does not match the specified Directory");
+                }
+                return doBody(commit.getSegmentsFileName());
+            }
+    
+            String segmentFileName = null;
+            long lastGen = -1;
+            long gen = 0;
+            int genLookaheadCount = 0;
+            IOException exc = null;
+            int retryCount = 0;
+      
+            boolean useFirstMethod = true;
+    
+            // Loop until we succeed in calling doBody() without hitting an IOException.  
+            // An IOException most likely means a commit was in process and has finished, 
+            // in the time it took us to load the now-old infos files (and segments files).  
+            // It's also possible it's a true error (corrupt index).  To distinguish these,
+            // on each retry we must see "forward progress" on which generation we are trying to load. 
+            // If we don't, then the original error is real and we throw it.
+            
+            // We have three methods for determining the current generation. 
+            // We try the first two in parallel (when useFirstMethod is true), and fall back to the third when necessary.
+    
+            while(true) 
+            {
+                if (useFirstMethod) 
+                {     
+                    // List the directory and use the highest segments_N file.  
+                    // This method works well as long as there is no stale caching on the directory
+                    // contents (NOTE: NFS clients often have such stale caching):
+                    String[] files = null;
+          
+                    long genA = -1;
+          
+                    files = directory.listAll();
+                    
+                    if (files != null) 
+                    {
+                        genA = getLastCommitGeneration(files);
+                    }
+                    
+                    if (infoStream != null) 
+                    {
+                        message("directory listing genA=" + genA);
+                    }
+          
+                    // Also open segments.gen and read its contents.  Then we take the larger of the two gens. 
+                    // This way, if either approach is hitting a stale cache (NFS) we have a better chance of
+                    // getting the right generation.
+                    long genB = -1;
+                    IndexInput genInput = null;
+                    try 
+                    {
+                        genInput = directory.openInput(IndexFileNames.SEGMENTS_GEN, IOContext.READONCE);
+                    } 
+                    catch (IOException e) 
+                    {
+                        if (infoStream != null) 
+                        {
+                            message("segments.gen open: IOException " + e);
+                        }
+                    }
+          
+                    if (genInput != null) 
+                    {
+                        try 
+                        {
+                            int version = genInput.readInt();
+                            if (version == FORMAT_SEGMENTS_GEN_CURRENT) 
+                            {
+                                long gen0 = genInput.readLong();
+                                long gen1 = genInput.readLong();
+                                if (infoStream != null) 
+                                {
+                                    message("fallback check: " + gen0 + "; " + gen1);
+                                }
+                                if (gen0 == gen1) 
+                                {
+                                    // The file is consistent.
+                                    genB = gen0;
+                                }
+                            } 
+                            else 
+                            {
+                                throw new IndexFormatTooNewException(genInput, version, FORMAT_SEGMENTS_GEN_CURRENT, FORMAT_SEGMENTS_GEN_CURRENT);
+                            }
+                        } 
+                        catch (IOException err2) 
+                        {
+                            // rethrow any format exception
+                            if (err2 instanceof CorruptIndexException) 
+                            {
+                                throw err2;
+                            }
+                        } 
+                        finally 
+                        {
+                            genInput.close();
+                        }
+                    }
+        
+                    if (infoStream != null) 
+                    {
+                        message(IndexFileNames.SEGMENTS_GEN + " check: genB=" + genB);
+                    }
+          
+                    // Pick the larger of the two gen's:
+                    gen = Math.max(genA, genB);
+          
+                    if (gen == -1) 
+                    {
+                        // Neither approach found a generation
+                        throw new IndexNotFoundException("no segments* file found in " + directory + ": files: " + Arrays.toString(files));
+                    }
+                }
+      
+                if (useFirstMethod && lastGen == gen && retryCount >= 2) 
+                {
+                    // Give up on first method -- this is 3rd cycle on listing directory 
+                    // and checking gen file to attempt to locate the segments file.
+                    useFirstMethod = false;
+                }
+      
+                // Second method: since both directory cache and file contents cache seem to be stale,  just advance the generation.
+                if (!useFirstMethod) 
+                {
+                    if (genLookaheadCount < defaultGenLookaheadCount) 
+                    {
+                        gen++;
+                        genLookaheadCount++;
+                        if (infoStream != null) 
+                        {
+                            message("look ahead increment gen to " + gen);
+                        }
+                    } 
+                    else 
+                    {
+                        // All attempts have failed -- throw first exc:
+                        throw exc;
+                    }
+                } 
+                else if (lastGen == gen) 
+                {
+                    // This means we're about to try the same segments_N last tried.
+                    retryCount++;
+                } 
+                else 
+                {
+                    // Segment file has advanced since our last loop (we made "progress"), so reset retryCount:
+                    retryCount = 0;
+                }
+      
+                lastGen = gen;
+        
+                segmentFileName = IndexFileNames.fileNameFromGeneration(IndexFileNames.SEGMENTS, "", gen);
+      
+                try 
+                {
+                    Object v = doBody(segmentFileName);
+                    if (infoStream != null) 
+                    {
+                        message("success on " + segmentFileName);
+                    }
+                    return v;
+                } 
+                catch (IOException err) 
+                {
+                    // Save the original root cause:
+                    if (exc == null) 
+                    {
+                        exc = err;
+                    }
+          
+                    if (infoStream != null) 
+                    {
+                        message("primary Exception on '" + segmentFileName + "': " + err + "'; will retry: retryCount=" + retryCount + "; gen = " + gen);
+                    }
+        
+                    if (gen > 1 && useFirstMethod && retryCount == 1) 
+                    {
+                        // This is our second time trying this same segments file (because retryCount is 1), and, 
+                        // there is possibly a segments_(N-1) (because gen > 1). So, check if the segments_(N-1) exists and try it if so:
+                        String prevSegmentFileName = IndexFileNames.fileNameFromGeneration(IndexFileNames.SEGMENTS, "", gen-1);
+            
+                        final boolean prevExists;
+                        prevExists = directory.fileExists(prevSegmentFileName);
+            
+                        if (prevExists) 
+                        {
+                            if (infoStream != null) 
+                            {
+                                message("fallback to prior segment file '" + prevSegmentFileName + "'");
+                            }
+                            try 
+                            {
+                                Object v = doBody(prevSegmentFileName);
+                                if (infoStream != null) 
+                                {
+                                    message("success on fallback " + prevSegmentFileName);
+                                }
+                                return v;
+                            } 
+                            catch (IOException err2) 
+                            {
+                                if (infoStream != null) 
+                                {
+                                    message("secondary Exception on '" + prevSegmentFileName + "': " + err2 + "'; will retry");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+  
+        /**
+         * Subclass must implement this.  The assumption is an
+         * IOException will be thrown if something goes wrong
+         * during the processing that could have been caused by
+         * a writer committing.
+         */
+        protected abstract Object doBody(String segmentFileName) throws IOException;
+    }
 
     // Carry over generation numbers from another SegmentInfos
     void updateGeneration(SegmentInfos other) 
@@ -954,23 +986,22 @@ public final class SegmentInfos implements Cloneable, Iterable<SegmentInfoPerCom
         generation = other.generation;
     }
 
-  final void rollbackCommit(Directory dir) {
-    if (pendingSegnOutput != null) {
-      // Suppress so we keep throwing the original exception
-      // in our caller
-      IOUtils.closeWhileHandlingException(pendingSegnOutput);
-      pendingSegnOutput = null;
-
-      // Must carefully compute fileName from "generation"
-      // since lastGeneration isn't incremented:
-      final String segmentFileName = IndexFileNames.fileNameFromGeneration(IndexFileNames.SEGMENTS,
-                                                                            "",
-                                                                           generation);
-      // Suppress so we keep throwing the original exception
-      // in our caller
-      IOUtils.deleteFilesIgnoringExceptions(dir, segmentFileName);
+    final void rollbackCommit(Directory dir) 
+    {
+        if (pendingSegnOutput != null) 
+        {
+            // Suppress so we keep throwing the original exception in our caller
+            IOUtils.closeWhileHandlingException(pendingSegnOutput);
+            pendingSegnOutput = null;
+      
+            // Must carefully compute fileName from "generation"
+            // since lastGeneration isn't incremented:
+            final String segmentFileName = IndexFileNames.fileNameFromGeneration(
+                IndexFileNames.SEGMENTS, "", generation);
+            // Suppress so we keep throwing the original exception in our caller
+            IOUtils.deleteFilesIgnoringExceptions(dir, segmentFileName);
+        }
     }
-  }
 
     /** Call this to start a commit.  This writes the new
      *  segments file, but writes an invalid checksum at the
@@ -1093,67 +1124,79 @@ public final class SegmentInfos implements Cloneable, Iterable<SegmentInfoPerCom
         writeSegmentsGen(dir, generation);
     }
 
-  /** Writes & syncs to the Directory dir, taking care to
-   *  remove the segments file on exception
-   *  <p>
-   *  Note: {@link #changed()} should be called prior to this
-   *  method if changes have been made to this {@link SegmentInfos} instance
-   *  </p>  
-   **/
-  final void commit(Directory dir) throws IOException {
-    prepareCommit(dir);
-    finishCommit(dir);
-  }
-
-  /** Returns readable description of this segment. */
-  public String toString(Directory directory) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(getSegmentsFileName()).append(": ");
-    final int count = size();
-    for(int i = 0; i < count; i++) {
-      if (i > 0) {
-        buffer.append(' ');
-      }
-      final SegmentInfoPerCommit info = info(i);
-      buffer.append(info.toString(directory, 0));
+    /** Writes & syncs to the Directory dir, taking care to
+     *  remove the segments file on exception
+     *  <p>
+     *  Note: {@link #changed()} should be called prior to this
+     *  method if changes have been made to this {@link SegmentInfos} instance
+     *  </p>  
+     **/
+    final void commit(Directory dir) throws IOException 
+    {
+        prepareCommit(dir);
+        finishCommit(dir);
     }
-    return buffer.toString();
-  }
 
-  /** Return {@code userData} saved with this commit.
-   * 
-   * @see IndexWriter#commit()
-   */
-  public Map<String,String> getUserData() {
-    return userData;
-  }
-
-  void setUserData(Map<String,String> data) {
-    if (data == null) {
-      userData = Collections.<String,String>emptyMap();
-    } else {
-      userData = data;
+    /** Returns readable description of this segment. */
+    public String toString(Directory directory) 
+    {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getSegmentsFileName()).append(": ");
+        final int count = size();
+        for(int i = 0; i < count; i++) 
+        {
+            if (i > 0) 
+            {
+                buffer.append(' ');
+            }
+            final SegmentInfoPerCommit info = info(i);
+            buffer.append(info.toString(directory, 0));
+        }
+        return buffer.toString();
     }
-  }
 
-  /** Replaces all segments in this instance, but keeps
-   *  generation, version, counter so that future commits
-   *  remain write once.
-   */
-  void replace(SegmentInfos other) {
-    rollbackSegmentInfos(other.asList());
-    lastGeneration = other.lastGeneration;
-  }
-
-  /** Returns sum of all segment's docCounts.  Note that
-   *  this does not include deletions */
-  public int totalDocCount() {
-    int count = 0;
-    for(SegmentInfoPerCommit info : this) {
-      count += info.info.getDocCount();
+    /** Return {@code userData} saved with this commit.
+     * 
+     * @see IndexWriter#commit()
+     */
+    public Map<String,String> getUserData() 
+    {
+        return userData;
     }
-    return count;
-  }
+  
+    void setUserData(Map<String,String> data) 
+    {
+        if (data == null) 
+        {
+            userData = Collections.<String,String>emptyMap();
+        } 
+        else 
+        {
+            userData = data;
+        }
+    }
+  
+    /** Replaces all segments in this instance, but keeps
+     *  generation, version, counter so that future commits
+     *  remain write once.
+     */
+    void replace(SegmentInfos other) 
+    {
+        rollbackSegmentInfos(other.asList());
+        lastGeneration = other.lastGeneration;
+    }
+
+    /** Returns sum of all segment's docCounts.  Note that
+     *  this does not include deletions */
+    public int totalDocCount() 
+    {
+        int count = 0;
+        for(SegmentInfoPerCommit info : this) 
+        {
+            count += info.info.getDocCount();
+        }
+        return count;
+    }
 
     /** Call this before committing if changes have been made to the
      *  segments. */
@@ -1162,117 +1205,136 @@ public final class SegmentInfos implements Cloneable, Iterable<SegmentInfoPerCom
         version++;
     }
   
-  /** applies all changes caused by committing a merge to this SegmentInfos */
-  void applyMergeChanges(MergePolicy.OneMerge merge, boolean dropSegment) {
-    final Set<SegmentInfoPerCommit> mergedAway = new HashSet<SegmentInfoPerCommit>(merge.segments);
-    boolean inserted = false;
-    int newSegIdx = 0;
-    for (int segIdx = 0, cnt = segments.size(); segIdx < cnt; segIdx++) {
-      assert segIdx >= newSegIdx;
-      final SegmentInfoPerCommit info = segments.get(segIdx);
-      if (mergedAway.contains(info)) {
-        if (!inserted && !dropSegment) {
-          segments.set(segIdx, merge.info);
-          inserted = true;
-          newSegIdx++;
+    /** applies all changes caused by committing a merge to this SegmentInfos */
+    void applyMergeChanges(MergePolicy.OneMerge merge, boolean dropSegment) 
+    {
+        final Set<SegmentInfoPerCommit> mergedAway = new HashSet<SegmentInfoPerCommit>(merge.segments);
+        boolean inserted = false;
+        int newSegIdx = 0;
+        for (int segIdx = 0, cnt = segments.size(); segIdx < cnt; segIdx++) 
+        {
+            assert segIdx >= newSegIdx;
+            final SegmentInfoPerCommit info = segments.get(segIdx);
+            if (mergedAway.contains(info)) 
+            {
+                if (!inserted && !dropSegment) 
+                {
+                    segments.set(segIdx, merge.info);
+                    inserted = true;
+                    newSegIdx++;
+                }
+            } 
+            else 
+            {
+                segments.set(newSegIdx, info);
+                newSegIdx++;
+            }
         }
-      } else {
-        segments.set(newSegIdx, info);
-        newSegIdx++;
-      }
-    }
-
-    // the rest of the segments in list are duplicates, so don't remove from map, only list!
-    segments.subList(newSegIdx, segments.size()).clear();
     
-    // Either we found place to insert segment, or, we did
-    // not, but only because all segments we merged becamee
-    // deleted while we are merging, in which case it should
-    // be the case that the new segment is also all deleted,
-    // we insert it at the beginning if it should not be dropped:
-    if (!inserted && !dropSegment) {
-      segments.add(0, merge.info);
+        // the rest of the segments in list are duplicates, so don't remove from map, only list!
+        segments.subList(newSegIdx, segments.size()).clear();
+        
+        // Either we found place to insert segment, or, we did
+        // not, but only because all segments we merged becamee
+        // deleted while we are merging, in which case it should
+        // be the case that the new segment is also all deleted,
+        // we insert it at the beginning if it should not be dropped:
+        if (!inserted && !dropSegment) 
+        {
+            segments.add(0, merge.info);
+        }
     }
-  }
 
-  List<SegmentInfoPerCommit> createBackupSegmentInfos() 
-  {
-      final List<SegmentInfoPerCommit> list = new ArrayList<SegmentInfoPerCommit>(size());
-      for(final SegmentInfoPerCommit info : this) 
-      {
-          assert info.info.getCodec() != null;
-          list.add(info.clone());
-      }
-      return list;
-  }
-  
-  void rollbackSegmentInfos(List<SegmentInfoPerCommit> infos) {
-    this.clear();
-    this.addAll(infos);
-  }
-  
-  /** Returns an <b>unmodifiable</b> {@link Iterator} of contained segments in order. */
-  // @Override (comment out until Java 6)
-  @Override
-  public Iterator<SegmentInfoPerCommit> iterator() {
-    return asList().iterator();
-  }
-  
-  /** Returns all contained segments as an <b>unmodifiable</b> {@link List} view. */
-  public List<SegmentInfoPerCommit> asList() {
-    return Collections.unmodifiableList(segments);
-  }
-
-  /** Returns number of {@link SegmentInfoPerCommit}s. */
-  public int size() {
-    return segments.size();
-  }
-
-  /** Appends the provided {@link SegmentInfoPerCommit}. */
-  public void add(SegmentInfoPerCommit si) {
-    segments.add(si);
-  }
-  
-  /** Appends the provided {@link SegmentInfoPerCommit}s. */
-  public void addAll(Iterable<SegmentInfoPerCommit> sis) {
-    for (final SegmentInfoPerCommit si : sis) {
-      this.add(si);
+    List<SegmentInfoPerCommit> createBackupSegmentInfos() 
+    {
+        final List<SegmentInfoPerCommit> list = new ArrayList<SegmentInfoPerCommit>(size());
+        for(final SegmentInfoPerCommit info : this) 
+        {
+            assert info.info.getCodec() != null;
+            list.add(info.clone());
+        }
+        return list;
     }
-  }
+    
+    void rollbackSegmentInfos(List<SegmentInfoPerCommit> infos) 
+    {
+        this.clear();
+        this.addAll(infos);
+    }
+    
+    /** Returns an <b>unmodifiable</b> {@link Iterator} of contained segments in order. */
+    // @Override (comment out until Java 6)
+    @Override
+    public Iterator<SegmentInfoPerCommit> iterator() 
+    {
+        return asList().iterator();
+    }
   
-  /** Clear all {@link SegmentInfoPerCommit}s. */
-  public void clear() {
-    segments.clear();
-  }
-
-  /** Remove the provided {@link SegmentInfoPerCommit}.
-   *
-   * <p><b>WARNING</b>: O(N) cost */
-  public void remove(SegmentInfoPerCommit si) {
-    segments.remove(si);
-  }
+    /** Returns all contained segments as an <b>unmodifiable</b> {@link List} view. */
+    public List<SegmentInfoPerCommit> asList() 
+    {
+        return Collections.unmodifiableList(segments);
+    }
   
-  /** Remove the {@link SegmentInfoPerCommit} at the
-   * provided index.
-   *
-   * <p><b>WARNING</b>: O(N) cost */
-  void remove(int index) {
-    segments.remove(index);
-  }
+    /** Returns number of {@link SegmentInfoPerCommit}s. */
+    public int size() 
+    {
+        return segments.size();
+    }
+  
+    /** Appends the provided {@link SegmentInfoPerCommit}. */
+    public void add(SegmentInfoPerCommit si) 
+    {
+        segments.add(si);
+    }
+    
+    /** Appends the provided {@link SegmentInfoPerCommit}s. */
+    public void addAll(Iterable<SegmentInfoPerCommit> sis) 
+    {
+        for (final SegmentInfoPerCommit si : sis) 
+        {
+            this.add(si);
+        }
+    }
+  
+    /** Clear all {@link SegmentInfoPerCommit}s. */
+    public void clear() 
+    {
+        segments.clear();
+    }
+  
+    /** Remove the provided {@link SegmentInfoPerCommit}.
+     *
+     * <p><b>WARNING</b>: O(N) cost */
+    public void remove(SegmentInfoPerCommit si) 
+    {
+        segments.remove(si);
+    }
+    
+    /** Remove the {@link SegmentInfoPerCommit} at the
+     * provided index.
+     *
+     * <p><b>WARNING</b>: O(N) cost */
+    void remove(int index) 
+    {
+        segments.remove(index);
+    }
 
-  /** Return true if the provided {@link
-   *  SegmentInfoPerCommit} is contained.
-   *
-   * <p><b>WARNING</b>: O(N) cost */
-  boolean contains(SegmentInfoPerCommit si) {
-    return segments.contains(si);
-  }
-
-  /** Returns index of the provided {@link
-   *  SegmentInfoPerCommit}.
-   *
-   * <p><b>WARNING</b>: O(N) cost */
-  int indexOf(SegmentInfoPerCommit si) {
-    return segments.indexOf(si);
-  }
+    /** Return true if the provided {@link
+     *  SegmentInfoPerCommit} is contained.
+     *
+     * <p><b>WARNING</b>: O(N) cost */
+    boolean contains(SegmentInfoPerCommit si) 
+    {
+        return segments.contains(si);
+    }
+  
+    /** Returns index of the provided {@link
+     *  SegmentInfoPerCommit}.
+     *
+     * <p><b>WARNING</b>: O(N) cost */
+    int indexOf(SegmentInfoPerCommit si) 
+    {
+        return segments.indexOf(si);
+    }
 }
