@@ -296,7 +296,7 @@ abstract class DocumentsWriterPerThreadPool implements Cloneable
     
     void recycle(DocumentsWriterPerThread dwpt) 
     {
-      // don't recycle DWPT by default
+        // don't recycle DWPT by default
     }
     
     // you cannot subclass this without being in o.a.l.index package anyway, so
@@ -308,10 +308,8 @@ abstract class DocumentsWriterPerThreadPool implements Cloneable
      * Returns the <i>i</i>th active {@link ThreadState} where <i>i</i> is the
      * given ord.
      * 
-     * @param ord
-     *          the ordinal of the {@link ThreadState}
-     * @return the <i>i</i>th active {@link ThreadState} where <i>i</i> is the
-     *         given ord.
+     * @param ord         the ordinal of the {@link ThreadState}
+     * @return the <i>i</i>th active {@link ThreadState} where <i>i</i> is the given ord.
      */
     ThreadState getThreadState(int ord) 
     {

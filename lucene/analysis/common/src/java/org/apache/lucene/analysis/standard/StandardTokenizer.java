@@ -89,20 +89,20 @@ public final class StandardTokenizer extends Tokenizer
     
     /** String token types that correspond to token type int constants */
     public static final String [] TOKEN_TYPES = new String [] {
-      "<ALPHANUM>",
-      "<APOSTROPHE>",
-      "<ACRONYM>",
-      "<COMPANY>",
-      "<EMAIL>",
-      "<HOST>",
-      "<NUM>",
-      "<CJ>",
-      "<ACRONYM_DEP>",
-      "<SOUTHEAST_ASIAN>",
-      "<IDEOGRAPHIC>",
-      "<HIRAGANA>",
-      "<KATAKANA>",
-      "<HANGUL>"
+        "<ALPHANUM>",
+        "<APOSTROPHE>",
+        "<ACRONYM>",
+        "<COMPANY>",
+        "<EMAIL>",
+        "<HOST>",
+        "<NUM>",
+        "<CJ>",
+        "<ACRONYM_DEP>",
+        "<SOUTHEAST_ASIAN>",
+        "<IDEOGRAPHIC>",
+        "<HIRAGANA>",
+        "<KATAKANA>",
+        "<HANGUL>"
     };
     
     private int skippedPositions;
