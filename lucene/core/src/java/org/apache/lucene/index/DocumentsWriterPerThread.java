@@ -687,8 +687,7 @@ class DocumentsWriterPerThread
         public int[] getIntBlock() 
         {
             int[] b = new int[IntBlockPool.INT_BLOCK_SIZE];
-            bytesUsed.addAndGet(IntBlockPool.INT_BLOCK_SIZE
-                * RamUsageEstimator.NUM_BYTES_INT);
+            bytesUsed.addAndGet(IntBlockPool.INT_BLOCK_SIZE * RamUsageEstimator.NUM_BYTES_INT);
             return b;
         }
         

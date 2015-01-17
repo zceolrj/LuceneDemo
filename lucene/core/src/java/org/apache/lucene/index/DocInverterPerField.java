@@ -98,7 +98,7 @@ final class DocInverterPerField extends DocFieldConsumerPerField
                     fieldState.position += analyzed ? docState.analyzer.getPositionIncrementGap(fieldInfo.name) : 0;
                 }
 
-                final TokenStream stream = field.tokenStream(docState.analyzer);
+                final TokenStream stream = field.tokenStream(docState.analyzer);//stream=StopFilter
                 // reset the TokenStream to the first token
                 stream.reset();
 

@@ -124,19 +124,24 @@ public final class NumericTokenStream extends TokenStream
     }
     
     // just a wrapper to prevent adding CTA
-    private static final class NumericAttributeFactory extends AttributeFactory {
-      private final AttributeFactory delegate;
-  
-      NumericAttributeFactory(AttributeFactory delegate) {
-        this.delegate = delegate;
-      }
+    private static final class NumericAttributeFactory extends AttributeFactory 
+    {
+        private final AttributeFactory delegate;
     
-      @Override
-      public AttributeImpl createAttributeInstance(Class<? extends Attribute> attClass) {
-        if (CharTermAttribute.class.isAssignableFrom(attClass))
-          throw new IllegalArgumentException("NumericTokenStream does not support CharTermAttribute.");
-        return delegate.createAttributeInstance(attClass);
-      }
+        NumericAttributeFactory(AttributeFactory delegate) 
+        {
+            this.delegate = delegate;
+        }
+      
+        @Override
+        public AttributeImpl createAttributeInstance(Class<? extends Attribute> attClass) 
+        {
+            if (CharTermAttribute.class.isAssignableFrom(attClass))
+            {
+                throw new IllegalArgumentException("NumericTokenStream does not support CharTermAttribute.");
+            }
+            return delegate.createAttributeInstance(attClass);
+        }
     }
   
     /** Implementation of {@link NumericTermAttribute}.
@@ -343,7 +348,7 @@ public final class NumericTokenStream extends TokenStream
     {
         if (valSize == 0)
         {
-          throw new IllegalStateException("call set???Value() before usage");
+            throw new IllegalStateException("call set???Value() before usage");
         }
         
         // this will only clear all other attributes in this TokenStream

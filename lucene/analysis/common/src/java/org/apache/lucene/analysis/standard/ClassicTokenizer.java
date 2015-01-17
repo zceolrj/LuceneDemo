@@ -48,131 +48,148 @@ import org.apache.lucene.util.Version;
  * as specified by UAX#29.
  */
 
-public final class ClassicTokenizer extends Tokenizer {
-  /** A private instance of the JFlex-constructed scanner */
-  private StandardTokenizerInterface scanner;
-
-  public static final int ALPHANUM          = 0;
-  public static final int APOSTROPHE        = 1;
-  public static final int ACRONYM           = 2;
-  public static final int COMPANY           = 3;
-  public static final int EMAIL             = 4;
-  public static final int HOST              = 5;
-  public static final int NUM               = 6;
-  public static final int CJ                = 7;
-
-  public static final int ACRONYM_DEP       = 8;
-
-  /** String token types that correspond to token type int constants */
-  public static final String [] TOKEN_TYPES = new String [] {
-    "<ALPHANUM>",
-    "<APOSTROPHE>",
-    "<ACRONYM>",
-    "<COMPANY>",
-    "<EMAIL>",
-    "<HOST>",
-    "<NUM>",
-    "<CJ>",
-    "<ACRONYM_DEP>"
-  };
+public final class ClassicTokenizer extends Tokenizer 
+{
+    /** A private instance of the JFlex-constructed scanner */
+    private StandardTokenizerInterface scanner;
   
-  private int skippedPositions;
-
-  private int maxTokenLength = StandardAnalyzer.DEFAULT_MAX_TOKEN_LENGTH;
-
-  /** Set the max allowed token length.  Any token longer
-   *  than this is skipped. */
-  public void setMaxTokenLength(int length) {
-    this.maxTokenLength = length;
-  }
-
-  /** @see #setMaxTokenLength */
-  public int getMaxTokenLength() {
-    return maxTokenLength;
-  }
-
-  /**
-   * Creates a new instance of the {@link ClassicTokenizer}.  Attaches
-   * the <code>input</code> to the newly created JFlex scanner.
-   *
-   * @param input The input reader
-   *
-   * See http://issues.apache.org/jira/browse/LUCENE-1068
-   */
-  public ClassicTokenizer(Version matchVersion, Reader input) {
-    super(input);
-    init(matchVersion);
-  }
-
-  /**
-   * Creates a new ClassicTokenizer with a given {@link org.apache.lucene.util.AttributeSource.AttributeFactory} 
-   */
-  public ClassicTokenizer(Version matchVersion, AttributeFactory factory, Reader input) {
-    super(factory, input);
-    init(matchVersion);
-  }
-
-  private void init(Version matchVersion) {
-    this.scanner = new ClassicTokenizerImpl(null); // best effort NPE if you dont call reset
-  }
-
-  // this tokenizer generates three attributes:
-  // term offset, positionIncrement and type
-  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-  private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
-  private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
-  private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.lucene.analysis.TokenStream#next()
-   */
-  @Override
-  public final boolean incrementToken() throws IOException {
-    clearAttributes();
-    skippedPositions = 0;
-
-    while(true) {
-      int tokenType = scanner.getNextToken();
-
-      if (tokenType == StandardTokenizerInterface.YYEOF) {
-        return false;
-      }
-
-      if (scanner.yylength() <= maxTokenLength) {
-        posIncrAtt.setPositionIncrement(skippedPositions+1);
-        scanner.getText(termAtt);
-        final int start = scanner.yychar();
-        offsetAtt.setOffset(correctOffset(start), correctOffset(start+termAtt.length()));
-
-        if (tokenType == ClassicTokenizer.ACRONYM_DEP) {
-          typeAtt.setType(ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.HOST]);
-          termAtt.setLength(termAtt.length() - 1); // remove extra '.'
-        } else {
-          typeAtt.setType(ClassicTokenizer.TOKEN_TYPES[tokenType]);
-        }
-        return true;
-      } else
-        // When we skip a too-long term, we still increment the
-        // position increment
-        skippedPositions++;
+    public static final int ALPHANUM          = 0;
+    public static final int APOSTROPHE        = 1;
+    public static final int ACRONYM           = 2;
+    public static final int COMPANY           = 3;
+    public static final int EMAIL             = 4;
+    public static final int HOST              = 5;
+    public static final int NUM               = 6;
+    public static final int CJ                = 7;
+  
+    public static final int ACRONYM_DEP       = 8;
+  
+    /** String token types that correspond to token type int constants */
+    public static final String [] TOKEN_TYPES = new String [] {
+        "<ALPHANUM>",
+        "<APOSTROPHE>",
+        "<ACRONYM>",
+        "<COMPANY>",
+        "<EMAIL>",
+        "<HOST>",
+        "<NUM>",
+        "<CJ>",
+        "<ACRONYM_DEP>"
+    };
+    
+    private int skippedPositions;
+  
+    private int maxTokenLength = StandardAnalyzer.DEFAULT_MAX_TOKEN_LENGTH;
+  
+    /** Set the max allowed token length.  Any token longer
+     *  than this is skipped. */
+    public void setMaxTokenLength(int length) 
+    {
+        this.maxTokenLength = length;
     }
-  }
   
-  @Override
-  public final void end() throws IOException {
-    super.end();
-    // set final offset
-    int finalOffset = correctOffset(scanner.yychar() + scanner.yylength());
-    offsetAtt.setOffset(finalOffset, finalOffset);
-    // adjust any skipped tokens
-    posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement()+skippedPositions);
-  }
-
-  @Override
-  public void reset() throws IOException {
-    scanner.yyreset(input);
-    skippedPositions = 0;
-  }
+    /** @see #setMaxTokenLength */
+    public int getMaxTokenLength() 
+    {
+        return maxTokenLength;
+    }
+  
+    /**
+     * Creates a new instance of the {@link ClassicTokenizer}.  Attaches
+     * the <code>input</code> to the newly created JFlex scanner.
+     *
+     * @param input The input reader
+     *
+     * See http://issues.apache.org/jira/browse/LUCENE-1068
+     */
+    public ClassicTokenizer(Version matchVersion, Reader input) 
+    {
+        super(input);
+        init(matchVersion);
+    }
+  
+    /**
+     * Creates a new ClassicTokenizer with a given {@link org.apache.lucene.util.AttributeSource.AttributeFactory} 
+     */
+    public ClassicTokenizer(Version matchVersion, AttributeFactory factory, Reader input) 
+    {
+        super(factory, input);
+        init(matchVersion);
+    }
+  
+    private void init(Version matchVersion) 
+    {
+        this.scanner = new ClassicTokenizerImpl(null); // best effort NPE if you dont call reset
+    }
+  
+    // this tokenizer generates three attributes:
+    // term offset, positionIncrement and type
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
+    private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+    private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+  
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.apache.lucene.analysis.TokenStream#next()
+     */
+    @Override
+    public final boolean incrementToken() throws IOException 
+    {
+        clearAttributes();
+        skippedPositions = 0;
+    
+        while(true) 
+        {
+            int tokenType = scanner.getNextToken();
+      
+            if (tokenType == StandardTokenizerInterface.YYEOF) 
+            {
+                return false;
+            }
+      
+            if (scanner.yylength() <= maxTokenLength) 
+            {
+                posIncrAtt.setPositionIncrement(skippedPositions+1);
+                scanner.getText(termAtt);
+                final int start = scanner.yychar();
+                offsetAtt.setOffset(correctOffset(start), correctOffset(start+termAtt.length()));
+        
+                if (tokenType == ClassicTokenizer.ACRONYM_DEP) 
+                {
+                    typeAtt.setType(ClassicTokenizer.TOKEN_TYPES[ClassicTokenizer.HOST]);
+                    termAtt.setLength(termAtt.length() - 1); // remove extra '.'
+                } 
+                else 
+                {
+                    typeAtt.setType(ClassicTokenizer.TOKEN_TYPES[tokenType]);
+                }
+                return true;
+            } 
+            else
+            {
+                // When we skip a too-long term, we still increment the position increment
+                skippedPositions++;
+            }
+        }
+    }
+    
+    @Override
+    public final void end() throws IOException 
+    {
+        super.end();
+        // set final offset
+        int finalOffset = correctOffset(scanner.yychar() + scanner.yylength());
+        offsetAtt.setOffset(finalOffset, finalOffset);
+        // adjust any skipped tokens
+        posIncrAtt.setPositionIncrement(posIncrAtt.getPositionIncrement()+skippedPositions);
+    }
+  
+    @Override
+    public void reset() throws IOException 
+    {
+        scanner.yyreset(input);
+        skippedPositions = 0;
+    }
 }
