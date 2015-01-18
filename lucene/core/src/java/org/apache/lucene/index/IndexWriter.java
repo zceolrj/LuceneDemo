@@ -1705,39 +1705,48 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         }
     }
 
-  // for test purpose
-  final synchronized int getSegmentCount(){
-    return segmentInfos.size();
-  }
-
-  // for test purpose
-  final synchronized int getNumBufferedDocuments(){
-    return docWriter.getNumDocs();
-  }
-
-  // for test purpose
-  final synchronized Collection<String> getIndexFileNames() throws IOException {
-    return segmentInfos.files(directory, true);
-  }
-
-  // for test purpose
-  final synchronized int getDocCount(int i) {
-    if (i >= 0 && i < segmentInfos.size()) {
-      return segmentInfos.info(i).info.getDocCount();
-    } else {
-      return -1;
+    // for test purpose
+    final synchronized int getSegmentCount()
+    {
+        return segmentInfos.size();
     }
-  }
-
-  // for test purpose
-  final int getFlushCount() {
-    return flushCount.get();
-  }
-
-  // for test purpose
-  final int getFlushDeletesCount() {
-    return flushDeletesCount.get();
-  }
+  
+    // for test purpose
+    final synchronized int getNumBufferedDocuments()
+    {
+        return docWriter.getNumDocs();
+    }
+  
+    // for test purpose
+    final synchronized Collection<String> getIndexFileNames() throws IOException 
+    {
+        return segmentInfos.files(directory, true);
+    }
+  
+    // for test purpose
+    final synchronized int getDocCount(int i) 
+    {
+        if (i >= 0 && i < segmentInfos.size()) 
+        {
+            return segmentInfos.info(i).info.getDocCount();
+        } 
+        else 
+        {
+            return -1;
+        }
+    }
+  
+    // for test purpose
+    final int getFlushCount() 
+    {
+        return flushCount.get();
+    }
+  
+    // for test purpose
+    final int getFlushDeletesCount() 
+    {
+        return flushDeletesCount.get();
+    }
 
   final String newSegmentName() 
   {
@@ -4639,46 +4648,58 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     return files;
   }
   
-  /**
-   * Tries to delete the given files if unreferenced
-   * @param files the files to delete
-   * @throws IOException if an {@link IOException} occurs
-   * @see IndexFileDeleter#deleteNewFiles(Collection)
-   */
-  synchronized final void deleteNewFiles(Collection<String> files) throws IOException {
-    deleter.deleteNewFiles(files);
-  }
-  
-  /**
-   * Cleans up residuals from a segment that could not be entirely flushed due to an error
-   * @see IndexFileDeleter#refresh(String) 
-   */
-  synchronized final void flushFailed(SegmentInfo info) throws IOException {
-    deleter.refresh(info.name);
-  }
-  
-  final int purge(boolean forced) throws IOException {
-    return docWriter.purgeBuffer(this, forced);
-  }
-
-  final void applyDeletesAndPurge(boolean forcePurge) throws IOException {
-    try {
-      purge(forcePurge);
-    } finally {
-      applyAllDeletes();
-      flushCount.incrementAndGet();
-    }
-  }
-  final void doAfterSegmentFlushed(boolean triggerMerge, boolean forcePurge) throws IOException {
-    try {
-      purge(forcePurge);
-    } finally {
-      if (triggerMerge) {
-        maybeMerge(MergeTrigger.SEGMENT_FLUSH, UNBOUNDED_MAX_MERGE_SEGMENTS);
-      }
+    /**
+     * Tries to delete the given files if unreferenced
+     * @param files the files to delete
+     * @throws IOException if an {@link IOException} occurs
+     * @see IndexFileDeleter#deleteNewFiles(Collection)
+     */
+    synchronized final void deleteNewFiles(Collection<String> files) throws IOException 
+    {
+        deleter.deleteNewFiles(files);
     }
     
-  }
+    /**
+     * Cleans up residuals from a segment that could not be entirely flushed due to an error
+     * @see IndexFileDeleter#refresh(String) 
+     */
+    synchronized final void flushFailed(SegmentInfo info) throws IOException 
+    {
+        deleter.refresh(info.name);
+    }
+  
+    final int purge(boolean forced) throws IOException 
+    {
+        return docWriter.purgeBuffer(this, forced);
+    }
+  
+    final void applyDeletesAndPurge(boolean forcePurge) throws IOException 
+    {
+        try 
+        {
+            purge(forcePurge);
+        } 
+        finally 
+        {
+            applyAllDeletes();
+            flushCount.incrementAndGet();
+        }
+    }
+    
+    final void doAfterSegmentFlushed(boolean triggerMerge, boolean forcePurge) throws IOException 
+    {
+        try 
+        {
+            purge(forcePurge);
+        } 
+        finally 
+        {
+            if (triggerMerge) 
+            {
+                maybeMerge(MergeTrigger.SEGMENT_FLUSH, UNBOUNDED_MAX_MERGE_SEGMENTS);
+            }
+        }
+    }
   
     private boolean processEvents(boolean triggerMerge, boolean forcePurge) throws IOException 
     {
@@ -4691,33 +4712,29 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
         boolean processed = false;
         while((event = queue.poll()) != null)  
         {
-          processed = true;
-          event.process(this, triggerMerge, forcePurge);
+            processed = true;
+            event.process(this, triggerMerge, forcePurge);
         }
         return processed;
     }
   
-  /**
-   * Interface for internal atomic events. See {@link DocumentsWriter} for details. Events are executed concurrently and no order is guaranteed.
-   * Each event should only rely on the serializeability within it's process method. All actions that must happen before or after a certain action must be
-   * encoded inside the {@link #process(IndexWriter, boolean, boolean)} method.
-   *
-   */
-  static interface Event 
-  {
-    
-      /**
-       * Processes the event. This method is called by the {@link IndexWriter} passed as the first argument.
-       * 
-       * @param writer
-       *          the {@link IndexWriter} that executes the event.
-       * @param triggerMerge
-       *          <code>false</code> iff this event should not trigger any segment merges
-       * @param clearBuffers
-       *          <code>true</code> iff this event should clear all buffers associated with the event.
-       * @throws IOException
-       *           if an {@link IOException} occurs
-       */
-      void process(IndexWriter writer, boolean triggerMerge, boolean clearBuffers) throws IOException;
-  }
+    /**
+     * Interface for internal atomic events. See {@link DocumentsWriter} for details. Events are executed concurrently and no order is guaranteed.
+     * Each event should only rely on the serializeability within it's process method. All actions that must happen before or after a certain action must be
+     * encoded inside the {@link #process(IndexWriter, boolean, boolean)} method.
+     *
+     */
+    static interface Event 
+    {
+      
+        /**
+         * Processes the event. This method is called by the {@link IndexWriter} passed as the first argument.
+         * 
+         * @param writer               the {@link IndexWriter} that executes the event.
+         * @param triggerMerge         <code>false</code> iff this event should not trigger any segment merges
+         * @param clearBuffers         <code>true</code> iff this event should clear all buffers associated with the event.
+         * @throws IOException         if an {@link IOException} occurs
+         */
+        void process(IndexWriter writer, boolean triggerMerge, boolean clearBuffers) throws IOException;
+    }
 }
