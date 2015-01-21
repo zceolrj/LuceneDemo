@@ -77,7 +77,7 @@ final class StoredFieldsProcessor extends StoredFieldsConsumer
             boolean success = false;
             try 
             {
-                fieldsWriter.finish(state.fieldInfos, numDocs);
+                fieldsWriter.finish(state.fieldInfos, numDocs);//fieldWriter=CompressingStoredFieldsWriter
                 success = true;
             } 
             finally 

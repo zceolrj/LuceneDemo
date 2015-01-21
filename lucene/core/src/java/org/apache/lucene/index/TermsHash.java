@@ -130,7 +130,7 @@ final class TermsHash extends InvertedDocConsumer
             }
         }
 
-        consumer.flush(childFields, state);
+        consumer.flush(childFields, state);//consumer=FreqProxTermsWriter
 
         if (nextTermsHash != null) 
         {

@@ -52,8 +52,8 @@ final class DocInverter extends DocFieldConsumer
             endChildFieldsToFlush.put(fieldToFlush.getKey(), perField.endConsumer);
         }
 
-        consumer.flush(childFieldsToFlush, state);
-        endConsumer.flush(endChildFieldsToFlush, state);
+        consumer.flush(childFieldsToFlush, state);//consumer=TermsHash
+        endConsumer.flush(endChildFieldsToFlush, state);//endConsumer=NormsConsumer
     }
 
     @Override

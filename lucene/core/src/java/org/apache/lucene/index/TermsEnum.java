@@ -41,37 +41,44 @@ import org.apache.lucene.util.BytesRefIterator;
  * of the <code>seek</code> methods.
  *
  * @lucene.experimental */
-public abstract class TermsEnum implements BytesRefIterator {
-
+public abstract class TermsEnum implements BytesRefIterator 
+{
   private AttributeSource atts = null;
 
   /** Sole constructor. (For invocation by subclass 
    *  constructors, typically implicit.) */
-  protected TermsEnum() {
+  protected TermsEnum() 
+  {
   }
 
   /** Returns the related attributes. */
-  public AttributeSource attributes() {
-    if (atts == null) atts = new AttributeSource();
-    return atts;
+  public AttributeSource attributes() 
+  {
+      if (atts == null) 
+      {
+          atts = new AttributeSource();
+      }
+      return atts;
   }
   
   /** Represents returned result from {@link #seekCeil}. */
-  public static enum SeekStatus {
-    /** The term was not found, and the end of iteration was hit. */
-    END,
-    /** The precise term was found. */
-    FOUND,
-    /** A different term was found after the requested term */
-    NOT_FOUND
+  public static enum SeekStatus 
+  {
+      /** The term was not found, and the end of iteration was hit. */
+      END,
+      /** The precise term was found. */
+      FOUND,
+      /** A different term was found after the requested term */
+      NOT_FOUND
   };
 
   /** Attempts to seek to the exact term, returning
    *  true if the term is found.  If this returns false, the
    *  enum is unpositioned.  For some codecs, seekExact may
    *  be substantially faster than {@link #seekCeil}. */
-  public boolean seekExact(BytesRef text) throws IOException {
-    return seekCeil(text) == SeekStatus.FOUND;
+  public boolean seekExact(BytesRef text) throws IOException 
+  {
+      return seekCeil(text) == SeekStatus.FOUND;
   }
 
   /** Seeks to the specified term, if it exists, or to the
@@ -109,10 +116,12 @@ public abstract class TermsEnum implements BytesRefIterator {
    * @param term the term the TermState corresponds to
    * @param state the {@link TermState}
    * */
-  public void seekExact(BytesRef term, TermState state) throws IOException {
-    if (!seekExact(term)) {
-      throw new IllegalArgumentException("term=" + term + " does not exist");
-    }
+  public void seekExact(BytesRef term, TermState state) throws IOException 
+  {
+      if (!seekExact(term)) 
+      {
+          throw new IllegalArgumentException("term=" + term + " does not exist");
+      }
   }
 
   /** Returns current term. Do not call this when the enum
@@ -145,8 +154,9 @@ public abstract class TermsEnum implements BytesRefIterator {
    * @param liveDocs unset bits are documents that should not
    * be returned
    * @param reuse pass a prior DocsEnum for possible reuse */
-  public final DocsEnum docs(Bits liveDocs, DocsEnum reuse) throws IOException {
-    return docs(liveDocs, reuse, DocsEnum.FLAG_FREQS);
+  public final DocsEnum docs(Bits liveDocs, DocsEnum reuse) throws IOException 
+  {
+      return docs(liveDocs, reuse, DocsEnum.FLAG_FREQS);
   }
 
   /** Get {@link DocsEnum} for the current term, with
@@ -171,8 +181,9 @@ public abstract class TermsEnum implements BytesRefIterator {
    *  be returned
    *  @param reuse pass a prior DocsAndPositionsEnum for possible reuse
    *  @see #docsAndPositions(Bits, DocsAndPositionsEnum, int) */
-  public final DocsAndPositionsEnum docsAndPositions(Bits liveDocs, DocsAndPositionsEnum reuse) throws IOException {
-    return docsAndPositions(liveDocs, reuse, DocsAndPositionsEnum.FLAG_OFFSETS | DocsAndPositionsEnum.FLAG_PAYLOADS);
+  public final DocsAndPositionsEnum docsAndPositions(Bits liveDocs, DocsAndPositionsEnum reuse) throws IOException 
+  {
+      return docsAndPositions(liveDocs, reuse, DocsAndPositionsEnum.FLAG_OFFSETS | DocsAndPositionsEnum.FLAG_PAYLOADS);
   }
 
   /** Get {@link DocsAndPositionsEnum} for the current term,
@@ -201,13 +212,16 @@ public abstract class TermsEnum implements BytesRefIterator {
    * @see TermState
    * @see #seekExact(BytesRef, TermState)
    */
-  public TermState termState() throws IOException {
-    return new TermState() {
-      @Override
-      public void copyFrom(TermState other) {
-        throw new UnsupportedOperationException();
-      }
-    };
+  public TermState termState() throws IOException 
+  {
+      return new TermState() 
+      {
+          @Override
+          public void copyFrom(TermState other) 
+          {
+              throw new UnsupportedOperationException();
+          }
+      };
   }
 
   /** An empty TermsEnum for quickly returning an empty instance e.g.
@@ -217,66 +231,83 @@ public abstract class TermsEnum implements BytesRefIterator {
    * This should not be a problem, as the enum is always empty and
    * the existence of unused Attributes does not matter.
    */
-  public static final TermsEnum EMPTY = new TermsEnum() {    
-    @Override
-    public SeekStatus seekCeil(BytesRef term) { return SeekStatus.END; }
+  public static final TermsEnum EMPTY = new TermsEnum() 
+  {    
+      @Override
+      public SeekStatus seekCeil(BytesRef term) 
+      { 
+          return SeekStatus.END; 
+      }
+      
+      @Override
+      public void seekExact(long ord) 
+      {
+      }
+      
+      @Override
+      public BytesRef term() 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+  
+      @Override
+      public Comparator<BytesRef> getComparator() 
+      {
+          return null;
+      }
+      
+      @Override
+      public int docFreq() 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+  
+      @Override
+      public long totalTermFreq() 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+        
+      @Override
+      public long ord() 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+
+      @Override
+      public DocsEnum docs(Bits liveDocs, DocsEnum reuse, int flags) 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+        
+      @Override
+      public DocsAndPositionsEnum docsAndPositions(Bits liveDocs, DocsAndPositionsEnum reuse, int flags) 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+        
+      @Override
+      public BytesRef next() 
+      {
+          return null;
+      }
     
-    @Override
-    public void seekExact(long ord) {}
-    
-    @Override
-    public BytesRef term() {
-      throw new IllegalStateException("this method should never be called");
-    }
-
-    @Override
-    public Comparator<BytesRef> getComparator() {
-      return null;
-    }
-      
-    @Override
-    public int docFreq() {
-      throw new IllegalStateException("this method should never be called");
-    }
-
-    @Override
-    public long totalTermFreq() {
-      throw new IllegalStateException("this method should never be called");
-    }
-      
-    @Override
-    public long ord() {
-      throw new IllegalStateException("this method should never be called");
-    }
-
-    @Override
-    public DocsEnum docs(Bits liveDocs, DocsEnum reuse, int flags) {
-      throw new IllegalStateException("this method should never be called");
-    }
-      
-    @Override
-    public DocsAndPositionsEnum docsAndPositions(Bits liveDocs, DocsAndPositionsEnum reuse, int flags) {
-      throw new IllegalStateException("this method should never be called");
-    }
-      
-    @Override
-    public BytesRef next() {
-      return null;
-    }
-    
-    @Override // make it synchronized here, to prevent double lazy init
-    public synchronized AttributeSource attributes() {
-      return super.attributes();
-    }
-
-    @Override
-    public TermState termState() {
-      throw new IllegalStateException("this method should never be called");
-    }
-
-    @Override
-    public void seekExact(BytesRef term, TermState state) {
-      throw new IllegalStateException("this method should never be called");
-    }
+      @Override // make it synchronized here, to prevent double lazy init
+      public synchronized AttributeSource attributes() 
+      {
+          return super.attributes();
+      }
+  
+      @Override
+      public TermState termState() 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
+  
+      @Override
+      public void seekExact(BytesRef term, TermState state) 
+      {
+          throw new IllegalStateException("this method should never be called");
+      }
   };
 }

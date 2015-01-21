@@ -186,7 +186,7 @@ public final class StandardTokenizer extends Tokenizer
     
         while(true) 
         {
-            int tokenType = scanner.getNextToken();
+            int tokenType = scanner.getNextToken();//scanner=StandardTokenizerImpl
       
             if (tokenType == StandardTokenizerInterface.YYEOF) 
             {

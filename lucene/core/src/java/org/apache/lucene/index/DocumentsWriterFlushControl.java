@@ -270,15 +270,20 @@ final class DocumentsWriterFlushControl
         return stall;
     }
   
-  public synchronized void waitForFlush() {
-    while (flushingWriters.size() != 0) {
-      try {
-        this.wait();
-      } catch (InterruptedException e) {
-        throw new ThreadInterruptedException(e);
-      }
+    public synchronized void waitForFlush() 
+    {
+        while (flushingWriters.size() != 0) 
+        {
+            try 
+            {
+                this.wait();
+            } 
+            catch (InterruptedException e) 
+            {
+                throw new ThreadInterruptedException(e);
+            }
+        }
     }
-  }
 
     /**
      * Sets flush pending state on the given {@link ThreadState}. The
