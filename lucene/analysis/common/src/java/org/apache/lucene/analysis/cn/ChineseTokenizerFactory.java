@@ -28,19 +28,22 @@ import org.apache.lucene.util.AttributeSource.AttributeFactory;
  * @deprecated Use {@link org.apache.lucene.analysis.standard.StandardTokenizerFactory} instead.
  */
 @Deprecated
-public class ChineseTokenizerFactory extends TokenizerFactory {
-  
-  /** Creates a new ChineseTokenizerFactory */
-  public ChineseTokenizerFactory(Map<String,String> args) {
-    super(args);
-    if (!args.isEmpty()) {
-      throw new IllegalArgumentException("Unknown parameters: " + args);
+public class ChineseTokenizerFactory extends TokenizerFactory 
+{  
+    /** Creates a new ChineseTokenizerFactory */
+    public ChineseTokenizerFactory(Map<String,String> args) 
+    {
+        super(args);
+        if (!args.isEmpty()) 
+        {
+            throw new IllegalArgumentException("Unknown parameters: " + args);
+        }
     }
-  }
-  
-  @Override
-  public ChineseTokenizer create(AttributeFactory factory, Reader in) {
-    return new ChineseTokenizer(factory, in);
-  }
+    
+    @Override
+    public ChineseTokenizer create(AttributeFactory factory, Reader in) 
+    {
+        return new ChineseTokenizer(factory, in);
+    }
 }
 

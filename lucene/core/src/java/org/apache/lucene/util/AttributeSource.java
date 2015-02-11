@@ -187,7 +187,8 @@ public class AttributeSource
         return Collections.unmodifiableSet(attributes.keySet()).iterator();
     }
     
-    /** Returns a new iterator that iterates all unique Attribute implementations.
+    /** 
+     * Returns a new iterator that iterates all unique Attribute implementations.
      * This iterator may contain less entries that {@link #getAttributeClassesIterator},
      * if one instance implements more than one Attribute interface.
      */
@@ -354,6 +355,17 @@ public class AttributeSource
         return attClass.cast(attImpl);
     }
       
+    /**
+     * assign currentState[0] to state s
+     * if s!=null or attributeImpls.isEmpty()(it is a hashmap)
+     *   return s
+     * else
+     *   iterate the attributeImpls(hashmap) and construct a linkedlist with it
+     * 
+     * at last, return the first element of the linkedlist(the header of the linkedlist)
+     * 
+     * @return state
+     */
     private State getCurrentState() 
     {
         State s  = currentState[0];
@@ -412,7 +424,10 @@ public class AttributeSource
      */
     public final void restoreState(State state) 
     {
-        if (state == null)  return;
+        if (state == null)  
+        {
+            return;
+        }
         
         do 
         {

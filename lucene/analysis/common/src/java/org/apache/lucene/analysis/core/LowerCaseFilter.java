@@ -54,7 +54,7 @@ public final class LowerCaseFilter extends TokenFilter
     @Override
     public final boolean incrementToken() throws IOException 
     {
-        if (input.incrementToken()) 
+        if (input.incrementToken()) //StandardFilter
         {
             charUtils.toLowerCase(termAtt.buffer(), 0, termAtt.length());
             return true;

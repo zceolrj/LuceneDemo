@@ -1212,51 +1212,70 @@ public final class StandardTokenizerImpl implements StandardTokenizerInterface
       
             switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) 
             {
-              case 1: 
-                { /* Break so we don't hit fall-through warning: */ break; /* Not numeric, word, ideographic, hiragana, or SE Asian -- ignore it. */
+                case 1: 
+                { 
+                    /* Break so we don't hit fall-through warning: */ 
+                    break; /* Not numeric, word, ideographic, hiragana, or SE Asian -- ignore it. */
                 }
-              case 9: break;
-              case 2: 
-                { return WORD_TYPE;
+                case 9: 
+                    break;
+                case 2: 
+                { 
+                    return WORD_TYPE;
                 }
-              case 10: break;
-              case 3: 
-                { return NUMERIC_TYPE;
+                case 10: 
+                    break;
+                case 3: 
+                { 
+                    return NUMERIC_TYPE;
                 }
-              case 11: break;
-              case 4: 
-                { return KATAKANA_TYPE;
+                case 11: 
+                    break;
+                case 4: 
+                { 
+                    return KATAKANA_TYPE;
                 }
-              case 12: break;
-              case 5: 
-                { return SOUTH_EAST_ASIAN_TYPE;
+                case 12: 
+                    break;
+                case 5: 
+                { 
+                    return SOUTH_EAST_ASIAN_TYPE;
                 }
-              case 13: break;
-              case 6: 
-                { return IDEOGRAPHIC_TYPE;
+                case 13: 
+                    break;
+                case 6: 
+                { 
+                    return IDEOGRAPHIC_TYPE;
                 }
-              case 14: break;
-              case 7: 
-                { return HIRAGANA_TYPE;
+                case 14: 
+                    break;
+                case 7: 
+                { 
+                    return HIRAGANA_TYPE;
                 }
-              case 15: break;
-              case 8: 
-                { return HANGUL_TYPE;
+                case 15: 
+                    break;
+                case 8: 
+                { 
+                    return HANGUL_TYPE;
                 }
-              case 16: break;
-              default: 
-                if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
-                  zzAtEOF = true;
+                case 16: 
+                    break;
+                default: 
+                {  
+                    if (zzInput == YYEOF && zzStartRead == zzCurrentPos) 
                     {
-                      return StandardTokenizerInterface.YYEOF;
+                        zzAtEOF = true;
+                        {
+                          return StandardTokenizerInterface.YYEOF;
+                        }
+                    } 
+                    else 
+                    {
+                        zzScanError(ZZ_NO_MATCH);
                     }
-                } 
-                else {
-                  zzScanError(ZZ_NO_MATCH);
                 }
             }
         }
     }
-
-
 }

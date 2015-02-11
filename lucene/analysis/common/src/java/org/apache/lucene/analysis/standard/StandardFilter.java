@@ -51,7 +51,7 @@ public class StandardFilter extends TokenFilter
     {
         if (matchVersion.onOrAfter(Version.LUCENE_31))
         {
-            return input.incrementToken();// add some niceties for the new grammar
+            return input.incrementToken();// StandardTokenizer
         }
         else
         {

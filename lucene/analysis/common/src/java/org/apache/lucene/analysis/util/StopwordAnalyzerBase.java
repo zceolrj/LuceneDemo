@@ -142,15 +142,11 @@ public abstract class StopwordAnalyzerBase extends Analyzer
     /**
      * Creates a CharArraySet from a file.
      * 
-     * @param stopwords
-     *          the stopwords reader to load
+     * @param stopwords        the stopwords reader to load
      * 
-     * @param matchVersion
-     *          the Lucene version for cross version compatibility
-     * @return a CharArraySet containing the distinct stopwords from the given
-     *         reader
-     * @throws IOException
-     *           if loading the stopwords throws an {@link IOException}
+     * @param matchVersion     the Lucene version for cross version compatibility
+     * @return a CharArraySet containing the distinct stopwords from the given reader
+     * @throws IOException     if loading the stopwords throws an {@link IOException}
      */
     protected static CharArraySet loadStopwordSet(Reader stopwords, Version matchVersion) throws IOException 
     {

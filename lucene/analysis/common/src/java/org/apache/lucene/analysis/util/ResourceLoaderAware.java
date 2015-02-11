@@ -25,11 +25,11 @@ import java.io.IOException;
  * 
  * @see ResourceLoader
  */
-public interface ResourceLoaderAware {
-
-  /**
-   * Initializes this component with the provided ResourceLoader
-   * (used for loading classes, files, etc).
-   */
-  void inform(ResourceLoader loader) throws IOException;
+public interface ResourceLoaderAware 
+{
+    /**
+     * Initializes this component with the provided ResourceLoader
+     * (used for loading classes, files, etc).
+     */
+    void inform(ResourceLoader loader) throws IOException;
 }

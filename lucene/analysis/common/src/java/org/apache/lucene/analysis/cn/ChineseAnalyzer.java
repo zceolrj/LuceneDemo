@@ -30,21 +30,21 @@ import org.apache.lucene.analysis.Tokenizer;
  * This analyzer will be removed in Lucene 5.0
  */
 @Deprecated
-public final class ChineseAnalyzer extends Analyzer {
-
-  /**
-   * Creates
-   * {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
-   * used to tokenize all the text in the provided {@link Reader}.
-   * 
-   * @return {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
-   *         built from a {@link ChineseTokenizer} filtered with
-   *         {@link ChineseFilter}
-   */
+public final class ChineseAnalyzer extends Analyzer 
+{
+    /**
+     * Creates
+     * {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
+     * used to tokenize all the text in the provided {@link Reader}.
+     * 
+     * @return {@link org.apache.lucene.analysis.Analyzer.TokenStreamComponents}
+     *         built from a {@link ChineseTokenizer} filtered with
+     *         {@link ChineseFilter}
+     */
     @Override
-    protected TokenStreamComponents createComponents(String fieldName,
-        Reader reader) {
-      final Tokenizer source = new ChineseTokenizer(reader);
-      return new TokenStreamComponents(source, new ChineseFilter(source));
+    protected TokenStreamComponents createComponents(String fieldName, Reader reader) 
+    {
+        final Tokenizer source = new ChineseTokenizer(reader);
+        return new TokenStreamComponents(source, new ChineseFilter(source));
     }
 }

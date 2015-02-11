@@ -55,15 +55,16 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
  * This filter will be removed in Lucene 5.0
  */
 @Deprecated
-public final class ChineseTokenizer extends Tokenizer {
-
-
-    public ChineseTokenizer(Reader in) {
-      super(in);
+public final class ChineseTokenizer extends Tokenizer 
+{
+    public ChineseTokenizer(Reader in) 
+    {
+        super(in);
     }
 
-    public ChineseTokenizer(AttributeFactory factory, Reader in) {
-      super(factory, in);
+    public ChineseTokenizer(AttributeFactory factory, Reader in) 
+    {
+        super(factory, in);
     }
        
     private int offset = 0, bufferIndex=0, dataLen=0;
@@ -79,53 +80,62 @@ public final class ChineseTokenizer extends Tokenizer {
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
     private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
     
-    private final void push(char c) {
-
-        if (length == 0) start = offset-1;            // start of token
+    private final void push(char c) 
+    {
+        if (length == 0) 
+        {
+            start = offset-1;            // start of token
+        }
         buffer[length++] = Character.toLowerCase(c);  // buffer it
 
     }
 
-    private final boolean flush() {
-
-        if (length>0) {
-            //System.out.println(new String(buffer, 0,
-            //length));
-          termAtt.copyBuffer(buffer, 0, length);
-          offsetAtt.setOffset(correctOffset(start), correctOffset(start+length));
-          return true;
+    private final boolean flush() 
+    {
+        if (length>0) 
+        {
+            //System.out.println(new String(buffer, 0,length));
+            termAtt.copyBuffer(buffer, 0, length);
+            offsetAtt.setOffset(correctOffset(start), correctOffset(start+length));
+            return true;
         }
         else
+        {
             return false;
+        }
     }
 
     @Override
-    public boolean incrementToken() throws IOException {
+    public boolean incrementToken() throws IOException 
+    {
         clearAttributes();
-
         length = 0;
         start = offset;
 
-
-        while (true) {
-
+        while (true) 
+        {
             final char c;
             offset++;
 
-            if (bufferIndex >= dataLen) {
+            if (bufferIndex >= dataLen) 
+            {
                 dataLen = input.read(ioBuffer);
                 bufferIndex = 0;
             }
 
-            if (dataLen == -1) {
-              offset--;
-              return flush();
-            } else
+            if (dataLen == -1) 
+            {
+                offset--;
+                return flush();
+            } 
+            else
+            {
                 c = ioBuffer[bufferIndex++];
+            }
 
 
-            switch(Character.getType(c)) {
-
+            switch(Character.getType(c)) 
+            {
             case Character.DECIMAL_DIGIT_NUMBER:
             case Character.LOWERCASE_LETTER:
             case Character.UPPERCASE_LETTER:
@@ -134,7 +144,8 @@ public final class ChineseTokenizer extends Tokenizer {
                 break;
 
             case Character.OTHER_LETTER:
-                if (length>0) {
+                if (length>0) 
+                {
                     bufferIndex--;
                     offset--;
                     return flush();
@@ -143,23 +154,28 @@ public final class ChineseTokenizer extends Tokenizer {
                 return flush();
 
             default:
-                if (length>0) return flush();
+                if (length>0) 
+                {
+                    return flush();
+                }
                 break;
             }
         }
     }
     
     @Override
-    public final void end() throws IOException {
-      super.end();
-      // set final offset
-      final int finalOffset = correctOffset(offset);
-      this.offsetAtt.setOffset(finalOffset, finalOffset);
+    public final void end() throws IOException 
+    {
+        super.end();
+        // set final offset
+        final int finalOffset = correctOffset(offset);
+        this.offsetAtt.setOffset(finalOffset, finalOffset);
     }
 
     @Override
-    public void reset() throws IOException {
-      super.reset();
-      offset = bufferIndex = dataLen = 0;
+    public void reset() throws IOException 
+    {
+        super.reset();
+        offset = bufferIndex = dataLen = 0;
     }
 }

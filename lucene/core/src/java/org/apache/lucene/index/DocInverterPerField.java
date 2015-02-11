@@ -106,7 +106,7 @@ final class DocInverterPerField extends DocFieldConsumerPerField
 
                 try 
                 {
-                    boolean hasMoreTokens = stream.incrementToken();
+                    boolean hasMoreTokens = stream.incrementToken();//FilteringTokenFilter.incrementToken()
 
                     fieldState.attributeSource = stream;
 

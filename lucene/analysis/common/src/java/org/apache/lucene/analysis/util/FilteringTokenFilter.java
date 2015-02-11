@@ -40,7 +40,8 @@ public abstract class FilteringTokenFilter extends TokenFilter
     {
         if (!enablePositionIncrements && version.onOrAfter(Version.LUCENE_44)) 
         {
-            throw new IllegalArgumentException("enablePositionIncrements=false is not supported anymore as of Lucene 4.4 as it can create broken token streams");
+            throw new IllegalArgumentException(
+                "enablePositionIncrements=false is not supported anymore as of Lucene 4.4 as it can create broken token streams");
         }
     }
   
@@ -86,7 +87,7 @@ public abstract class FilteringTokenFilter extends TokenFilter
         if (enablePositionIncrements) 
         {
             skippedPositions = 0;
-            while (input.incrementToken()) 
+            while (input.incrementToken()) //LowerCaseFilter
             {
                 if (accept()) 
                 {

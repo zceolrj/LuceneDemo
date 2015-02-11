@@ -36,64 +36,79 @@ import java.io.InputStream;
  * <p>You can chain several {@code FilesystemResourceLoader}s
  * to allow lookup of files in more than one base directory.
  */
-public final class FilesystemResourceLoader implements ResourceLoader {
-  private final File baseDirectory;
-  private final ResourceLoader delegate;
-  
-  /**
-   * Creates a resource loader that requires absolute filenames or relative to CWD
-   * to resolve resources. Files not found in file system and class lookups
-   * are delegated to context classloader.
-   */
-  public FilesystemResourceLoader() {
-    this((File) null);
-  }
-
-  /**
-   * Creates a resource loader that resolves resources against the given
-   * base directory (may be {@code null} to refer to CWD).
-   * Files not found in file system and class lookups are delegated to context
-   * classloader.
-   */
-  public FilesystemResourceLoader(File baseDirectory) {
-    this(baseDirectory, new ClasspathResourceLoader());
-  }
-
-  /**
-   * Creates a resource loader that resolves resources against the given
-   * base directory (may be {@code null} to refer to CWD).
-   * Files not found in file system and class lookups are delegated
-   * to the given delegate {@link ResourceLoader}.
-   */
-  public FilesystemResourceLoader(File baseDirectory, ResourceLoader delegate) {
-    if (baseDirectory != null && !baseDirectory.isDirectory())
-      throw new IllegalArgumentException("baseDirectory is not a directory or null");
-    if (delegate == null)
-      throw new IllegalArgumentException("delegate ResourceLoader may not be null");
-    this.baseDirectory = baseDirectory;
-    this.delegate = delegate;
-  }
-
-  @Override
-  public InputStream openResource(String resource) throws IOException {
-    try {
-      File file = new File (resource);
-      if (baseDirectory != null && !file.isAbsolute()) {
-        file = new File(baseDirectory, resource);
-      }
-      return new FileInputStream(file);
-    } catch (FileNotFoundException fnfe) {
-      return delegate.openResource(resource);
+public final class FilesystemResourceLoader implements ResourceLoader 
+{
+    private final File baseDirectory;
+    private final ResourceLoader delegate;
+    
+    /**
+     * Creates a resource loader that requires absolute filenames or relative to CWD
+     * to resolve resources. Files not found in file system and class lookups
+     * are delegated to context classloader.
+     */
+    public FilesystemResourceLoader() 
+    {
+        this((File) null);
     }
-  }
-
-  @Override
-  public <T> T newInstance(String cname, Class<T> expectedType) {
-    return delegate.newInstance(cname, expectedType);
-  }
-
-  @Override
-  public <T> Class<? extends T> findClass(String cname, Class<T> expectedType) {
-    return delegate.findClass(cname, expectedType);
-  }
+  
+    /**
+     * Creates a resource loader that resolves resources against the given
+     * base directory (may be {@code null} to refer to CWD).
+     * Files not found in file system and class lookups are delegated to context
+     * classloader.
+     */
+    public FilesystemResourceLoader(File baseDirectory) 
+    {
+        this(baseDirectory, new ClasspathResourceLoader());
+    }
+  
+    /**
+     * Creates a resource loader that resolves resources against the given
+     * base directory (may be {@code null} to refer to CWD).
+     * Files not found in file system and class lookups are delegated
+     * to the given delegate {@link ResourceLoader}.
+     */
+    public FilesystemResourceLoader(File baseDirectory, ResourceLoader delegate) 
+    {
+        if (baseDirectory != null && !baseDirectory.isDirectory())
+        {
+            throw new IllegalArgumentException("baseDirectory is not a directory or null");
+        }
+        if (delegate == null)
+        {
+            throw new IllegalArgumentException("delegate ResourceLoader may not be null");
+        }
+        this.baseDirectory = baseDirectory;
+        this.delegate = delegate;
+    }
+  
+    @Override
+    public InputStream openResource(String resource) throws IOException 
+    {
+        try 
+        {
+            File file = new File (resource);
+            if (baseDirectory != null && !file.isAbsolute()) 
+            {
+                file = new File(baseDirectory, resource);
+            }
+            return new FileInputStream(file);
+        } 
+        catch (FileNotFoundException fnfe) 
+        {
+            return delegate.openResource(resource);
+        }
+    }
+  
+    @Override
+    public <T> T newInstance(String cname, Class<T> expectedType) 
+    {
+        return delegate.newInstance(cname, expectedType);
+    }
+  
+    @Override
+    public <T> Class<? extends T> findClass(String cname, Class<T> expectedType) 
+    {
+        return delegate.findClass(cname, expectedType);
+    }
 }

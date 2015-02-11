@@ -30,46 +30,55 @@ import org.apache.lucene.analysis.util.CharArraySet;
  * 
  * @see <a href="http://fr.wikipedia.org/wiki/%C3%89lision">Elision in Wikipedia</a>
  */
-public final class ElisionFilter extends TokenFilter {
-  private final CharArraySet articles;
-  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-  
-  /**
-   * Constructs an elision filter with a Set of stop words
-   * @param input the source {@link TokenStream}
-   * @param articles a set of stopword articles
-   */
-  public ElisionFilter(TokenStream input, CharArraySet articles) {
-    super(input);
-    this.articles = articles;
-  }
-
-  /**
-   * Increments the {@link TokenStream} with a {@link CharTermAttribute} without elisioned start
-   */
-  @Override
-  public final boolean incrementToken() throws IOException {
-    if (input.incrementToken()) {
-      char[] termBuffer = termAtt.buffer();
-      int termLength = termAtt.length();
-
-      int index = -1;
-      for (int i = 0; i < termLength; i++) {
-        char ch = termBuffer[i];
-        if (ch == '\'' || ch == '\u2019') {
-          index = i;
-          break;
-        }
-      }
-
-      // An apostrophe has been found. If the prefix is an article strip it off.
-      if (index >= 0 && articles.contains(termBuffer, 0, index)) {
-        termAtt.copyBuffer(termBuffer, index + 1, termLength - (index + 1));
-      }
-
-      return true;
-    } else {
-      return false;
+public final class ElisionFilter extends TokenFilter 
+{
+    private final CharArraySet articles;
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    
+    /**
+     * Constructs an elision filter with a Set of stop words
+     * @param input the source {@link TokenStream}
+     * @param articles a set of stopword articles
+     */
+    public ElisionFilter(TokenStream input, CharArraySet articles) 
+    {
+        super(input);
+        this.articles = articles;
     }
-  }
+  
+    /**
+     * Increments the {@link TokenStream} with a {@link CharTermAttribute} without elisioned start
+     */
+    @Override
+    public final boolean incrementToken() throws IOException 
+    {
+        if (input.incrementToken()) 
+        {
+            char[] termBuffer = termAtt.buffer();
+            int termLength = termAtt.length();
+      
+            int index = -1;
+            for (int i = 0; i < termLength; i++) 
+            {
+                char ch = termBuffer[i];
+                if (ch == '\'' || ch == '\u2019') 
+                {
+                    index = i;
+                    break;
+                }
+            }
+      
+            // An apostrophe has been found. If the prefix is an article strip it off.
+            if (index >= 0 && articles.contains(termBuffer, 0, index)) 
+            {
+                termAtt.copyBuffer(termBuffer, index + 1, termLength - (index + 1));
+            }
+      
+            return true;
+        } 
+        else 
+        {
+            return false;
+        }
+    }
 }

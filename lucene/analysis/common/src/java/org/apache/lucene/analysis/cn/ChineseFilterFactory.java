@@ -29,18 +29,21 @@ import org.apache.lucene.analysis.util.TokenFilterFactory;
  * @deprecated Use {@link StopFilterFactory} instead.
  */
 @Deprecated
-public class ChineseFilterFactory extends TokenFilterFactory {
-  
-  /** Creates a new ChineseFilterFactory */
-  public ChineseFilterFactory(Map<String,String> args) {
-    super(args);
-    if (!args.isEmpty()) {
-      throw new IllegalArgumentException("Unknown parameters: " + args);
+public class ChineseFilterFactory extends TokenFilterFactory 
+{  
+    /** Creates a new ChineseFilterFactory */
+    public ChineseFilterFactory(Map<String,String> args) 
+    {
+        super(args);
+        if (!args.isEmpty()) 
+        {
+            throw new IllegalArgumentException("Unknown parameters: " + args);
+        }
     }
-  }
-  
-  public ChineseFilter create(TokenStream in) {
-    return new ChineseFilter(in);
-  }
+    
+    public ChineseFilter create(TokenStream in) 
+    {
+        return new ChineseFilter(in);
+    }
 }
 
