@@ -112,13 +112,10 @@ public final class BytesRefHash
      * Note: the given bytesID must be a positive integer less than the current
      * size ({@link #size()})
      * 
-     * @param bytesID
-     *          the id
-     * @param ref
-     *          the {@link BytesRef} to populate
+     * @param bytesID      the id
+     * @param ref          the {@link BytesRef} to populate
      * 
-     * @return the given BytesRef instance populated with the bytes for the given
-     *         bytesID
+     * @return the given BytesRef instance populated with the bytes for the given bytesID
      */
     public BytesRef get(int bytesID, BytesRef ref) 
     {
