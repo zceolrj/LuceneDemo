@@ -123,21 +123,21 @@ class BinaryDocValuesWriter extends DocValuesWriter
     {
     }
   
-    @Override
-    public void flush(SegmentWriteState state, DocValuesConsumer dvConsumer) throws IOException 
-    {
-        final int maxDoc = state.segmentInfo.getDocCount();
-        bytes.freeze(false);
-        dvConsumer.addBinaryField(fieldInfo,
-            new Iterable<BytesRef>() 
-            {
-                @Override
-                public Iterator<BytesRef> iterator() 
-                {
-                    return new BytesIterator(maxDoc);                                 
-                }
-             });
-    }
+	@Override
+	public void flush(SegmentWriteState state, DocValuesConsumer dvConsumer)
+			throws IOException
+	{
+		final int maxDoc = state.segmentInfo.getDocCount();
+		bytes.freeze(false);
+		dvConsumer.addBinaryField(fieldInfo, new Iterable<BytesRef>()
+		{
+			@Override
+			public Iterator<BytesRef> iterator()
+			{
+				return new BytesIterator(maxDoc);
+			}
+		});
+	}
   
     @Override
     public void abort() 

@@ -47,8 +47,12 @@ final class DocInverterPerField extends DocFieldConsumerPerField
         this.fieldInfo = fieldInfo;
         docState = parent.docState;
         fieldState = new FieldInvertState(fieldInfo.name);
-        this.consumer = parent.consumer.addField(this, fieldInfo);//parent.consumer=TermsHash   this.consumer=TermsHashPerField
-        this.endConsumer = parent.endConsumer.addField(this, fieldInfo);//parent.endConsumer=NormsConsumer   this.endConsumer=NormsConsumerPerField
+        
+        //parent.consumer=TermsHash   this.consumer=TermsHashPerField
+        this.consumer = parent.consumer.addField(this, fieldInfo);
+        
+        //parent.endConsumer=NormsConsumer   this.endConsumer=NormsConsumerPerField
+        this.endConsumer = parent.endConsumer.addField(this, fieldInfo);
     }
 
     @Override
@@ -159,7 +163,8 @@ final class DocInverterPerField extends DocFieldConsumerPerField
                                 int endOffset = fieldState.offset + offsetAttribute.endOffset();
                                 if (startOffset < 0 || endOffset < startOffset) 
                                 {
-                                    throw new IllegalArgumentException("startOffset must be non-negative, and endOffset must be >= startOffset, "
+                                    throw new IllegalArgumentException(
+                                    	"startOffset must be non-negative, and endOffset must be >= startOffset, "
                                         + "startOffset=" + startOffset + ",endOffset=" + endOffset + " for field '" + field.name() + "'");
                                 }
                                 if (startOffset < lastStartOffset) 

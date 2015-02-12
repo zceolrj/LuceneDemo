@@ -280,16 +280,14 @@ public final class BytesRefHash
     /**
      * Adds a new {@link BytesRef}
      * 
-     * @param bytes
-     *          the bytes to hash
+     * @param bytes      the bytes to hash
      * @return the id the given bytes are hashed if there was no mapping for the
      *         given bytes, otherwise <code>(-(id)-1)</code>. This guarantees
      *         that the return value will always be &gt;= 0 if the given bytes
      *         haven't been hashed before.
      * 
      * @throws MaxBytesLengthExceededException
-     *           if the given bytes are > 2 +
-     *           {@link ByteBlockPool#BYTE_BLOCK_SIZE}
+     *           if the given bytes are > 2 + {@link ByteBlockPool#BYTE_BLOCK_SIZE}
      */
     public int add(BytesRef bytes) 
     {

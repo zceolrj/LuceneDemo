@@ -28,7 +28,7 @@ import java.util.Map;
 final class DocInverter extends DocFieldConsumer 
 {
     final InvertedDocConsumer consumer;//TermsHash
-    final InvertedDocEndConsumer endConsumer;//NormsConsumer
+    final InvertedDocEndConsumer endConsumer;//NormsConsumer  used to write nrm
 
     final DocumentsWriterPerThread.DocState docState;
 

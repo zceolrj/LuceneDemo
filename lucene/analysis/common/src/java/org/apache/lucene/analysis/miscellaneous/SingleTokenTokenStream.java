@@ -25,46 +25,55 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 /**
  * A {@link TokenStream} containing a single token.
  */
-public final class SingleTokenTokenStream extends TokenStream {
+public final class SingleTokenTokenStream extends TokenStream
+{
 
-  private boolean exhausted = false;
-  
-  // The token needs to be immutable, so work with clones!
-  private Token singleToken;
-  private final AttributeImpl tokenAtt;
+	private boolean exhausted = false;
 
-  public SingleTokenTokenStream(Token token) {
-    super(Token.TOKEN_ATTRIBUTE_FACTORY);
-    
-    assert token != null;
-    this.singleToken = token.clone();
-    
-    tokenAtt = (AttributeImpl) addAttribute(CharTermAttribute.class);
-    assert (tokenAtt instanceof Token);
-  }
+	// The token needs to be immutable, so work with clones!
+	private Token singleToken;
+	private final AttributeImpl tokenAtt;
 
-  @Override
-  public final boolean incrementToken() {
-    if (exhausted) {
-      return false;
-    } else {
-      clearAttributes();
-      singleToken.copyTo(tokenAtt);
-      exhausted = true;
-      return true;
-    }
-  }
+	public SingleTokenTokenStream(Token token)
+	{
+		super(Token.TOKEN_ATTRIBUTE_FACTORY);
 
-  @Override
-  public void reset() {
-    exhausted = false;
-  }
+		assert token != null;
+		this.singleToken = token.clone();
 
-  public Token getToken() {
-    return singleToken.clone();
-  }
+		tokenAtt = (AttributeImpl) addAttribute(CharTermAttribute.class);
+		assert (tokenAtt instanceof Token);
+	}
 
-  public void setToken(Token token) {
-    this.singleToken = token.clone();
-  }
+	@Override
+	public final boolean incrementToken()
+	{
+		if (exhausted)
+		{
+			return false;
+		}
+		else
+		{
+			clearAttributes();
+			singleToken.copyTo(tokenAtt);
+			exhausted = true;
+			return true;
+		}
+	}
+
+	@Override
+	public void reset()
+	{
+		exhausted = false;
+	}
+
+	public Token getToken()
+	{
+		return singleToken.clone();
+	}
+
+	public void setToken(Token token)
+	{
+		this.singleToken = token.clone();
+	}
 }

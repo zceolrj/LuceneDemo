@@ -37,7 +37,8 @@ final class DocFieldProcessorPerField
 
     public DocFieldProcessorPerField(final DocFieldProcessor docFieldProcessor, final FieldInfo fieldInfo) 
     {
-        this.consumer = docFieldProcessor.consumer.addField(fieldInfo);
+        //DocFieldProcessor.consumer=DocInverter
+    	this.consumer = docFieldProcessor.consumer.addField(fieldInfo);
         this.fieldInfo = fieldInfo;
     }
 

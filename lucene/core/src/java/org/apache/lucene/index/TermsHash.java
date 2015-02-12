@@ -36,8 +36,8 @@ import org.apache.lucene.util.IntBlockPool;
  */
 final class TermsHash extends InvertedDocConsumer 
 {
-    final TermsHashConsumer consumer;//FreqProxTermsWriter  TermVectorsConsumer
-    final TermsHash nextTermsHash;//nextTermsHash.consumer=TermVectorsConsumer
+    final TermsHashConsumer consumer;//FreqProxTermsWriter  used to write freq, prox
+    final TermsHash nextTermsHash;//nextTermsHash.consumer=TermVectorsConsumer  used to write tvx, tvd, tvf
 
     final IntBlockPool intPool;
     final ByteBlockPool bytePool;

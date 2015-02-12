@@ -68,7 +68,9 @@ final class TermsHashPerField extends InvertedDocConsumerPerField
         this.termsHash = termsHash;
         bytesUsed = termsHash.bytesUsed;
         fieldState = docInverterPerField.fieldState;
-        this.consumer = termsHash.consumer.addField(this, fieldInfo);//termsHash.consumer=FreqProxTermsWriter   this.consumer=FreqProxTermsWriterPerField
+        
+        //termsHash.consumer=FreqProxTermsWriter   this.consumer=FreqProxTermsWriterPerField
+        this.consumer = termsHash.consumer.addField(this, fieldInfo);
         PostingsBytesStartArray byteStarts = new PostingsBytesStartArray(this, bytesUsed);
         bytesHash = new BytesRefHash(termBytePool, HASH_INIT_SIZE, byteStarts);
         streamCount = consumer.getStreamCount();//consumer=FreqProxTermsWriterPerField

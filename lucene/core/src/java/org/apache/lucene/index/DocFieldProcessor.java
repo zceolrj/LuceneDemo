@@ -39,8 +39,8 @@ import org.apache.lucene.util.Counter;
 
 final class DocFieldProcessor extends DocConsumer
 {
-    final DocFieldConsumer consumer;
-    final StoredFieldsConsumer storedConsumer;
+    final DocFieldConsumer consumer;//DocInverter
+    final StoredFieldsConsumer storedConsumer;//TwoStoredFieldsConsumers
     final Codec codec;
 
     // Holds all fields seen in current doc
