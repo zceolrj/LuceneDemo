@@ -58,7 +58,8 @@ public final class BrazilianAnalyzer extends StopwordAnalyzerBase {
     return DefaultSetHolder.DEFAULT_STOP_SET;
   }
   
-  private static class DefaultSetHolder {
+  @SuppressWarnings("deprecation")
+private static class DefaultSetHolder {
     static final CharArraySet DEFAULT_STOP_SET;
     
     static {

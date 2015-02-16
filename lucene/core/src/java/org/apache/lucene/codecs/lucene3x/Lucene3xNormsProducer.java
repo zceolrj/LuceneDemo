@@ -71,7 +71,9 @@ class Lucene3xNormsProducer extends DocValuesProducer {
   public Lucene3xNormsProducer(Directory dir, SegmentInfo info, FieldInfos fields, IOContext context) throws IOException {
     Directory separateNormsDir = info.dir; // separate norms are never inside CFS
     maxdoc = info.getDocCount();
-    String segmentName = info.name;
+    
+    @SuppressWarnings("unused")
+	String segmentName = info.name;
     boolean success = false;
     try {
       long nextNormSeek = NORMS_HEADER.length; //skip header (header unused for now)

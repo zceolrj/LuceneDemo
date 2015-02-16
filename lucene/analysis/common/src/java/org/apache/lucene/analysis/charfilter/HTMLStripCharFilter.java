@@ -21,15 +21,14 @@ package org.apache.lucene.analysis.charfilter;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.lucene.util.Version;
 import org.apache.lucene.analysis.util.CharArrayMap;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.analysis.util.OpenStringBuilder;
+import org.apache.lucene.util.Version;
 
 /**
  * A CharFilter that wraps another Reader and attempts to strip out HTML constructs.
@@ -30639,7 +30638,8 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
   private int zzEndRead;
 
   /** number of newlines encountered up to the start of the matched text */
-  private int yyline;
+  @SuppressWarnings("unused")
+private int yyline;
 
   /** the number of characters up to the start of the matched text */
   private int yychar;
@@ -30648,12 +30648,14 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
    * the number of characters from the last newline up to the start of the 
    * matched text
    */
-  private int yycolumn;
+  @SuppressWarnings("unused")
+private int yycolumn;
 
   /** 
    * zzAtBOL == true <=> the scanner is currently at the beginning of a line
    */
-  private boolean zzAtBOL = true;
+  @SuppressWarnings("unused")
+private boolean zzAtBOL = true;
 
   /** zzAtEOF == true <=> the scanner is at the EOF */
   private boolean zzAtEOF;
@@ -30672,7 +30674,8 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
     upperCaseVariantsAccepted.put("reg", "REG");
     upperCaseVariantsAccepted.put("amp", "AMP");
   }
-  private static final CharArrayMap<Character> entityValues
+  @SuppressWarnings("deprecation")
+private static final CharArrayMap<Character> entityValues
       = new CharArrayMap<Character>(Version.LUCENE_40, 253, false);
   static {
     String[] entities = {
@@ -30799,7 +30802,8 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
    * @param escapedTags Tags in this set (both start and end tags)
    *  will not be filtered out.
    */
-  public HTMLStripCharFilter(Reader source, Set<String> escapedTags) {
+  @SuppressWarnings("deprecation")
+public HTMLStripCharFilter(Reader source, Set<String> escapedTags) {
     super(source);
     this.zzReader = source;
     if (null != escapedTags) {
@@ -30860,7 +30864,8 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
     int pos = 0;
 
     /** Wraps the given buffer and sets this.len to the given length. */
-    TextSegment(char[] buffer, int length) {
+    @SuppressWarnings("unused")
+	TextSegment(char[] buffer, int length) {
       super(buffer, length);
     }
 
@@ -30981,35 +30986,10 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
 
 
   /**
-   * Resets the scanner to read from a new input stream.
-   * Does not close the old reader.
-   *
-   * All internal variables are reset, the old input stream 
-   * <b>cannot</b> be reused (internal buffer is discarded and lost).
-   * Lexical state is set to <tt>ZZ_INITIAL</tt>.
-   *
-   * Internal scan buffer is resized down to its initial length, if it has grown.
-   *
-   * @param reader   the new input stream 
-   */
-  private final void yyreset(java.io.Reader reader) {
-    zzReader = reader;
-    zzAtBOL  = true;
-    zzAtEOF  = false;
-    zzEOFDone = false;
-    zzEndRead = zzStartRead = 0;
-    zzCurrentPos = zzMarkedPos = 0;
-    yyline = yychar = yycolumn = 0;
-    zzLexicalState = YYINITIAL;
-    if (zzBuffer.length > ZZ_BUFFERSIZE)
-      zzBuffer = new char[ZZ_BUFFERSIZE];
-  }
-
-
-  /**
    * Returns the current lexical state.
    */
-  private final int yystate() {
+  @SuppressWarnings("unused")
+private final int yystate() {
     return zzLexicalState;
   }
 
@@ -31043,7 +31023,8 @@ public final class HTMLStripCharFilter extends BaseCharFilter {
    *
    * @return the character at position pos
    */
-  private final char yycharat(int pos) {
+  @SuppressWarnings("unused")
+private final char yycharat(int pos) {
     return zzBuffer[zzStartRead+pos];
   }
 

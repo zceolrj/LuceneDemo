@@ -135,7 +135,7 @@ public class PayloadSpanUtil {
           }
         }
 
-        @SuppressWarnings({"rawtypes","unchecked"}) final List<Query>[] disjunctLists =
+        @SuppressWarnings({"unchecked"}) final List<Query>[] disjunctLists =
             new List[maxPosition + 1];
         int distinctPositions = 0;
 

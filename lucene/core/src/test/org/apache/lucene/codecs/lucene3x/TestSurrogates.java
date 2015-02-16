@@ -81,7 +81,8 @@ public class TestSurrogates extends LuceneTestCase {
   }
 
   private static class SortTermAsUTF16Comparator implements Comparator<Term> {
-    private static final Comparator<BytesRef> legacyComparator = 
+    @SuppressWarnings("deprecation")
+	private static final Comparator<BytesRef> legacyComparator = 
       BytesRef.getUTF8SortedAsUTF16Comparator();
 
     public int compare(Term term1, Term term2) {

@@ -29,11 +29,11 @@ import org.apache.lucene.codecs.PostingsReaderBase;
 import org.apache.lucene.codecs.PostingsWriterBase;
 import org.apache.lucene.index.DocsEnum; // javadocs
 import org.apache.lucene.index.FieldInfo.IndexOptions; // javadocs
-import org.apache.lucene.index.FieldInfos; // javadocs
 import org.apache.lucene.index.SegmentReadState;
 import org.apache.lucene.index.SegmentWriteState;
 import org.apache.lucene.store.DataOutput; // javadocs
-import org.apache.lucene.util.fst.FST; // javadocs
+// javadocs
+// javadocs
 
 /** 
  * Lucene 4.0 Postings format.

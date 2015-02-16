@@ -30,7 +30,8 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
  */
 public final class DoubleMetaphoneFilter extends TokenFilter {
 
-  private static final String TOKEN_TYPE = "DoubleMetaphone";
+  @SuppressWarnings("unused")
+private static final String TOKEN_TYPE = "DoubleMetaphone";
   
   private final LinkedList<State> remainingTokens = new LinkedList<State>();
   private final DoubleMetaphone encoder = new DoubleMetaphone();

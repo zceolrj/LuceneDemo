@@ -124,7 +124,7 @@ public final class NamedSPILoader<S extends NamedSPILoader.NamedSPI> implements 
         {
             return service;
         }
-        throw new IllegalArgumentException("A SPI class of type "+clazz.getName()+" with name '"+name+"' does not exist. "+
+        throw new IllegalArgumentException("A SPI class of type " + clazz.getName() + " with name '" + name + "' does not exist. "+
                       "You need to add the corresponding JAR file supporting this SPI to your classpath."+
                       "The current classpath supports the following names: "+availableServices());
     }

@@ -360,7 +360,8 @@ class FieldCacheImpl implements FieldCache {
   }
 
   // inherit javadocs
-  public Bytes getBytes(AtomicReader reader, String field, ByteParser parser, boolean setDocsWithField)
+  @SuppressWarnings("deprecation")
+public Bytes getBytes(AtomicReader reader, String field, ByteParser parser, boolean setDocsWithField)
       throws IOException {
     final NumericDocValues valuesIn = reader.getNumericDocValues(field);
     if (valuesIn != null) {
@@ -403,7 +404,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 
@@ -454,7 +456,8 @@ class FieldCacheImpl implements FieldCache {
   }
 
   // inherit javadocs
-  public Shorts getShorts(AtomicReader reader, String field, ShortParser parser, boolean setDocsWithField)
+  @SuppressWarnings("deprecation")
+public Shorts getShorts(AtomicReader reader, String field, ShortParser parser, boolean setDocsWithField)
       throws IOException {
     final NumericDocValues valuesIn = reader.getNumericDocValues(field);
     if (valuesIn != null) {
@@ -497,7 +500,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 
@@ -614,7 +618,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(final AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 
@@ -808,7 +813,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(final AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 
@@ -921,7 +927,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(final AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 
@@ -1045,7 +1052,8 @@ class FieldCacheImpl implements FieldCache {
       super(wrapper);
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     protected Object createValue(final AtomicReader reader, CacheKey key, boolean setDocsWithField)
         throws IOException {
 

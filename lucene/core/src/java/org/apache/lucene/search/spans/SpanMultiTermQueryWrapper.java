@@ -60,7 +60,7 @@ public class SpanMultiTermQueryWrapper<Q extends MultiTermQuery> extends SpanQue
    * Be sure to not change the rewrite method on the wrapped query afterwards! Doing so will
    * throw {@link UnsupportedOperationException} on rewriting this query!
    */
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"rawtypes"})
   public SpanMultiTermQueryWrapper(Q query) {
     this.query = query;
     
@@ -124,7 +124,7 @@ public class SpanMultiTermQueryWrapper<Q extends MultiTermQuery> extends SpanQue
   }
 
   @Override
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"rawtypes"})
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;

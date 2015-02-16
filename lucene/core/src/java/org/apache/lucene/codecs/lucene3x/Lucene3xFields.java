@@ -60,11 +60,14 @@ class Lucene3xFields extends FieldsProducer {
   public final IndexInput freqStream;
   public final IndexInput proxStream;
   final private FieldInfos fieldInfos;
-  private final SegmentInfo si;
+  @SuppressWarnings("unused")
+private final SegmentInfo si;
   final TreeMap<String,FieldInfo> fields = new TreeMap<String,FieldInfo>();
   final Map<String,Terms> preTerms = new HashMap<String,Terms>();
-  private final Directory dir;
-  private final IOContext context;
+  @SuppressWarnings("unused")
+private final Directory dir;
+  @SuppressWarnings("unused")
+private final IOContext context;
   private Directory cfsReader;
 
   public Lucene3xFields(Directory dir, FieldInfos fieldInfos, SegmentInfo info, IOContext context, int indexDivisor)

@@ -144,7 +144,7 @@ public class Lucene45Codec extends Codec
         return docValuesFormat;
     }
   
-    private final PostingsFormat defaultFormat = PostingsFormat.forName("Lucene41");
+    private final PostingsFormat defaultFormat = PostingsFormat.forName("Lucene41");//Lucene41PostingsFormat
     private final DocValuesFormat defaultDVFormat = DocValuesFormat.forName("Lucene45");
   
     private final NormsFormat normsFormat = new Lucene42NormsFormat();

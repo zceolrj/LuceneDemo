@@ -47,8 +47,7 @@ public final class ByteBlockPool
     public final static int BYTE_BLOCK_SIZE = 1 << BYTE_BLOCK_SHIFT;// 1000 0000 0000 0000
     public final static int BYTE_BLOCK_MASK = BYTE_BLOCK_SIZE - 1;// 0111 1111 1111 1111
   
-    /** Abstract class for allocating and freeing byte
-     *  blocks. */
+    /** Abstract class for allocating and freeing byte blocks. */
     public abstract static class Allocator 
     {
         protected final int blockSize;
@@ -189,8 +188,8 @@ public final class ByteBlockPool
             {
                 final int offset = reuseFirst ? 1 : 0;  
                 // Recycle all but the first buffer
-                allocator.recycleByteBlocks(buffers, offset, 1+bufferUpto);
-                Arrays.fill(buffers, offset, 1+bufferUpto, null);
+                allocator.recycleByteBlocks(buffers, offset, 1 + bufferUpto);
+                Arrays.fill(buffers, offset, 1 + bufferUpto, null);
             }
            
             if (reuseFirst) 
@@ -219,7 +218,7 @@ public final class ByteBlockPool
      */
     public void nextBuffer() 
     {
-        if (1+bufferUpto == buffers.length) 
+        if (1 + bufferUpto == buffers.length) 
         {
             byte[][] newBuffers = new byte[ArrayUtil.oversize(buffers.length+1, NUM_BYTES_OBJECT_REF)][];
             System.arraycopy(buffers, 0, newBuffers, 0, buffers.length);
@@ -229,7 +228,7 @@ public final class ByteBlockPool
         bufferUpto++;
     
         byteUpto = 0;
-        byteOffset += BYTE_BLOCK_SIZE;
+        byteOffset += BYTE_BLOCK_SIZE;// 0x8000    power(2, 15)
     }
     
     /**
@@ -280,7 +279,7 @@ public final class ByteBlockPool
         final int newSize = LEVEL_SIZE_ARRAY[newLevel];
                                                                                                                                       
         // Maybe allocate another block
-        if (byteUpto > BYTE_BLOCK_SIZE-newSize) 
+        if (byteUpto > BYTE_BLOCK_SIZE - newSize) 
         {
             nextBuffer();
         }

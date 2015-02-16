@@ -58,9 +58,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.Locale;
@@ -69,135 +67,160 @@ import java.util.StringTokenizer;
 /**
  * The Compile class is used to compile a stemmer table.
  */
-public class Compile {
-  
-  static boolean backward;
-  static boolean multi;
-  static Trie trie;
+public class Compile
+{
 
-  /** no instantiation */
-  private Compile() {}
+	static boolean backward;
+	static boolean multi;
+	static Trie trie;
 
-  /**
-   * Entry point to the Compile application.
-   * <p>
-   * This program takes any number of arguments: the first is the name of the
-   * desired stemming algorithm to use (a list is available in the package
-   * description) , all of the rest should be the path or paths to a file or
-   * files containing a stemmer table to compile.
-   * 
-   * @param args the command line arguments
-   */
-  public static void main(java.lang.String[] args) throws Exception {
-    if (args.length < 1) {
-      return;
-    }
-    
-    args[0].toUpperCase(Locale.ROOT);
-    
-    backward = args[0].charAt(0) == '-';
-    int qq = (backward) ? 1 : 0;
-    boolean storeorig = false;
-    
-    if (args[0].charAt(qq) == '0') {
-      storeorig = true;
-      qq++;
-    }
-    
-    multi = args[0].charAt(qq) == 'M';
-    if (multi) {
-      qq++;
-    }
-    
-    String charset = System.getProperty("egothor.stemmer.charset", "UTF-8");
-    
-    char optimizer[] = new char[args[0].length() - qq];
-    for (int i = 0; i < optimizer.length; i++) {
-      optimizer[i] = args[0].charAt(qq + i);
-    }
-    
-    for (int i = 1; i < args.length; i++) {
-      LineNumberReader in;
-      // System.out.println("[" + args[i] + "]");
-      Diff diff = new Diff();
-      int stems = 0;
-      int words = 0;
-      
-      allocTrie();
-      
-      System.out.println(args[i]);
-      in = new LineNumberReader(new BufferedReader(new InputStreamReader(
-          new FileInputStream(args[i]), charset)));
-      for (String line = in.readLine(); line != null; line = in.readLine()) {
-        try {
-          line = line.toLowerCase(Locale.ROOT);
-          StringTokenizer st = new StringTokenizer(line);
-          String stem = st.nextToken();
-          if (storeorig) {
-            trie.add(stem, "-a");
-            words++;
-          }
-          while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if (token.equals(stem) == false) {
-              trie.add(token, diff.exec(token, stem));
-              words++;
-            }
-          }
-        } catch (java.util.NoSuchElementException x) {
-          // no base token (stem) on a line
-        }
-      }
-      in.close();
-      
-      Optimizer o = new Optimizer();
-      Optimizer2 o2 = new Optimizer2();
-      Lift l = new Lift(true);
-      Lift e = new Lift(false);
-      Gener g = new Gener();
-      
-      for (int j = 0; j < optimizer.length; j++) {
-        String prefix;
-        switch (optimizer[j]) {
-          case 'G':
-            trie = trie.reduce(g);
-            prefix = "G: ";
-            break;
-          case 'L':
-            trie = trie.reduce(l);
-            prefix = "L: ";
-            break;
-          case 'E':
-            trie = trie.reduce(e);
-            prefix = "E: ";
-            break;
-          case '2':
-            trie = trie.reduce(o2);
-            prefix = "2: ";
-            break;
-          case '1':
-            trie = trie.reduce(o);
-            prefix = "1: ";
-            break;
-          default:
-            continue;
-        }
-        trie.printInfo(System.out, prefix + " ");
-      }
-      
-      DataOutputStream os = new DataOutputStream(new BufferedOutputStream(
-          new FileOutputStream(args[i] + ".out")));
-      os.writeUTF(args[0]);
-      trie.store(os);
-      os.close();
-    }
-  }
-  
-  static void allocTrie() {
-    if (multi) {
-      trie = new MultiTrie2(!backward);
-    } else {
-      trie = new Trie(!backward);
-    }
-  }
+	/** no instantiation */
+	private Compile()
+	{
+	}
+
+	/**
+	 * Entry point to the Compile application.
+	 * <p>
+	 * This program takes any number of arguments: the first is the name of the
+	 * desired stemming algorithm to use (a list is available in the package
+	 * description) , all of the rest should be the path or paths to a file or
+	 * files containing a stemmer table to compile.
+	 * 
+	 * @param args the command line arguments
+	 */
+	@SuppressWarnings("unused")
+	public static void main(java.lang.String[] args) throws Exception
+	{
+		if (args.length < 1)
+		{
+			return;
+		}
+
+		args[0].toUpperCase(Locale.ROOT);
+
+		backward = args[0].charAt(0) == '-';
+		int qq = (backward) ? 1 : 0;
+		boolean storeorig = false;
+
+		if (args[0].charAt(qq) == '0')
+		{
+			storeorig = true;
+			qq++;
+		}
+
+		multi = args[0].charAt(qq) == 'M';
+		if (multi)
+		{
+			qq++;
+		}
+
+		String charset = System.getProperty("egothor.stemmer.charset", "UTF-8");
+
+		char optimizer[] = new char[args[0].length() - qq];
+		for (int i = 0; i < optimizer.length; i++)
+		{
+			optimizer[i] = args[0].charAt(qq + i);
+		}
+
+		for (int i = 1; i < args.length; i++)
+		{
+			LineNumberReader in;
+			// System.out.println("[" + args[i] + "]");
+			Diff diff = new Diff();
+			int stems = 0;
+			int words = 0;
+
+			allocTrie();
+
+			System.out.println(args[i]);
+			in = new LineNumberReader(new BufferedReader(new InputStreamReader(
+					new FileInputStream(args[i]), charset)));
+			for (String line = in.readLine(); line != null; line = in
+					.readLine())
+			{
+				try
+				{
+					line = line.toLowerCase(Locale.ROOT);
+					StringTokenizer st = new StringTokenizer(line);
+					String stem = st.nextToken();
+					if (storeorig)
+					{
+						trie.add(stem, "-a");
+						words++;
+					}
+					while (st.hasMoreTokens())
+					{
+						String token = st.nextToken();
+						if (token.equals(stem) == false)
+						{
+							trie.add(token, diff.exec(token, stem));
+							words++;
+						}
+					}
+				}
+				catch (java.util.NoSuchElementException x)
+				{
+					// no base token (stem) on a line
+				}
+			}
+			in.close();
+
+			Optimizer o = new Optimizer();
+			Optimizer2 o2 = new Optimizer2();
+			Lift l = new Lift(true);
+			Lift e = new Lift(false);
+			Gener g = new Gener();
+
+			for (int j = 0; j < optimizer.length; j++)
+			{
+				String prefix;
+				switch (optimizer[j])
+				{
+				case 'G':
+					trie = trie.reduce(g);
+					prefix = "G: ";
+					break;
+				case 'L':
+					trie = trie.reduce(l);
+					prefix = "L: ";
+					break;
+				case 'E':
+					trie = trie.reduce(e);
+					prefix = "E: ";
+					break;
+				case '2':
+					trie = trie.reduce(o2);
+					prefix = "2: ";
+					break;
+				case '1':
+					trie = trie.reduce(o);
+					prefix = "1: ";
+					break;
+				default:
+					continue;
+				}
+				trie.printInfo(System.out, prefix + " ");
+			}
+
+			DataOutputStream os = new DataOutputStream(
+					new BufferedOutputStream(new FileOutputStream(args[i]
+							+ ".out")));
+			os.writeUTF(args[0]);
+			trie.store(os);
+			os.close();
+		}
+	}
+
+	static void allocTrie()
+	{
+		if (multi)
+		{
+			trie = new MultiTrie2(!backward);
+		}
+		else
+		{
+			trie = new Trie(!backward);
+		}
+	}
 }

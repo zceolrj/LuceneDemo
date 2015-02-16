@@ -28,7 +28,6 @@ import org.apache.lucene.analysis.MockTokenizer;
 import org.apache.lucene.codecs.FieldInfosReader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;

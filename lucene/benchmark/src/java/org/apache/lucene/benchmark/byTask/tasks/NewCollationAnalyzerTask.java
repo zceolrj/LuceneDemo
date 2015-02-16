@@ -64,7 +64,8 @@ public class NewCollationAnalyzerTask extends PerfTask {
     super(runData);
   }
 
-  static Analyzer createAnalyzer(Locale locale, Implementation impl)
+  @SuppressWarnings("deprecation")
+static Analyzer createAnalyzer(Locale locale, Implementation impl)
       throws Exception {
     final Class<?> collatorClazz = Class.forName(impl.collatorClassName);
     Method collatorMethod = collatorClazz.getMethod("getInstance",

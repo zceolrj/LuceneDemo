@@ -20,12 +20,20 @@ package org.apache.lucene.store;
 import java.io.IOException;
 
 /**
- * This exception is thrown when the <code>write.lock</code>
- * could not be released.
+ * This exception is thrown when the <code>write.lock</code> could not be
+ * released.
+ * 
  * @see Lock#release()
  */
-public class LockReleaseFailedException extends IOException {
-  public LockReleaseFailedException(String message) {
-    super(message);
-  }
+public class LockReleaseFailedException extends IOException
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8529207800265836903L;
+
+	public LockReleaseFailedException(String message)
+	{
+		super(message);
+	}
 }

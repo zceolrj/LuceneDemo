@@ -122,17 +122,25 @@ public class IOContext
     public boolean equals(Object obj) 
     {
         if (this == obj)
+        {
             return true;
+        }
         
         if (obj == null)
+        {
             return false;
+        }
         
         if (getClass() != obj.getClass())
+        {
             return false;
+        }
         
         IOContext other = (IOContext) obj;
         if (context != other.context)
+        {
             return false;
+        }
         
         if (flushInfo == null) 
         {
@@ -140,7 +148,9 @@ public class IOContext
                 return false;
         } 
         else if (!flushInfo.equals(other.flushInfo))
+        {
             return false;
+        }
         
         if (mergeInfo == null) 
         {
@@ -148,10 +158,15 @@ public class IOContext
                 return false;
         } 
         else if (!mergeInfo.equals(other.mergeInfo))
+        {
             return false;
+        }
         
         if (readOnce != other.readOnce)
+        {
             return false;
+        }
+        
         return true;
     }
   

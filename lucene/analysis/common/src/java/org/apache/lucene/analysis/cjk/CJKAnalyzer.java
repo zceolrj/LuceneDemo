@@ -86,7 +86,8 @@ public final class CJKAnalyzer extends StopwordAnalyzerBase {
     super(matchVersion, stopwords);
   }
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     if (matchVersion.onOrAfter(Version.LUCENE_36)) {

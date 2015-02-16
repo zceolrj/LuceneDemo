@@ -255,7 +255,8 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter
             // big chunk, slice it
             for (int compressed = 0; compressed < bufferedDocs.length; compressed += chunkSize) 
             {
-                compressor.compress(bufferedDocs.bytes, compressed, Math.min(chunkSize, bufferedDocs.length - compressed), fieldsStream);
+                compressor.compress(bufferedDocs.bytes, compressed, 
+                		Math.min(chunkSize, bufferedDocs.length - compressed), fieldsStream);
             }
         } 
         else 

@@ -103,7 +103,8 @@ public class ReadTokensTask extends PerfTask {
     int upto;
     int left;
     String s;
-    void init(String s) {
+    @SuppressWarnings("unused")
+	void init(String s) {
       this.s = s;
       left = s.length();
       this.upto = 0;

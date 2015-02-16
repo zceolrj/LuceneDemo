@@ -99,7 +99,7 @@ final class StoredFieldsProcessor extends StoredFieldsConsumer
         if (fieldsWriter == null) 
         {
             fieldsWriter = codec.storedFieldsFormat().fieldsWriter(docWriter.directory, 
-                                                          docWriter.getSegmentInfo(), context);//CompressingStoredFieldsWriter？
+                                  docWriter.getSegmentInfo(), context);//CompressingStoredFieldsWriter？
             lastDocID = 0;
         }
     }

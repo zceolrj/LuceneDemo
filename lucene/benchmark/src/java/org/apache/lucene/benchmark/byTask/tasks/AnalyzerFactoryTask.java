@@ -285,7 +285,8 @@ public class AnalyzerFactoryTask extends PerfTask {
    * @param stok stream tokenizer from which to draw analysis factory params
    * @param clazz analysis factory class to instantiate
    */
-  private void createAnalysisPipelineComponent
+  @SuppressWarnings("deprecation")
+private void createAnalysisPipelineComponent
       (StreamTokenizer stok, Class<? extends AbstractAnalysisFactory> clazz) {
     Map<String,String> argMap = new HashMap<String,String>();
     boolean parenthetical = false;

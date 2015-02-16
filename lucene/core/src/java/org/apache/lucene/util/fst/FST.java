@@ -115,13 +115,16 @@ public final class FST<T> {
 
   // Increment version to change it
   private final static String FILE_FORMAT_NAME = "FST";
-  private final static int VERSION_START = 0;
+  @SuppressWarnings("unused")
+private final static int VERSION_START = 0;
 
   /** Changed numBytesPerArc for array'd case from byte to int. */
-  private final static int VERSION_INT_NUM_BYTES_PER_ARC = 1;
+  @SuppressWarnings("unused")
+private final static int VERSION_INT_NUM_BYTES_PER_ARC = 1;
 
   /** Write BYTE2 labels as 2-byte short, not vInt. */
-  private final static int VERSION_SHORT_BYTE2_LABELS = 2;
+  @SuppressWarnings("unused")
+private final static int VERSION_SHORT_BYTE2_LABELS = 2;
 
   /** Added optional packed format. */
   private final static int VERSION_PACKED = 3;
@@ -424,7 +427,7 @@ public final class FST<T> {
   }
   
   // Caches first 128 labels
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"unchecked"})
   private void cacheRootArcs() throws IOException {
     cachedRootArcs = (Arc<T>[]) new Arc[0x80];
     readRootArcs(cachedRootArcs);
@@ -454,7 +457,7 @@ public final class FST<T> {
     }
   }
   
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({"unchecked"})
   private boolean setAssertingRootArcs(Arc<T>[] arcs) throws IOException {
     assertingCachedRootArcs = (Arc<T>[]) new Arc[arcs.length];
     readRootArcs(assertingCachedRootArcs);
@@ -1328,7 +1331,8 @@ public final class FST<T> {
     public abstract void skipBytes(int count);
   }
 
-  private static class ArcAndState<T> {
+  @SuppressWarnings("unused")
+private static class ArcAndState<T> {
     final Arc<T> arc;
     final IntsRef chain;
 
@@ -1473,7 +1477,8 @@ public final class FST<T> {
    *  However, this is not a strict implementation of the
    *  algorithms described in this paper.
    */
-  FST<T> pack(int minInCountDeref, int maxDerefNodes, float acceptableOverheadRatio) throws IOException {
+  @SuppressWarnings("unused")
+FST<T> pack(int minInCountDeref, int maxDerefNodes, float acceptableOverheadRatio) throws IOException {
 
     // NOTE: maxDerefNodes is intentionally int: we cannot
     // support > 2.1B deref nodes

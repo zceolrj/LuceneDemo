@@ -74,11 +74,11 @@ final public class MinimizationOperations {
     final int[] sigma = a.getStartPoints();
     final State[] states = a.getNumberedStates();
     final int sigmaLen = sigma.length, statesLen = states.length;
-    @SuppressWarnings({"rawtypes","unchecked"}) final ArrayList<State>[][] reverse =
+    @SuppressWarnings({"unchecked"}) final ArrayList<State>[][] reverse =
       (ArrayList<State>[][]) new ArrayList[statesLen][sigmaLen];
-    @SuppressWarnings({"rawtypes","unchecked"}) final HashSet<State>[] partition =
+    @SuppressWarnings({"unchecked"}) final HashSet<State>[] partition =
       (HashSet<State>[]) new HashSet[statesLen];
-    @SuppressWarnings({"rawtypes","unchecked"}) final ArrayList<State>[] splitblock =
+    @SuppressWarnings({"unchecked"}) final ArrayList<State>[] splitblock =
       (ArrayList<State>[]) new ArrayList[statesLen];
     final int[] block = new int[statesLen];
     final StateList[][] active = new StateList[statesLen][sigmaLen];

@@ -316,8 +316,7 @@ public final class BytesRefHash
      *         haven't been hashed before.
      * 
      * @throws MaxBytesLengthExceededException
-     *           if the given bytes are >
-     *           {@link ByteBlockPool#BYTE_BLOCK_SIZE} - 2
+     *           if the given bytes are > {@link ByteBlockPool#BYTE_BLOCK_SIZE} - 2
      */
     public int add(BytesRef bytes, int code) 
     {

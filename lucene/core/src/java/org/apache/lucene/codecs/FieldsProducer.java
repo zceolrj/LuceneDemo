@@ -22,21 +22,26 @@ import java.io.IOException;
 
 import org.apache.lucene.index.Fields;
 
-/** Abstract API that produces terms, doc, freq, prox, offset and
- *  payloads postings.  
+/**
+ * Abstract API that produces terms, doc, freq, prox, offset and payloads
+ * postings.
  *
  * @lucene.experimental
  */
 
-public abstract class FieldsProducer extends Fields implements Closeable {
-  /** Sole constructor. (For invocation by subclass 
-   *  constructors, typically implicit.) */
-  protected FieldsProducer() {
-  }
+public abstract class FieldsProducer extends Fields implements Closeable
+{
+	/**
+	 * Sole constructor. (For invocation by subclass constructors, typically
+	 * implicit.)
+	 */
+	protected FieldsProducer()
+	{
+	}
 
-  @Override
-  public abstract void close() throws IOException;
-  
-  /** Returns approximate RAM bytes used */
-  public abstract long ramBytesUsed();
+	@Override
+	public abstract void close() throws IOException;
+
+	/** Returns approximate RAM bytes used */
+	public abstract long ramBytesUsed();
 }

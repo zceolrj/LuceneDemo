@@ -40,7 +40,8 @@ public class TestAssertions extends LuceneTestCase {
     public boolean incrementToken() { return false; }
   }
 
-  public void testTokenStreams() {
+  @SuppressWarnings("resource")
+public void testTokenStreams() {
     new TestTokenStream1();
     new TestTokenStream2();
     boolean doFail = false;

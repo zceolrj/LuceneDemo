@@ -20,12 +20,18 @@ package org.apache.lucene.store;
 import java.io.FileNotFoundException;
 
 /**
- * This exception is thrown when you try to list a
- * non-existent directory.
+ * This exception is thrown when you try to list a non-existent directory.
  */
 
-public class NoSuchDirectoryException extends FileNotFoundException {
-  public NoSuchDirectoryException(String message) {
-    super(message);
-  }
+public class NoSuchDirectoryException extends FileNotFoundException
+{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4286786775714382602L;
+
+	public NoSuchDirectoryException(String message)
+	{
+		super(message);
+	}
 }

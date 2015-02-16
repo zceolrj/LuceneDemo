@@ -82,6 +82,7 @@ import org.apache.lucene.util.BytesRef;
  *
  * @lucene.experimental
  */
+@SuppressWarnings("deprecation")
 public abstract class FieldComparator<T> {
 
   /**
@@ -1009,7 +1010,8 @@ public abstract class FieldComparator<T> {
     // Used per-segment when docToOrd is null:
     private final class AnyOrdComparator extends PerSegmentComparator {
       private final SortedDocValues termsIndex;
-      private final int docBase;
+      @SuppressWarnings("unused")
+	private final int docBase;
 
       public AnyOrdComparator(SortedDocValues termsIndex, int docBase) {
         this.termsIndex = termsIndex;

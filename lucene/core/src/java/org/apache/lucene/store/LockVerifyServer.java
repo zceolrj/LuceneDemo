@@ -39,7 +39,8 @@ public class LockVerifyServer {
     return "[" + ((System.currentTimeMillis()-startTime)/1000) + "s] ";
   }
 
-  public static void main(String[] args) throws IOException {
+  @SuppressWarnings("resource")
+public static void main(String[] args) throws IOException {
 
     if (args.length != 1) {
       System.out.println("\nUsage: java org.apache.lucene.store.LockVerifyServer port\n");

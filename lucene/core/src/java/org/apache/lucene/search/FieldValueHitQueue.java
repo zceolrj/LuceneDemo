@@ -133,7 +133,7 @@ public abstract class FieldValueHitQueue<T extends FieldValueHitQueue.Entry> ext
   }
   
   // prevent instantiation and extension.
-  @SuppressWarnings({"rawtypes","unchecked"})
+  @SuppressWarnings({})
   private FieldValueHitQueue(SortField[] fields, int size) {
     super(size);
     // When we get here, fields.length is guaranteed to be > 0, therefore no

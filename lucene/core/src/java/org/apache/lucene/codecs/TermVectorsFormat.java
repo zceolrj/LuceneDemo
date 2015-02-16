@@ -37,9 +37,11 @@ public abstract class TermVectorsFormat
   
     /** Returns a {@link TermVectorsReader} to read term
      *  vectors. */
-    public abstract TermVectorsReader vectorsReader(Directory directory, SegmentInfo segmentInfo, FieldInfos fieldInfos, IOContext context) throws IOException;
+    public abstract TermVectorsReader vectorsReader(
+    		Directory directory, SegmentInfo segmentInfo, FieldInfos fieldInfos, IOContext context) throws IOException;
   
     /** Returns a {@link TermVectorsWriter} to write term
      *  vectors. */
-    public abstract TermVectorsWriter vectorsWriter(Directory directory, SegmentInfo segmentInfo, IOContext context) throws IOException;
+    public abstract TermVectorsWriter vectorsWriter(
+    		Directory directory, SegmentInfo segmentInfo, IOContext context) throws IOException;
 }

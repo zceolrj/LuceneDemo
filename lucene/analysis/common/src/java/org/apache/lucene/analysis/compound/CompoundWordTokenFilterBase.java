@@ -150,7 +150,8 @@ public abstract class CompoundWordTokenFilterBase extends TokenFilter {
     public final int startOffset, endOffset;
 
     /** Construct the compound token based on a slice of the current {@link CompoundWordTokenFilterBase#termAtt}. */
-    public CompoundToken(int offset, int length) {
+    @SuppressWarnings("deprecation")
+	public CompoundToken(int offset, int length) {
       this.txt = CompoundWordTokenFilterBase.this.termAtt.subSequence(offset, offset + length);
       
       // offsets of the original word

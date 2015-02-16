@@ -42,7 +42,8 @@ public class SimpleQueryMaker extends AbstractQueryMaker implements QueryMaker {
    * @return prepared queries.
    * @throws Exception if cannot prepare the queries.
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected Query[] prepareQueries() throws Exception {
     // analyzer (default is standard analyzer)
     Analyzer anlzr= NewAnalyzerTask.createAnalyzer(config.get("analyzer",

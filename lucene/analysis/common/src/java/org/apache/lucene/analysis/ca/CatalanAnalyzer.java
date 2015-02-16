@@ -53,7 +53,8 @@ public final class CatalanAnalyzer extends StopwordAnalyzerBase {
   /** File containing default Catalan stopwords. */
   public final static String DEFAULT_STOPWORD_FILE = "stopwords.txt";
   
-  private static final CharArraySet DEFAULT_ARTICLES = CharArraySet.unmodifiableSet(
+  @SuppressWarnings("deprecation")
+private static final CharArraySet DEFAULT_ARTICLES = CharArraySet.unmodifiableSet(
       new CharArraySet(Version.LUCENE_CURRENT, 
           Arrays.asList(
               "d", "l", "m", "n", "s", "t"
@@ -130,7 +131,8 @@ public final class CatalanAnalyzer extends StopwordAnalyzerBase {
    *         {@link StopFilter}, {@link SetKeywordMarkerFilter} if a stem exclusion set is
    *         provided and {@link SnowballFilter}.
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     final Tokenizer source = new StandardTokenizer(matchVersion, reader);

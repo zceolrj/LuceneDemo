@@ -34,7 +34,7 @@ public class SingletonSortedSetDocValues extends SortedSetDocValues {
   /** Creates a multi-valued view over the provided SortedDocValues */
   public SingletonSortedSetDocValues(SortedDocValues in) {
     this.in = in;
-    assert NO_MORE_ORDS == -1; // this allows our nextOrd() to work for missing values without a check
+    //assert NO_MORE_ORDS == -1; // this allows our nextOrd() to work for missing values without a check
   }
 
   @Override

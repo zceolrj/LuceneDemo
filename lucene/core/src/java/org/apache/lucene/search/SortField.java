@@ -163,7 +163,8 @@ public class SortField {
    * @throws IllegalArgumentException if the parser fails to
    *  subclass an existing numeric parser, or field is null
    */
-  public SortField(String field, FieldCache.Parser parser, boolean reverse) {
+  @SuppressWarnings("deprecation")
+public SortField(String field, FieldCache.Parser parser, boolean reverse) {
     if (parser instanceof FieldCache.IntParser) initFieldType(field, Type.INT);
     else if (parser instanceof FieldCache.FloatParser) initFieldType(field, Type.FLOAT);
     else if (parser instanceof FieldCache.ShortParser) initFieldType(field, Type.SHORT);
@@ -370,7 +371,8 @@ public class SortField {
    *   optimize themselves when they are the primary sort.
    * @return {@link FieldComparator} to use when sorting
    */
-  public FieldComparator<?> getComparator(final int numHits, final int sortPos) throws IOException {
+  @SuppressWarnings("deprecation")
+public FieldComparator<?> getComparator(final int numHits, final int sortPos) throws IOException {
 
     switch (type) {
     case SCORE:

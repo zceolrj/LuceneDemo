@@ -54,7 +54,8 @@ final class FreqProxTermsWriter extends TermsHashConsumer
     
         // Sort by field name
         CollectionUtil.introSort(allFields);
-    
+        
+        // consumer=BlockTreeTermsWriter
         final FieldsConsumer consumer = state.segmentInfo.getCodec().postingsFormat().fieldsConsumer(state);
     
         boolean success = false;
@@ -81,8 +82,7 @@ final class FreqProxTermsWriter extends TermsHashConsumer
                 
                 final FreqProxTermsWriterPerField fieldWriter = allFields.get(fieldNumber);
         
-                // If this field has postings then add them to the
-                // segment
+                // If this field has postings then add them to the segment
                 fieldWriter.flush(fieldInfo.name, consumer, state);
                 
                 TermsHashPerField perField = fieldWriter.termsHashPerField;

@@ -69,7 +69,8 @@ public final class PolishAnalyzer extends StopwordAnalyzerBase {
    * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class 
    * accesses the static final set the first time.;
    */
-  private static class DefaultsHolder {
+  @SuppressWarnings("deprecation")
+private static class DefaultsHolder {
     static final CharArraySet DEFAULT_STOP_SET;
     static final Trie DEFAULT_TABLE;
     

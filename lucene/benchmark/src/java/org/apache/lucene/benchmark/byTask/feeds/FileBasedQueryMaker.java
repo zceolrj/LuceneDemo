@@ -45,7 +45,8 @@ import java.util.List;
 public class FileBasedQueryMaker extends AbstractQueryMaker implements QueryMaker{
 
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected Query[] prepareQueries() throws Exception {
 
     Analyzer anlzr = NewAnalyzerTask.createAnalyzer(config.get("analyzer",

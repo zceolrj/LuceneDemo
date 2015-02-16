@@ -16,7 +16,6 @@ package org.apache.lucene.codecs.lucene40;
  * the License.
  */
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.lucene.codecs.CodecUtil;

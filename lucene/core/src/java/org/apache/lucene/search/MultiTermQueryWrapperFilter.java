@@ -60,7 +60,7 @@ public class MultiTermQueryWrapperFilter<Q extends MultiTermQuery> extends Filte
   }
 
   @Override
-  @SuppressWarnings({"unchecked","rawtypes"})
+  @SuppressWarnings({"rawtypes"})
   public final boolean equals(final Object o) {
     if (o==this) return true;
     if (o==null) return false;

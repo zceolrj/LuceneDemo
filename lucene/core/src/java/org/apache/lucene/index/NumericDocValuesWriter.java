@@ -93,24 +93,25 @@ class NumericDocValuesWriter extends DocValuesWriter
     {
     }
   
-    @Override
-    public void flush(SegmentWriteState state, DocValuesConsumer dvConsumer) throws IOException 
-    {
-        final int maxDoc = state.segmentInfo.getDocCount();
-    
-        dvConsumer.addNumericField(fieldInfo,
-                                   new Iterable<Number>() 
-                                   {
-                                       @Override
-                                       public Iterator<Number> iterator() 
-                                       {
-                                           return new NumericIterator(maxDoc);
-                                       }
-                                   });
-    }
+	@Override
+	public void flush(SegmentWriteState state, DocValuesConsumer dvConsumer)
+			throws IOException
+	{
+		final int maxDoc = state.segmentInfo.getDocCount();
+
+		dvConsumer.addNumericField(fieldInfo, new Iterable<Number>()
+		{
+			@Override
+			public Iterator<Number> iterator()
+			{
+				return new NumericIterator(maxDoc);
+			}
+		});
+	}
   
     @Override
-    public void abort() {
+    public void abort() 
+    {
     }
     
     // iterates over the values we have in ram

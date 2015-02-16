@@ -56,7 +56,8 @@ final class RateLimitedIndexOutput extends BufferedIndexOutput {
     return delegate.length();
   }
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   public void seek(long pos) throws IOException {
     flush();
     delegate.seek(pos);

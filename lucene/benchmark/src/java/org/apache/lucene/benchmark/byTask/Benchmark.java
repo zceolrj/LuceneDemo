@@ -18,7 +18,6 @@ package org.apache.lucene.benchmark.byTask;
  */
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.Reader;
 
 import org.apache.lucene.benchmark.byTask.utils.Algorithm;

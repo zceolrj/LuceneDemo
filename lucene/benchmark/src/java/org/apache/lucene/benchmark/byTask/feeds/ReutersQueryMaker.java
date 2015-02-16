@@ -72,7 +72,8 @@ public class ReutersQueryMaker extends AbstractQueryMaker implements QueryMaker 
    * @param a  analyzer to use when parsing queries
    * @return array of Lucene queries
    */
-  private static Query[] createQueries(List<Object> qs, Analyzer a) {
+  @SuppressWarnings("deprecation")
+private static Query[] createQueries(List<Object> qs, Analyzer a) {
     QueryParser qp = new QueryParser(Version.LUCENE_CURRENT, DocMaker.BODY_FIELD, a);
     List<Object> queries = new ArrayList<Object>();
     for (int i = 0; i < qs.size(); i++)  {

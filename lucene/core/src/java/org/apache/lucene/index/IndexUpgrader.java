@@ -69,11 +69,11 @@ public final class IndexUpgrader {
 
   /** Main method to run {code IndexUpgrader} from the
    *  command-line. */
-  @SuppressWarnings("deprecation")
   public static void main(String[] args) throws IOException {
     parseArgs(args).upgrade();
   }
-  static IndexUpgrader parseArgs(String[] args) throws IOException {
+  @SuppressWarnings("deprecation")
+static IndexUpgrader parseArgs(String[] args) throws IOException {
     String path = null;
     boolean deletePriorCommits = false;
     PrintStream out = null;

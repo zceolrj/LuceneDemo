@@ -16,7 +16,6 @@ package org.apache.lucene.benchmark.byTask.programmatic;
  * limitations under the License.
  */
 
-import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.lucene.benchmark.byTask.PerfRunData;

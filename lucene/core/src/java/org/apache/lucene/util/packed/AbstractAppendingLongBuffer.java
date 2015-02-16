@@ -221,7 +221,8 @@ abstract class AbstractAppendingLongBuffer
         // this is called per-doc-per-norms/dv-field, can we optimize this?
         long bytesUsed = RamUsageEstimator.alignObjectSize(baseRamBytesUsed())
             + (pending != null ? RamUsageEstimator.sizeOf(pending) : 0L)
-            + RamUsageEstimator.alignObjectSize(RamUsageEstimator.NUM_BYTES_ARRAY_HEADER + (long) RamUsageEstimator.NUM_BYTES_OBJECT_REF * values.length); // values
+            + RamUsageEstimator.alignObjectSize(RamUsageEstimator.NUM_BYTES_ARRAY_HEADER 
+            + (long) RamUsageEstimator.NUM_BYTES_OBJECT_REF * values.length); // values
     
         return bytesUsed + valuesBytes;
     }

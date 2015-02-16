@@ -493,7 +493,7 @@ public final class Util {
         }
       }
     
-      @SuppressWarnings({"rawtypes","unchecked"}) final MinResult<T>[] arr =
+      @SuppressWarnings({"unchecked"}) final MinResult<T>[] arr =
         (MinResult<T>[]) new MinResult[results.size()];
       return results.toArray(arr);
     }

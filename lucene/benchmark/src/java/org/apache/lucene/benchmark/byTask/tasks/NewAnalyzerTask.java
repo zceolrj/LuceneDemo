@@ -15,19 +15,17 @@ package org.apache.lucene.benchmark.byTask.tasks;
  * limitations under the License.
  */
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.util.CharFilterFactory;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
-import org.apache.lucene.analysis.util.TokenizerFactory;
-import org.apache.lucene.benchmark.byTask.PerfRunData;
-import org.apache.lucene.benchmark.byTask.utils.AnalyzerFactory;
-import org.apache.lucene.util.Version;
-
 import java.io.IOException;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
-import java.util.*;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.benchmark.byTask.PerfRunData;
+import org.apache.lucene.benchmark.byTask.utils.AnalyzerFactory;
+import org.apache.lucene.util.Version;
 
 /**
  * Create a new {@link org.apache.lucene.analysis.Analyzer} and set it it in the getRunData() for use by all future tasks.
@@ -42,7 +40,8 @@ public class NewAnalyzerTask extends PerfTask {
     analyzerNames = new ArrayList<String>();
   }
   
-  public static final Analyzer createAnalyzer(String className) throws Exception{
+  @SuppressWarnings("deprecation")
+public static final Analyzer createAnalyzer(String className) throws Exception{
     final Class<? extends Analyzer> clazz = Class.forName(className).asSubclass(Analyzer.class);
     try {
       // first try to use a ctor with version parameter (needed for many new Analyzers that have no default one anymore

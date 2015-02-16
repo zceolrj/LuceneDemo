@@ -19,14 +19,12 @@ package org.apache.lucene.analysis.cn.smart.hhmm;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -56,7 +54,8 @@ class BigramDictionary extends AbstractDictionary {
 
   private int max = 0;
 
-  private int repeat = 0;
+  @SuppressWarnings("unused")
+private int repeat = 0;
 
   // static Logger log = Logger.getLogger(BigramDictionary.class);
 
@@ -141,7 +140,8 @@ class BigramDictionary extends AbstractDictionary {
    * @param dctFilePath path to the Bigramdictionary (bigramdict.dct)
    * @throws IOException If there is a low-level I/O error
    */
-  public void loadFromFile(String dctFilePath) throws IOException {
+  @SuppressWarnings("unused")
+public void loadFromFile(String dctFilePath) throws IOException {
 
     int i, cnt, length, total = 0;
     // The file only counted 6763 Chinese characters plus 5 reserved slots 3756~3760.  

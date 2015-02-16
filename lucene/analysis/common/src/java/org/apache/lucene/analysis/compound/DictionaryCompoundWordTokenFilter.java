@@ -18,8 +18,6 @@ package org.apache.lucene.analysis.compound;
  */
 
 
-import java.util.Set;
-
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.util.CharArraySet;

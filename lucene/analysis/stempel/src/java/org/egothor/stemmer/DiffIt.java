@@ -65,57 +65,77 @@ import java.util.StringTokenizer;
  * The DiffIt class is a means generate patch commands from an already prepared
  * stemmer table.
  */
-public class DiffIt {
-  
-  /** no instantiation */
-  private DiffIt() {}
-  
-  static int get(int i, String s) {
-    try {
-      return Integer.parseInt(s.substring(i, i + 1));
-    } catch (Throwable x) {
-      return 1;
-    }
-  }
-  
-  /**
-   * Entry point to the DiffIt application.
-   * <p>
-   * This application takes one argument, the path to a file containing a
-   * stemmer table. The program reads the file and generates the patch commands
-   * for the stems.
-   * 
-   * @param args the path to a file containing a stemmer table
-   */
-  public static void main(java.lang.String[] args) throws Exception {
-    
-    int ins = get(0, args[0]);
-    int del = get(1, args[0]);
-    int rep = get(2, args[0]);
-    int nop = get(3, args[0]);
-    
-    for (int i = 1; i < args.length; i++) {
-      LineNumberReader in;
-      // System.out.println("[" + args[i] + "]");
-      Diff diff = new Diff(ins, del, rep, nop);
-      String charset = System.getProperty("egothor.stemmer.charset", "UTF-8");
-      in = new LineNumberReader(new BufferedReader(new InputStreamReader(new FileInputStream(args[i]), charset)));
-      for (String line = in.readLine(); line != null; line = in.readLine()) {
-        try {
-          line = line.toLowerCase(Locale.ROOT);
-          StringTokenizer st = new StringTokenizer(line);
-          String stem = st.nextToken();
-          System.out.println(stem + " -a");
-          while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if (token.equals(stem) == false) {
-              System.out.println(stem + " " + diff.exec(token, stem));
-            }
-          }
-        } catch (java.util.NoSuchElementException x) {
-          // no base token (stem) on a line
-        }
-      }
-    }
-  }
+public class DiffIt
+{
+
+	/** no instantiation */
+	private DiffIt()
+	{
+	}
+
+	static int get(int i, String s)
+	{
+		try
+		{
+			return Integer.parseInt(s.substring(i, i + 1));
+		}
+		catch (Throwable x)
+		{
+			return 1;
+		}
+	}
+
+	/**
+	 * Entry point to the DiffIt application.
+	 * <p>
+	 * This application takes one argument, the path to a file containing a
+	 * stemmer table. The program reads the file and generates the patch
+	 * commands for the stems.
+	 * 
+	 * @param args the path to a file containing a stemmer table
+	 */
+	@SuppressWarnings("resource")
+	public static void main(java.lang.String[] args) throws Exception
+	{
+
+		int ins = get(0, args[0]);
+		int del = get(1, args[0]);
+		int rep = get(2, args[0]);
+		int nop = get(3, args[0]);
+
+		for (int i = 1; i < args.length; i++)
+		{
+			LineNumberReader in;
+			// System.out.println("[" + args[i] + "]");
+			Diff diff = new Diff(ins, del, rep, nop);
+			String charset = System.getProperty("egothor.stemmer.charset",
+					"UTF-8");
+			in = new LineNumberReader(new BufferedReader(new InputStreamReader(
+					new FileInputStream(args[i]), charset)));
+			for (String line = in.readLine(); line != null; line = in
+					.readLine())
+			{
+				try
+				{
+					line = line.toLowerCase(Locale.ROOT);
+					StringTokenizer st = new StringTokenizer(line);
+					String stem = st.nextToken();
+					System.out.println(stem + " -a");
+					while (st.hasMoreTokens())
+					{
+						String token = st.nextToken();
+						if (token.equals(stem) == false)
+						{
+							System.out.println(stem + " "
+									+ diff.exec(token, stem));
+						}
+					}
+				}
+				catch (java.util.NoSuchElementException x)
+				{
+					// no base token (stem) on a line
+				}
+			}
+		}
+	}
 }

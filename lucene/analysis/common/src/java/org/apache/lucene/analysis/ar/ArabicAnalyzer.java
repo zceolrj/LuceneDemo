@@ -134,7 +134,8 @@ public final class ArabicAnalyzer extends StopwordAnalyzerBase {
    *         {@link ArabicNormalizationFilter}, {@link SetKeywordMarkerFilter}
    *         if a stem exclusion set is provided and {@link ArabicStemFilter}.
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     final Tokenizer source = matchVersion.onOrAfter(Version.LUCENE_31) ? 

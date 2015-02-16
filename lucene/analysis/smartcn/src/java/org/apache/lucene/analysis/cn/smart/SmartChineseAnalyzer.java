@@ -86,7 +86,8 @@ public final class SmartChineseAnalyzer extends Analyzer {
       }
     }
 
-    static CharArraySet loadDefaultStopWordSet() throws IOException {
+    @SuppressWarnings("deprecation")
+	static CharArraySet loadDefaultStopWordSet() throws IOException {
       // make sure it is unmodifiable as we expose it in the outer class
       return CharArraySet.unmodifiableSet(WordlistLoader.getWordSet(IOUtils
           .getDecodingReader(SmartChineseAnalyzer.class, DEFAULT_STOPWORD_FILE,
