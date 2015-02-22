@@ -48,7 +48,7 @@ public final class LowerCaseFilter extends TokenFilter
     public LowerCaseFilter(Version matchVersion, TokenStream in) 
     {
         super(in);
-        charUtils = CharacterUtils.getInstance(matchVersion);
+        charUtils = CharacterUtils.getInstance(matchVersion);// CharacterUtils$Java5CharacterUtils
     }
     
     @Override

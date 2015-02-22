@@ -98,7 +98,7 @@ public final class CompressingStoredFieldsWriter extends StoredFieldsWriter
         this.segment = si.name;
         this.segmentSuffix = segmentSuffix;
         this.compressionMode = compressionMode;
-        this.compressor = compressionMode.newCompressor();
+        this.compressor = compressionMode.newCompressor();// LZ4FastCompressor
         this.chunkSize = chunkSize;
         this.docBase = 0;
         this.bufferedDocs = new GrowableByteArrayDataOutput(chunkSize);

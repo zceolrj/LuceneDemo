@@ -216,7 +216,7 @@ class DocumentsWriterPerThread
         this.codec = indexWriterConfig.getCodec();
         this.docState = new DocState(this, infoStream);
         this.docState.similarity = indexWriterConfig.getSimilarity();
-        bytesUsed = Counter.newCounter();
+        bytesUsed = Counter.newCounter();// bytesUsed=Counter$SerialCounter
         byteBlockAllocator = new DirectTrackingAllocator(bytesUsed);
         pendingDeletes = new BufferedDeletes();
         intBlockAllocator = new IntBlockAllocator(bytesUsed);

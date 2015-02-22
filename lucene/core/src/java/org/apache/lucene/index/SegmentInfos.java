@@ -177,7 +177,8 @@ public final class SegmentInfos implements Cloneable, Iterable<SegmentInfoPerCom
         long max = -1;
         for (String file : files) 
         {
-            if (file.startsWith(IndexFileNames.SEGMENTS) && !file.equals(IndexFileNames.SEGMENTS_GEN)) 
+            // starts with "segments" and not equal "segments.gen"
+        	if (file.startsWith(IndexFileNames.SEGMENTS) && !file.equals(IndexFileNames.SEGMENTS_GEN)) 
             {
                 long gen = generationFromSegmentsFileName(file);
                 if (gen > max) 

@@ -93,7 +93,8 @@ public final class GermanAnalyzer extends StopwordAnalyzerBase {
     return DefaultSetHolder.DEFAULT_SET;
   }
   
-  private static class DefaultSetHolder {
+  @SuppressWarnings("deprecation")
+private static class DefaultSetHolder {
     /** @deprecated in 3.1, remove in Lucene 5.0 (index bw compat) */
     @Deprecated
     private static final CharArraySet DEFAULT_SET_30 = CharArraySet.unmodifiableSet(new CharArraySet(
@@ -124,7 +125,8 @@ public final class GermanAnalyzer extends StopwordAnalyzerBase {
    * Builds an analyzer with the default stop words:
    * {@link #getDefaultStopSet()}.
    */
-  public GermanAnalyzer(Version matchVersion) {
+  @SuppressWarnings("deprecation")
+public GermanAnalyzer(Version matchVersion) {
     this(matchVersion,
         matchVersion.onOrAfter(Version.LUCENE_31) ? DefaultSetHolder.DEFAULT_SET
             : DefaultSetHolder.DEFAULT_SET_30);
@@ -168,7 +170,8 @@ public final class GermanAnalyzer extends StopwordAnalyzerBase {
    *         , {@link SetKeywordMarkerFilter} if a stem exclusion set is
    *         provided, {@link GermanNormalizationFilter} and {@link GermanLightStemFilter}
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     final Tokenizer source = new StandardTokenizer(matchVersion, reader);

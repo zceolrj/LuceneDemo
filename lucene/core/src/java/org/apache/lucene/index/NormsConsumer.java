@@ -46,9 +46,9 @@ final class NormsConsumer extends InvertedDocEndConsumer
         {
             if (state.fieldInfos.hasNorms()) 
             {
-                NormsFormat normsFormat = state.segmentInfo.getCodec().normsFormat();
+                NormsFormat normsFormat = state.segmentInfo.getCodec().normsFormat();// Lucene42NormsFormat
                 assert normsFormat != null;
-                normsConsumer = normsFormat.normsConsumer(state);
+                normsConsumer = normsFormat.normsConsumer(state);// Lucene42NormsConsumer
         
                 for (FieldInfo fi : state.fieldInfos) 
                 {

@@ -729,7 +729,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
     {
         conf.setIndexWriter(this); // prevent reuse by other instances
         config = new LiveIndexWriterConfig(conf);
-        directory = d;
+        directory = d;// MMapDirectory
         analyzer = config.getAnalyzer();
         infoStream = config.getInfoStream();
         mergePolicy = config.getMergePolicy();
@@ -816,7 +816,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
             rollbackSegments = segmentInfos.createBackupSegmentInfos();
       
             // start with previous field numbers, but new FieldInfos
-            globalFieldNumberMap = getFieldNumberMap();
+            globalFieldNumberMap = getFieldNumberMap();// FieldInfos$FieldNumbers
             config.getFlushPolicy().init(config);
             docWriter = new DocumentsWriter(this, config, directory);
             eventQueue = docWriter.eventQueue();
@@ -1753,7 +1753,7 @@ public class IndexWriter implements Closeable, TwoPhaseCommit
                 {
                     if (infoStream.isEnabled("IW")) 
                     {
-                      infoStream.message("IW", "hit exception updating document");
+                    	infoStream.message("IW", "hit exception updating document");
                     }
                 }
             }

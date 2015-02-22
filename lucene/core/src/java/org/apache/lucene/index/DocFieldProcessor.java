@@ -83,7 +83,7 @@ final class DocFieldProcessor extends DocConsumer
 
         // Important to save after asking consumer to flush so consumer can alter the FieldInfo* if necessary.  
         //EG, FreqProxTermsWriter does this with FieldInfo.storePayload.
-        FieldInfosWriter infosWriter = codec.fieldInfosFormat().getFieldInfosWriter();
+        FieldInfosWriter infosWriter = codec.fieldInfosFormat().getFieldInfosWriter();// Lucene42FieldInfosWriter
         infosWriter.write(state.directory, state.segmentInfo.name, state.fieldInfos, IOContext.DEFAULT);
     }
 

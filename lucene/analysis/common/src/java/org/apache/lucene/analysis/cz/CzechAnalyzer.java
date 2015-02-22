@@ -65,7 +65,8 @@ public final class CzechAnalyzer extends StopwordAnalyzerBase {
     return DefaultSetHolder.DEFAULT_SET;
   }
 
-  private static class DefaultSetHolder {
+  @SuppressWarnings("deprecation")
+private static class DefaultSetHolder {
     private static final CharArraySet DEFAULT_SET;
   
     static {
@@ -132,7 +133,8 @@ public final class CzechAnalyzer extends StopwordAnalyzerBase {
    *         {@link SetKeywordMarkerFilter} is added before
    *         {@link CzechStemFilter}.
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     final Tokenizer source = new StandardTokenizer(matchVersion, reader);

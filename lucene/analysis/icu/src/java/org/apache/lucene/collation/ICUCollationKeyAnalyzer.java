@@ -19,6 +19,7 @@ package org.apache.lucene.collation;
 
 
 import com.ibm.icu.text.Collator;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
 import org.apache.lucene.collation.CollationKeyAnalyzer; // javadocs
@@ -75,6 +76,7 @@ import java.io.Reader;
  *   versions will encode the bytes with {@link IndexableBinaryStringTools}.
  * </ul>
  */
+@SuppressWarnings("deprecation")
 public final class ICUCollationKeyAnalyzer extends Analyzer {
   private final Collator collator;
   private final ICUCollationAttributeFactory factory;

@@ -56,7 +56,7 @@ import org.apache.lucene.util.Version;
 public final class StandardTokenizer extends Tokenizer 
 {
     /** A private instance of the JFlex-constructed scanner */
-    private StandardTokenizerInterface scanner;
+    private StandardTokenizerInterface scanner;// StandardTokenizerImpl
   
     public static final int ALPHANUM          = 0;
     /** @deprecated (3.1) */

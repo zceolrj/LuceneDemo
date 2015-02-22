@@ -116,11 +116,11 @@ public class LiveIndexWriterConfig
         commit = null;
         useCompoundFile = IndexWriterConfig.DEFAULT_USE_COMPOUND_FILE_SYSTEM;// true    compound  adj.复合的，合成的，多功能的
         openMode = OpenMode.CREATE_OR_APPEND;
-        similarity = IndexSearcher.getDefaultSimilarity();
+        similarity = IndexSearcher.getDefaultSimilarity();//DefaultSimilarity
         mergeScheduler = new ConcurrentMergeScheduler();
         writeLockTimeout = IndexWriterConfig.WRITE_LOCK_TIMEOUT; // 1000
         indexingChain = DocumentsWriterPerThread.defaultIndexingChain;
-        codec = Codec.getDefault();
+        codec = Codec.getDefault();//Lucene45Codec
         if (codec == null) 
         {
             throw new NullPointerException();
@@ -130,7 +130,7 @@ public class LiveIndexWriterConfig
         flushPolicy = new FlushByRamOrCountsPolicy();
         readerPooling = IndexWriterConfig.DEFAULT_READER_POOLING;// false
         indexerThreadPool = new ThreadAffinityDocumentsWriterThreadPool(IndexWriterConfig.DEFAULT_MAX_THREAD_STATES);
-        perThreadHardLimitMB = IndexWriterConfig.DEFAULT_RAM_PER_THREAD_HARD_LIMIT_MB;
+        perThreadHardLimitMB = IndexWriterConfig.DEFAULT_RAM_PER_THREAD_HARD_LIMIT_MB;// 1945
     }
     
     /**
@@ -139,29 +139,29 @@ public class LiveIndexWriterConfig
      */
     LiveIndexWriterConfig(IndexWriterConfig config) 
     {
-        maxBufferedDeleteTerms = config.getMaxBufferedDeleteTerms();
-        maxBufferedDocs = config.getMaxBufferedDocs();
-        mergedSegmentWarmer = config.getMergedSegmentWarmer();
-        ramBufferSizeMB = config.getRAMBufferSizeMB();
-        readerTermsIndexDivisor = config.getReaderTermsIndexDivisor();
-        termIndexInterval = config.getTermIndexInterval();
+        maxBufferedDeleteTerms = config.getMaxBufferedDeleteTerms();// -1
+        maxBufferedDocs = config.getMaxBufferedDocs();// -1
+        mergedSegmentWarmer = config.getMergedSegmentWarmer();// null
+        ramBufferSizeMB = config.getRAMBufferSizeMB();// 16.0
+        readerTermsIndexDivisor = config.getReaderTermsIndexDivisor();// 1
+        termIndexInterval = config.getTermIndexInterval();// 32
         matchVersion = config.matchVersion;
-        analyzer = config.getAnalyzer();
-        delPolicy = config.getIndexDeletionPolicy();
-        commit = config.getIndexCommit();
+        analyzer = config.getAnalyzer();// StandardAnalyzer
+        delPolicy = config.getIndexDeletionPolicy();// KeepOnlyLastCommitDeletionPolicy
+        commit = config.getIndexCommit();// null
         openMode = config.getOpenMode();
-        similarity = config.getSimilarity();
-        mergeScheduler = config.getMergeScheduler();
-        writeLockTimeout = config.getWriteLockTimeout();
+        similarity = config.getSimilarity();// DefaultSimilarity
+        mergeScheduler = config.getMergeScheduler();// ConcurrentMergeScheduler
+        writeLockTimeout = config.getWriteLockTimeout();// 1000
         indexingChain = config.getIndexingChain();
-        codec = config.getCodec();
-        infoStream = config.getInfoStream();
-        mergePolicy = config.getMergePolicy();
-        indexerThreadPool = config.getIndexerThreadPool();
-        readerPooling = config.getReaderPooling();
-        flushPolicy = config.getFlushPolicy();
-        perThreadHardLimitMB = config.getRAMPerThreadHardLimitMB();
-        useCompoundFile = config.getUseCompoundFile();
+        codec = config.getCodec();// Lucene45Codec
+        infoStream = config.getInfoStream();// NoOutput
+        mergePolicy = config.getMergePolicy();// TieredMergePolicy
+        indexerThreadPool = config.getIndexerThreadPool();// ThreadAffinityDocumentsWriterThreadPool
+        readerPooling = config.getReaderPooling();// false
+        flushPolicy = config.getFlushPolicy();// FlushByRamOrCountsPolicy
+        perThreadHardLimitMB = config.getRAMPerThreadHardLimitMB();// 1945
+        useCompoundFile = config.getUseCompoundFile();// true
     }
   
     /** Returns the default analyzer to use for indexing documents. */

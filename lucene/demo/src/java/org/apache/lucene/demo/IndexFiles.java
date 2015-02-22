@@ -101,7 +101,7 @@ public class IndexFiles
         {
             System.out.println("Indexing to directory '" + indexPath + "'...");
       
-            Directory dir = FSDirectory.open(new File(indexPath));
+            Directory dir = FSDirectory.open(new File(indexPath));//dir=MMapDirectory
             Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
             IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_40, analyzer);
       

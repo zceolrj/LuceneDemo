@@ -89,7 +89,9 @@ public final class CollectionUtil
         {
             super(maxTempSlots);
             if (!(list instanceof RandomAccess))
-              throw new IllegalArgumentException("CollectionUtil can only sort random access lists in-place.");
+            {
+            	throw new IllegalArgumentException("CollectionUtil can only sort random access lists in-place.");
+            }
             this.list = list;
             this.comp = comp;
             if (maxTempSlots > 0) 

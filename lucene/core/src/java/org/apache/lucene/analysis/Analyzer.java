@@ -141,14 +141,14 @@ public abstract class Analyzer implements Closeable
         final Reader r = initReader(fieldName, reader);
         if (components == null) 
         {
-            components = createComponents(fieldName, r);
+            components = createComponents(fieldName, r);// StandardAnalyzer$TokenStreamComponents
             reuseStrategy.setReusableComponents(this, fieldName, components);
         } 
         else 
         {
             components.setReader(r);
         }
-        return components.getTokenStream();
+        return components.getTokenStream();// StopFilter
     }
     
     /**

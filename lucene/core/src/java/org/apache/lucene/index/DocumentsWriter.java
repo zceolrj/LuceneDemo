@@ -131,11 +131,11 @@ final class DocumentsWriter
   
     DocumentsWriter(IndexWriter writer, LiveIndexWriterConfig config, Directory directory) 
     {
-        this.directory = directory;
+        this.directory = directory;// MMapDirectory
         this.config = config;
-        this.infoStream = config.getInfoStream();
-        this.perThreadPool = config.getIndexerThreadPool();
-        flushPolicy = config.getFlushPolicy();
+        this.infoStream = config.getInfoStream();// NoOutput
+        this.perThreadPool = config.getIndexerThreadPool();// ThreadAffinityDocumentsWriterThreadPool
+        flushPolicy = config.getFlushPolicy();// FlushByRamOrCountsPolicy
         this.writer = writer;
         this.events = new ConcurrentLinkedQueue<Event>();
         flushControl = new DocumentsWriterFlushControl(this, config, writer.bufferedDeletesStream);

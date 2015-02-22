@@ -55,7 +55,7 @@ final class FreqProxTermsWriter extends TermsHashConsumer
         // Sort by field name
         CollectionUtil.introSort(allFields);
         
-        // consumer=BlockTreeTermsWriter
+        // consumer=PerFieldPostingsFormat$FieldsWriter
         final FieldsConsumer consumer = state.segmentInfo.getCodec().postingsFormat().fieldsConsumer(state);
     
         boolean success = false;

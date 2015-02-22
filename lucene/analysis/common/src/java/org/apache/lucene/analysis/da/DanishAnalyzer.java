@@ -57,7 +57,8 @@ public final class DanishAnalyzer extends StopwordAnalyzerBase {
    * Atomically loads the DEFAULT_STOP_SET in a lazy fashion once the outer class 
    * accesses the static final set the first time.;
    */
-  private static class DefaultSetHolder {
+  @SuppressWarnings("deprecation")
+private static class DefaultSetHolder {
     static final CharArraySet DEFAULT_STOP_SET;
 
     static {

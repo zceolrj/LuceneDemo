@@ -275,7 +275,7 @@ final class IndexFileDeleter implements Closeable
         }
     
         // Finally, give policy a chance to remove things on startup:
-        policy.onInit(commits);
+        policy.onInit(commits);// policy=KeepOnlyLastCommitDeletionPolicy
     
         // Always protect the incoming segmentInfos since
         // sometime it may not be the most recent commit

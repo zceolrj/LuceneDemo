@@ -109,7 +109,8 @@ public final class GreekAnalyzer extends StopwordAnalyzerBase {
    *         {@link GreekLowerCaseFilter}, {@link StandardFilter},
    *         {@link StopFilter}, and {@link GreekStemFilter}
    */
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   protected TokenStreamComponents createComponents(String fieldName,
       Reader reader) {
     final Tokenizer source = new StandardTokenizer(matchVersion, reader);

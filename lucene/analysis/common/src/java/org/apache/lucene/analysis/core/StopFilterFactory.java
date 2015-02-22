@@ -82,7 +82,8 @@ public class StopFilterFactory extends TokenFilterFactory implements ResourceLoa
     return stopWords;
   }
 
-  @Override
+  @SuppressWarnings("deprecation")
+@Override
   public TokenStream create(TokenStream input) {
     StopFilter stopFilter = new StopFilter(luceneMatchVersion,input,stopWords);
     stopFilter.setEnablePositionIncrements(enablePositionIncrements);

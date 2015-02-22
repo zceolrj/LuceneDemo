@@ -25,6 +25,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 
+
 // Java
 import java.io.File;
 import java.io.IOException;
@@ -304,7 +305,7 @@ public class PatternParser extends DefaultHandler {
    *      java.lang.String, java.lang.String)
    */
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void endElement(String uri, String local, String raw) {
 
     if (token.length() > 0) {
@@ -341,7 +342,7 @@ public class PatternParser extends DefaultHandler {
   /**
    * @see org.xml.sax.ContentHandler#characters(char[], int, int)
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public void characters(char ch[], int start, int length) {
     StringBuffer chars = new StringBuffer(length);
@@ -372,7 +373,8 @@ public class PatternParser extends DefaultHandler {
   /**
    * Returns a string of the location.
    */
-  private String getLocationString(SAXParseException ex) {
+  @SuppressWarnings("unused")
+private String getLocationString(SAXParseException ex) {
     StringBuilder str = new StringBuilder();
 
     String systemId = ex.getSystemId();
