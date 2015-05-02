@@ -292,7 +292,8 @@ public final class SegmentInfo
             m.reset(file);
             if (!m.matches()) 
             {
-                throw new IllegalArgumentException("invalid codec filename '" + file + "', must match: " + IndexFileNames.CODEC_FILE_PATTERN.pattern());
+                throw new IllegalArgumentException("invalid codec filename '" 
+                		+ file + "', must match: " + IndexFileNames.CODEC_FILE_PATTERN.pattern());
             }
         }
     }

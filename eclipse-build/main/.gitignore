@@ -3,6 +3,7 @@
 /books_numeric_ids.csv
 /cities-Intersects-BBox.txt
 /clustering/
+/conf/
 /data/
 /dih/
 /dihextras/
@@ -21,4 +22,3 @@
 /states-IsWithin-BBox.txt
 /uima/
 /velocity/
-/conf/

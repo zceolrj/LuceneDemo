@@ -530,7 +530,8 @@ class DocumentsWriterPerThread
             final SegmentInfoPerCommit segmentInfoPerCommit = new SegmentInfoPerCommit(segmentInfo, 0, -1L);
             if (infoStream.isEnabled("DWPT")) 
             {
-                infoStream.message("DWPT", "new segment has " + (flushState.liveDocs == null ? 0 : (flushState.segmentInfo.getDocCount() - flushState.delCountOnFlush)) + " deleted docs");
+                infoStream.message("DWPT", "new segment has " + (flushState.liveDocs == null ? 
+                		0 : (flushState.segmentInfo.getDocCount() - flushState.delCountOnFlush)) + " deleted docs");
                 infoStream.message("DWPT", "new segment has " +
                                    (flushState.fieldInfos.hasVectors() ? "vectors" : "no vectors") + "; " +
                                    (flushState.fieldInfos.hasNorms() ? "norms" : "no norms") + "; " + 
@@ -604,7 +605,8 @@ class DocumentsWriterPerThread
         {
             if (indexWriterConfig.getUseCompoundFile()) 
             {
-                filesToDelete.addAll(IndexWriter.createCompoundFile(infoStream, directory, MergeState.CheckAbort.NONE, newSegment.info, context));
+                filesToDelete.addAll(IndexWriter.createCompoundFile(
+                		infoStream, directory, MergeState.CheckAbort.NONE, newSegment.info, context));
                 newSegment.info.setUseCompoundFile(true);
             }
       
@@ -700,10 +702,11 @@ class DocumentsWriterPerThread
     }
     
     @Override
-    public String toString() {
-      return "DocumentsWriterPerThread [pendingDeletes=" + pendingDeletes
-        + ", segment=" + (segmentInfo != null ? segmentInfo.name : "null") + ", aborting=" + aborting + ", numDocsInRAM="
-          + numDocsInRAM + ", deleteQueue=" + deleteQueue + "]";
+    public String toString() 
+    {
+	    return "DocumentsWriterPerThread [pendingDeletes=" + pendingDeletes
+	        + ", segment=" + (segmentInfo != null ? segmentInfo.name : "null") 
+	        + ", aborting=" + aborting + ", numDocsInRAM=" + numDocsInRAM + ", deleteQueue=" + deleteQueue + "]";
     }
   
 }
